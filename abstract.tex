@@ -1,0 +1,17 @@
+\begin{abstract}
+A required assumption to prove safety and liveness of distributed ledger protocols
+is the \emph{honest majority assumption}, whether it is by compute (in Proof-of-Work),
+by money (in Proof-of-Stake), or by count (in permissioned systems). If the assumption
+is violated, safety and liveness can fail. In today's multi-chain world, some chains
+enjoy long-term security because their resource remains in honest hands, while other
+chains fail, not because their protocol is subpar, but because their population has
+dwindled and their honest majority assumption no longer holds. It is not always easy
+to predict which chains will remain secure \emph{a priori}. In this paper, we put
+forth \emph{rollerblade}, a construction of a distributed ledger protocol on \emph{top
+} of
+\emph{multiple} existing distributed ledger protocols. The designer of the rollerblade can
+choose to deploy it on top of whichever underlying ledger protocols she desires.
+The security guarantees that we provide are that the resulting protocol is safe
+and live as long as the (weighted) majority of the underlying protocols are safe
+and live.
+\end{abstract}

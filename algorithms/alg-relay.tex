@@ -1,0 +1,23 @@
+\begin{algorithm}[H]
+  \caption{\label{alg.relay} The \emph{relay} algorithm executed by every Rollerblade participant.
+  Each Rollerblade participant is running all $\overline{\Pi}$ protocols.}
+  \begin{algorithmic}[1]
+    \Function{\sf Relay}{$\overline{\Pi}$}
+      \Let{\overline{C}}{[\,]}\Comment{Checkpoints}
+
+      \For{$\Pi \in \overline{\Pi}$}
+        \State{$\overline{C}.\textsf{append}(\{
+          \textsf{sourceIndex}{:} j,
+          \textsf{payload}{:} \Pi.\textsf{transcribe}()
+        \}\})$}
+      \EndFor
+
+      \For{$\Pi \in \overline{\Pi}$}
+        \For{$C \in \overline{C}$}
+          \State{$\Pi.\textsf{write}(\Pi.\textsf{encode}(j, (\text{``checkpoint''}, C)))$}
+        \EndFor
+      \EndFor
+    \EndFunction
+    \vskip2pt
+  \end{algorithmic}
+\end{algorithm}

@@ -1,0 +1,25 @@
+\begin{algorithm}[H]
+  \caption{\label{alg.rollerblade} The outbox reconsiliation algorithm ran by the rollerblade
+  party. The algorithm extracts new messages placed in an outbox of one overlay party and translates them into
+  an inbox which is to be consumed by a different overlay party.}
+  \begin{algorithmic}[1]
+    \Function{\sf ReconciliateOutboxes}{$\textsf{old}, \textsf{new}, j, r$}
+      \Let{\sf inboxSuffix}{[\,]}
+
+      \For{$i = 0 \text{ to } |\textsf{new}|$}
+        \Let{\sf tx}{\textsf{new}[i]}
+        \CommentLine{tx type will be ``send''}
+
+        \Let{\sf tx'}{tx}
+        \Let{\sf tx'.type}{\text{``receive''}}
+        \Let{\sf tx'.source}{j}
+        \Let{\sf tx'.round}{r}
+
+        \State{\textsf{inboxSuffix}.\textsf{push}(\textsf{tx}')}
+      \EndFor
+
+      \State\Return{\sf inboxSuffix}
+    \EndFunction
+    \vskip2pt
+  \end{algorithmic}
+\end{algorithm}

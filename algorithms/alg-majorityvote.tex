@@ -1,0 +1,34 @@
+\begin{algorithm}[H]
+  \caption{\label{alg.majorityvote} The Majority Vote algorithm.}
+  \begin{algorithmic}[1]
+    \Function{\sf MajorityVote}{$\overline{L}$}
+      \Let{\sf ret}{[\,]}
+      \Let{i}{0}
+      \While{$\true$}
+        \Let{\sf freq}{\{\}}
+        \For{$L \in \overline{L}$}
+          \If{$L[i] = \bot$}
+            \Continue
+          \EndIf
+          \If{$L[i] \not\in \textsf{freq}$}
+            \Let{\textsf{freq}[L[i]]}{0}
+          \EndIf
+          \Let{\textsf{freq}[L[i]]}{\textsf{freq}[L[i]] + 1}
+          \For{$\textsf{tx} \in \textsf{freq}$}
+            \If{$\textsf{freq}[\textsf{tx}] > \lceil\frac{|L|}{2}\rceil$}
+              \Let{\textsf{ret}[i]}{\textsf{tx}}
+              \Let{\textsf{pushed}}{\true}
+            \EndIf
+          \EndFor
+          \If{$\lnot \textsf{pushed}$}
+            \Break
+          \EndIf
+          \Let{\textsf{pushed}}{\false}
+        \EndFor
+        \Let{i}{i + 1}
+      \EndWhile
+      \State\Return{\textsf{ret}}
+    \EndFunction
+    \vskip2pt
+  \end{algorithmic}
+\end{algorithm}

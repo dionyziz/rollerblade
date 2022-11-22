@@ -1,0 +1,49 @@
+\begin{algorithm}[H]
+  \caption{\label{alg.simulate}
+    The \emph{simulate} function ran by a Rollerblade party
+    executing the overlay protocol for party $j$ at a
+    particular \emph{target round} and given an \emph{inbox}
+    of temporal messages to consume.
+    The simulation returns the outbox (messages
+    ``sent'' to other parties) and the overlay ledger
+    as reported by overlay party $j$.
+  }
+  \begin{algorithmic}[1]
+    \Function{\sf simulate}{$j, \textsf{inbox}, \textsf{targetRound}$}
+      \Let{\sf outbox}{[\,]}
+      \Let{\sf simulationRound}{0}
+      \Let{\sf roundReceives}{[\,]}
+      \Function{\sf broadcastSigned}{m}
+        \State{$\textsf{outbox.push}((`\text{send}', m))$}
+      \EndFunction
+      \Function{\sf receiveVerified}{}
+        \State\Return{\sf roundReceives}
+      \EndFunction
+      \CommentLine{Oracles passed to the overlay protocol}
+      \Let{\Sigma}{(\textsf{broadcastSigned}, \textsf{receiveVerified})}
+
+      \Let{\tilde{\Pi}}{\textsf{new } \Pi^\Sigma(j)}
+      \Let{L}{[\,]}
+      \For{$\textsf{simulationRound} = 0 \text{ to } targetRound$}
+        \Let{\sf roundWrites}{[\,]}
+        \Let{\sf roundReceives}{[\,]}
+
+        \For{$(\textsf{messageRound}, (\textsf{type}, \textsf{tx})) \in \textsf{inbox}$}
+          \If{$\textsf{messageRound} = \textsf{simulationRound}$}
+            \If{$\textsf{type} = `\text{write}'$}
+              \State{\textsf{roundWrites.push}(\textsf{tx})}
+            \EndIf
+            \If{$\textsf{type} = `\text{receive}'$}
+              \State{\textsf{roundReceives.push}(\textsf{tx})}
+            \EndIf
+          \EndIf
+        \EndFor
+        \CommentLine{Run a single step of the overlay machine for a particular round}
+        \Let{L}{\tilde{\Pi}.\textsf{step}(\textsf{simulationRound}, \textsf{roundWrites})}
+      \EndFor
+
+      \State\Return{\{\textsf{outbox}{:} \textsf{outbox}, L{:} L\}}
+    \EndFunction
+    \vskip2pt
+  \end{algorithmic}
+\end{algorithm}
