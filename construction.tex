@@ -1,4 +1,4 @@
-\section{Construction}
+\section{Construction}\label{sec:construction}
 
 \begin{figure*}
     \centering
@@ -10,7 +10,7 @@
     \label{fig.naive}
 \end{figure*}
 
-\subsection{A Majority Vote}
+\subsection{A Majority Vote}\label{sec:construction-naive}
 
 In Figure~\ref{fig.naive}, $m$ parties $\RB_1, \ldots, \RB_m$ run the overlay protocol.
 No honesty assumptions are made among the $\RB$ population. Each of the $\RB$ nodes runs
@@ -34,6 +34,8 @@ in the figure. The output of this \emph{read} operation is then filtered and des
 \emph{majority voting} contraption, denoted with the letter M and the \emph{house} symbol
 in the figure, which then outputs the desired ledger $L$ of $\RB$ transactions.
 
+\subsection{A BFT to Rule Them All}\label{sec:construction-bft}
+
 \begin{itemize}
   \item DLP protocols. ``Read'' ledger and ``write'' tx functionalities (temporal ledgers?). Safety and liveness ($u$), security definitions.
   \item Simple majority voting construction with no BFT protocol on top. Serialization and deserialization requirements and algorithms. Majority voting on ``ledger extensions'' algorithm. Fragile results in which different blockchains can disagree on the order and one blockchain can ``flip over'' the result. l. Condorcet cycles.
@@ -42,6 +44,8 @@ in the figure, which then outputs the desired ledger $L$ of $\RB$ transactions.
   \item Remove the smart contract assumption using dirty ledgers.
   \item The full construction.
 \end{itemize}
+
+\subsection{Compatibility}\label{sec:compatibility}
 
 \import{./}{algorithms/alg-rollerblade}
 \import{./}{algorithms/alg-majorityvote}
