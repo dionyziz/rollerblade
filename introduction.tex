@@ -1,0 +1,73 @@
+\section{Introduction}
+So many blockchains are out there nowadays. Which one should we choose to secure
+our money? All choices might seem wise today, but any may fail tomorrow.
+
+In this paper, we propose \emph{Rollerblade}: A ledger construction
+that runs on top of other chains. If the
+\emph{majority} of the \emph{underlying} chains remains secure, the rollerblade running
+\emph{on top} will also be secure.
+We are making a statement of \emph{reliability}: We are \emph{composing}
+ledger protocols and building a new ledger protocol that enjoys
+security even if some of them are faulty.
+
+Our construction can use any distributed ledger protocol (DLP) as the underlying
+composed protocols. These can be proof-of-work, proof-of-stake, or permissioned
+protocols, or a combination thereof.
+
+\noindent
+\textbf{Our contributions.} The contributions of this paper are the following:
+
+\begin{enumerate}
+  \item We put forth \emph{rollerblade}, a ledger composition protocol that achieves
+        reliability.
+  \item We prove that rollerblade enjoys security if the underlying protocols
+        are secure by majority.
+  \item We axiomatize our composition so that \emph{any} proof-of-work, proof-of-stake,
+        permissioned protocol, or combination thereof, can be used as foundation,
+        and any BFT protocol can run on top as the overlay protocol to compose them.
+\end{enumerate}
+
+\noindent
+\textbf{Related work.} Building a reliable system by composing potentially faulty components
+is a classical engineering problem~\cite{von1956probabilistic,moore1956reliable}.
+In the era of consensus, the seminal
+paper by Lamport that introduced the Byzantine Fault Tolerance problem~\cite{shostak1982byzantine}
+aims to solve a reliability problem, where different processors disagree about their
+outcomes. The composition of multiple \emph{blockchain} protocols was explored by
+Kiayias et al.~cite{fitzi2020ledger}, but for the purpose of performance in terms of throughput
+and latency, not reliability. The idea of borrowing security from one chain to
+secure another was first proposed in the context of \emph{merged mining}~\cite{namecoin}, where
+a strong proof-of-work blockchain secures a weaker proof-of-work blockchain. This
+concept was later extended to \emph{merged staking}~\cite{pos-sidechains}, where a
+strong proof-of-stake \emph{parent chain} lends its security to a less secure
+\emph{child chain}. Similar ideas have recently appeared in Cosmos proof-of-stake
+chains as \emph{Mesh Security}. Hybrids between different consensus mechanisms
+have also been proposed. The idea of \emph{checkpointing}
+one blockchain onto another to borrow security was formalized by Karakostas et al.~\cite{karakostas2021securing},
+and has been applied to secure newly created proof-of-work systems using stronger
+preexisting proof-of-stake systems. Such constructions are uni-directional:
+one ``parent'' chain is designated as authoritative and \emph{stronger},
+while the ``child'' chain is designated as \emph{weaker} and in need of securing.
+The idea of composing ledgers to achieve a more reliable overlay ledger
+was first proposed in a short Cosmos GitHub issue called
+\emph{recursive Tendermint}~\cite{recursive-tendermint}.
+This concept was expanded upon by TrustBoost~\cite{trustboost}
+where they build a Cosmos-specific construction of ledger composition
+using IBC for communication and particular to BFT-style protocols.
+
+\noindent
+\textbf{Construction overview.}
+The core idea is to checkpoint all underlying DLPs among each other, in
+a way that is symmetric and can survive the demise of any minority of the
+DLPs.
+In a nutshell, rollerblade works by executing any permissioned BFT protocol,
+such as Streamlet or HotStuff in a \emph{virtual execution}. This execution is
+conducted by the users interested in the protocol (such as the economic stakeholders
+in the protocol), who facilitate the protocol's execution by reading and interpreting
+the rollerblade-specific transactions written on the underlying ledgers, as well as
+posting transactions on the underlying ledgers that cross-checkpoint .
+
+in . At every moment, it is
+assumed that at least one honest rollerblade user is online (the
+\emph{existential honesty} assumption~\cite{backbone}).
+the underlying DLPs are treated as parties.
