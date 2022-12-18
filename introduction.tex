@@ -56,18 +56,53 @@ where they build a Cosmos-specific construction of ledger composition
 using IBC for communication and particular to BFT-style protocols.
 
 \noindent
-\textbf{Construction overview.}
-The core idea is to checkpoint all underlying DLPs among each other, in
-a way that is symmetric and can survive the demise of any minority of the
-DLPs.
-In a nutshell, rollerblade works by executing any permissioned BFT protocol,
-such as Streamlet or HotStuff in a \emph{virtual execution}. This execution is
-conducted by the users interested in the protocol (such as the economic stakeholders
-in the protocol), who facilitate the protocol's execution by reading and interpreting
-the rollerblade-specific transactions written on the underlying ledgers, as well as
-posting transactions on the underlying ledgers that cross-checkpoint .
+\textbf{Construction overview and paper structure.}
+The execution is conducted by the overlay users of the protocol.
+Each of them operates a full node for each of the underlying DLP.
+When any of the overlay nodes wishes to write a transaction for
+their ledger, they replicate and post that transaction to each of
+the underlying DLPs. They then wait for the transaction to be included
+in each of the underlying DLPs, then take a majority vote among them
+to determine their own reported ledger. This construction is described
+in Section~\ref{sec:construction-naive}.
 
-in . At every moment, it is
-assumed that at least one honest rollerblade user is online (the
-\emph{existential honesty} assumption~\cite{backbone}).
-the underlying DLPs are treated as parties.
+Unfortunately, a simple majority vote is insufficient because each
+underlying DLP may include transactions in a different order. Hence,
+the disagreement must be solved in a fashion akin to running a BFT
+(such as \emph{Streamlet}~\cite{streamlet} or \emph{HotStuff}~\cite{hotstuff})
+protocol ``on top''. The core idea is to treat every underlying DLP
+as a \emph{participant} in the overlay BFT. The \emph{security} of
+each DLP then roughly corresponds to the \emph{honesty} of the
+respective party. Due to the security of the overlay BFT protocol
+and the fact that the majority of underlying DLPs are secure, the
+resulting ledger read from the overlay BFT will allow the overlay
+parties to reach agreement between themselves. This construction
+is described in Section~\ref{sec:construction-bft}.
+
+BFT protocols are designed to run between \emph{parties}, not DLPs.
+A translation of the BFT protocol must take place so that it can be
+utilized with DLPs as parties. This requires some technical work
+which entails swapping out any of its cryptographic signature creation
+and verification, and the removal of any non-determinism by delegating
+it to an oracle. The networking assumptions of the BFT protocol then
+must be translated to the respective DLP assumptions by treating
+network delay as ledger liveness. These \emph{virtualization} technical
+details are given in Section~\ref{sec:construction-oraclized}.
+
+Next, we show that our construction applies to a wide variety of
+protocols by discussing how it can be run on top of proof-of-work,
+proof-of-stake, and permissioned protocols. We also remove the requirement
+that any of the underlying chains require any smart contract capability,
+although smart contracts can improve our performance. These compatibility
+issues are discussed and the exact mechanism of mutual checkpointing
+that does not rely on smart contracts is discussed in
+Section~\ref{sec:compatibility}.
+
+In Section~\ref{sec:analysis} we prove that our protocol is secure by
+stating and showing a \emph{metatheorem} which, in essence, tells us that any
+party-based execution of a BFT protocol and the respective DLP-based
+execution of the same protocol suitably translated are the same. This
+then allows the translation of any existing BFT theorem (such as Streamlet's
+or HotStuff's security theorems) from the party setting to the DLP setting,
+treating both the BFT protocol on top as well as the underlying DLPs as
+black boxes following a minimal set of axioms.
