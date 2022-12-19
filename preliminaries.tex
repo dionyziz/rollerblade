@@ -1,13 +1,128 @@
 \section{Preliminaries}
 
 \noindent
+\textbf{Notation.}
+Given a sequence $Y$, we address it using $Y[i]$ to mean the $i^\text{th}$ element (starting from $0$).
+Negative indices address elements from the end, so $Y[-i]$ is the $i^\text{th}$ element from
+the end, and $Y[-1]$ in particular is the last. We use $Y[i{:}j]$ to denote the subarray of $Y$
+consisting of the elements indexed from $i$ (inclusive) to $j$ (exclusive). The notation $Y[i{:}]$ means the
+subarray of $Y$ from $i$ onwards, while $Y[{:}j]$ means the subsequence of $Y$ up to (but not including) $j$.
+We use $|Y|$ to denote the length of $Y$.
+We say that $X$ is a, not necessarily strict,
+\emph{prefix} of $Y$, denoted $X \preceq Y$
+or $Y \succeq X$,
+when every element of $X$ appears in $Y$ at the
+same location (but $Y$ may have more elements beyond $|X|$).
+We write $X[i] = \bot$ for $i \geq |X|$ to indicate that the sequence
+has been exhausted.
+
+\noindent
+\textbf{Distributed Ledger Protocols.}
+In this work, we are concerned with the composition of Distributed Ledger
+Protocols (DLPs). A DLP $\Pi$ is an interactive machine (in modern programming
+lingo corresponding to an OOP \emph{class}). The same
+protocol $\Pi$ is \emph{instanciated} into multiple instances,
+each called a \emph{party} (conceptually running on a different computer each).
+We are interested in a population of parties, some of which are designated
+as \emph{honest}, while others are designated as \emph{adversarial}.
+All honest parties run the prescribed protocol $\Pi$, whereas adversarial
+parties may run any protocol of their choice (including $\Pi$).
+All adversarial parties are controlled by one colluding adversary $\mathcal{A}$.
+
+\noindent
+\textbf{Time and networking.}
+We model time as taking place in discrete \emph{rounds} $1, 2, \ldots$.
+During each round, all parties are allowed to run some (finite) computation.
+The parties are allowed to communicate with one another through an
+underlying \emph{network}. This is accomplished when the party \emph{broadcasts}
+a message to the network. The network is external to the parties and ensures
+every message broadcast by an honest party is delivered to every other honest
+party. The adversary may delay the delivery of honest messages up to the
+\emph{network delay} $\Delta$ rounds, which is known to the parties, but cannot delay
+messages indefinitely. The adversary may also introduce new messages, reorder
+existing messages, and do so differently for each receiving honest
+party~\cite{backbone}.
+
+\noindent
+\textbf{Ledgers.}
+A DLP offers two functionalities to the user running
+it: \emph{write} and \emph{read}. The \emph{write} functionality allows the
+user to \emph{write a transaction} $\tx$ to the DLP. The \emph{read}
+functionality allows the user to \emph{read a ledger} $\Ledger$ from the DLP.
+The ledger is a finite sequence of transactions
+$\tx_1, \tx_2, \ldots, \tx_{|\Ledger|}$,
+each annotated with a timestamp $r_1, r_2, \ldots, r_{|\Ledger|} \in \mathbb{N}$:
+
+\[
+  \Ledger = ((\tx_1, r_1), (\tx_2, r_2), \ldots, (\tx_{|\Ledger|}, r_{|\Ledger|}))
+\]
+
+The user of a DLP is typically a computer program such as a wallet.
+We denote by $\Ledger^P_r$ the output of the \emph{read} functionality of
+party $P$ when executed at the end of round $r$.
+
+\noindent
+\textbf{Security.}
+Because $\Pi$ can be randomized, we are interested in particular
+\emph{executions} of DLPs. An execution captures
+everything that happened between the honest parties running the
+protocol and the adversary, including the local state of each
+party and the network messages that were exchanged. The execution
+concludes after a finite amount of time. It is desirable that our
+DLPs produce executions that satisfy the following virtues.
+
+\begin{definition}[Safe]
+  An execution $E$ of a DLP $\Pi$ is \emph{safe} if for all rounds $r_1, r_2$
+  and all honest parties $P_1, P_2$ we have that
+  $\Ledger^{P_1}_{r_1} \preceq \Ledger^{P_2}_{r_2}$ or
+  $\Ledger^{P_1}_{r_1} \succeq \Ledger^{P_2}_{r_2}$.
+\end{definition}
+
+Without loss of generality, we assume that all \emph{safe} protocols
+are also \emph{sticky}: The ledger of an honest party never decreases in
+length. Any non-sticky safe DLP can easily be made sticky~\cite{streamlet}.
+
+\begin{definition}[Live]
+  An execution $E$ of a DLP $\Pi$ is \emph{live} with parameter $u$ if, whenever
+  \emph{all} honest parties attempt to write the transaction $\tx$ during
+  rounds $r, r + 1, \ldots, r + u - 1$, the transaction appears in all
+  honest ledgers at all rounds $r' \geq r + u$.
+\end{definition}
+
+The above definition requires that \emph{all} honest parties attempt to
+write a transaction during rounds $r, \ldots, r + u - 1$. However, we
+assume, without loss of generality,
+that parties \emph{gossip} any transaction they wish to write onto
+the underlying ledger. All honest parties that receive a gossiped transaction
+will also attempt to include it, and, so, if \emph{one} honest party
+attempts to introduce a transaction at round $r$, the transaction will
+make it to everyone's ledger by round $r + \Delta + u$.
+
+\begin{definition}[Timely]\label{def:timely}
+  An execution $E$ of a DLP $\Pi$ is \emph{timely} if for all honest parties $P$
+  and rounds $r_1 < r_2$ it holds that:
+
+  \begin{enumerate}
+    \item The timestamps in $\Ledger^P_{r_1}$ are non-decreasing.\label{def:timely-increasing}
+    \item The timestamp of $\Ledger^P_{r_1}[-1]$ is at most $r_1$.\label{def:timely-past}
+    \item The timestamps of $\Ledger^P_{r_2}[|\Ledger^P_{r_1}|{:}]$ are at least $r_1$.\label{def:timely-chunk}
+  \end{enumerate}
+\end{definition}
+
+All popular blockchain protocols report timestamps together with their
+transactions and ensure their timeliness. For example, Bitcoin and Ethereum
+produce blocks each of which contains a timestamp. These timestamps can be copied
+into the transactions therein. Because the respective protocols do not accept
+chains with decreasing timestamps, or blocks with future timestamps the timeliness
+points~\ref{def:timely-increasing} and~\ref{def:timely-past} are ensured.
+
+% TODO: we need to relax point (3)
+
+\begin{definition}[Secure]
+  An execution $E$ of a DLP $\Pi$ is \emph{secure} if the execution
+  is \emph{safe}, \emph{timely}, and \emph{live}.
+\end{definition}
+
+\noindent
 \textbf{SMT protocol.}
 Definition of SMT ...
-
-\noindent
-\textbf{Parties running the rollerblade.}
-Existential honesty among the parties running the rollerblade...
-
-\noindent
-\textbf{Time.}
-Time is synchronous...
