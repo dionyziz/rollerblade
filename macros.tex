@@ -1,5 +1,5 @@
 \newcommand{\tx}{\textsf{tx}}
-\newcommand{\Ledger}{\mathbf{L}}
+\newcommand{\Ledger}{\pmb{L}}
 \newcommand{\LState}{\mathsf{L}}
 \newcommand{\negl}{\textsf{negl}(\kappa)}
 \newcommand{\view}{\textsc{view}}
@@ -38,4 +38,6 @@
 [1]{\textbf{protocol #1}}
 [0]{\textbf{end protocol}}
 
-\newcommand{\RB}{\ensuremath{\mathrm{RB}}}
+\newcommandx{\RB}[1][1=]{\ensuremath{\ensuremath{\textsf{RB}^{#1}}}}
+% \newcommand{\wheel}[3]{\prescript{}{#1}Y^{#2}{#3}}
+\newcommandx{\wheel}[3][1=,2=,3=]{\prescript{#1}{}{\textsf{Y}}^{#2}_{#3}}
