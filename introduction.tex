@@ -56,6 +56,17 @@ where they build a Cosmos-specific construction of ledger composition
 using IBC for communication and particular to BFT-style protocols.
 
 \noindent
+\textbf{Practical efficiency.}
+Our construction is about what compositions of ledgers are theoretically \emph{possible},
+so we will not be concerned with the efficiency of our construction beyond the
+theoretical desire to remain polynomial. Our treatment of
+ledgers is generic, and our aim is to formulate a minimal set of axioms
+required of underlying and overlay ledger protocols to render them composable.
+Due to the generality of our construction, certain optimizations will not be
+possible, but efficiency can be greatly increased for concrete DLPs.
+For a particular example on Tendermint, see TrustBoost~\cite{trustboost}.
+
+\noindent
 \textbf{Construction overview and paper structure.}
 The execution is conducted by the overlay users of the protocol.
 Each of them operates a full node for each of the underlying DLP.
