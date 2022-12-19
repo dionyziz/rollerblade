@@ -14,17 +14,18 @@
             \Let{\textsf{freq}[L[i]]}{0}
           \EndIf
           \Let{\textsf{freq}[L[i]]}{\textsf{freq}[L[i]] + 1}
-          \For{$\textsf{tx} \in \textsf{freq}$}
-            \If{$\textsf{freq}[\textsf{tx}] > \lceil\frac{|L|}{2}\rceil$}
-              \Let{\textsf{ret}[i]}{\textsf{tx}}
-              \Let{\textsf{pushed}}{\true}
-            \EndIf
-          \EndFor
-          \If{$\lnot \textsf{pushed}$}
+        \EndFor
+        \Let{\textsf{pushed}}{\false}
+        \For{$\textsf{tx} \in \textsf{freq}$}
+          \If{$\textsf{freq}[\textsf{tx}] > \lceil\frac{|\overline{L}|}{2}\rceil$}
+            \Let{\textsf{ret}[i]}{\textsf{tx}}
+            \Let{\textsf{pushed}}{\true}
             \Break
           \EndIf
-          \Let{\textsf{pushed}}{\false}
         \EndFor
+        \If{$\lnot \textsf{pushed}$}
+          \Break
+        \EndIf
         \Let{i}{i + 1}
       \EndWhile
       \State\Return{\textsf{ret}}
