@@ -1,24 +1,24 @@
 \begin{algorithm}[H]
-  \caption{\label{alg.majorityvote} The Majority Vote algorithm.}
+  \caption{\label{alg.majorityvote} The Majority Vote algorithm ran by an $\RB$.}
   \begin{algorithmic}[1]
+    \CommentLine{At round $r$, when ran by $\RB$ party $j$, the value $\overline{L}$ is $(\wheel[0][j][r], \ldots, \wheel[n - 1][j][r])$}
     \Function{\sf MajorityVote}{$\overline{L}$}
       \Let{\sf ret}{[\,]}
-      \Let{i}{0}
-      \While{$\true$}
+      \For{$k = 0 \text{ to } \max\{|\overline{L}[0]|, \ldots, |\overline{L}[|\overline{L}| - 1]|\}$}
         \Let{\sf freq}{\{\}}
         \For{$L \in \overline{L}$}
-          \If{$L[i] = \bot$}
+          \If{$L[k] = \bot$}\Comment{$L$ ended before the $k^\text{th}$ element}
             \Continue
           \EndIf
-          \If{$L[i] \not\in \textsf{freq}$}
-            \Let{\textsf{freq}[L[i]]}{0}
+          \If{$L[k] \not\in \textsf{freq}$}
+            \Let{\textsf{freq}[L[k]]}{0}
           \EndIf
-          \Let{\textsf{freq}[L[i]]}{\textsf{freq}[L[i]] + 1}
+          \Let{\textsf{freq}[L[k]]}{\textsf{freq}[L[k]] + 1}
         \EndFor
         \Let{\textsf{pushed}}{\false}
         \For{$\textsf{tx} \in \textsf{freq}$}
           \If{$\textsf{freq}[\textsf{tx}] > \lceil\frac{|\overline{L}|}{2}\rceil$}
-            \Let{\textsf{ret}[i]}{\textsf{tx}}
+            \Let{\textsf{ret}[k]}{\textsf{tx}}
             \Let{\textsf{pushed}}{\true}
             \Break
           \EndIf
@@ -26,8 +26,7 @@
         \If{$\lnot \textsf{pushed}$}
           \Break
         \EndIf
-        \Let{i}{i + 1}
-      \EndWhile
+      \EndFor
       \State\Return{\textsf{ret}}
     \EndFunction
     \vskip2pt
