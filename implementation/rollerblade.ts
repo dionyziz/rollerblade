@@ -1,12 +1,14 @@
 declare function assert(value: unknown): asserts value
 
-/*
 interface DLP {
   readLedger()
-  writeLedger(tx)
-  transcribe()
-  untranscribe(transcriptions)
-  decodeTxToString(tx)
+  writeLedger(tx): void
+}
+
+interface Bulletin extends DLP {
+  transcribe(): string
+  untranscribe(transcriptions: string[])
+  decodeTxToString(tx): string
   encodeStringToTx(tx)
 }
 
@@ -15,11 +17,10 @@ interface SMR {
   step(environmentTx) // returns current ledger
 }
 
-interface Sigma {
-  broadcastSigned(message)
+interface OralBroadcast {
+  broadcastSigned(message: string): void
   receiveVerified()
 }
-*/
 
 function sigmaFromView(view) {
   class Sigma {
@@ -34,12 +35,12 @@ function sigmaFromView(view) {
   }
 }
 
-class Rollerblade {
+export default class Rollerblade {
   Pover
   Punder
-  id
+  id: string
 
-  constructor(id, Punder, Pover) {
+  constructor(id: string, Punder, Pover) {
     this.id = id
     this.Punder = Punder
     this.Pover = Pover
@@ -201,19 +202,22 @@ class Rollerblade {
 
     return ret
   }
-//  step(currentRound) {
-//    for (let j in this.Punder) {
-//      const transcript = this.Punder[j].marshall()
-//
-//      for (let k in this.Punder) {
-//        if (k == j) {
-//          continue
-//        }
-//
-//        this.Punder[k].encodeStringTx(['checkpoint', j, transcript])
-//      }
-//    }
-//  }
+  step(currentRound: number) {
+    // relay
+    for (let j in this.Punder) {
+      const transcript = this.Punder[j].marshall()
+
+      for (let k in this.Punder) {
+        if (k == j) {
+          continue
+        }
+
+        this.Punder[k].writeLedger(
+          this.Punder[k].encodeStringTx(['checkpoint', j, transcript])
+        )
+      }
+    }
+  }
   readLedger(currentRound: number) {
     const overLedgers: Array<any> = []
 
@@ -229,7 +233,6 @@ class Rollerblade {
     }
     return this.majorityVote(overLedgers)
   }
-  // tx: string
   writeLedger(tx: string) {
     for (let j in this.Punder) {
       this.Punder[j].writeLedger(this.encodeRollerbladeTx(j, ['write', tx]))

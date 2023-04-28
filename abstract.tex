@@ -1,17 +1,20 @@
 \begin{abstract}
-A required assumption to prove safety and liveness of distributed ledger protocols
-is the \emph{honest majority assumption}, whether it is by compute (in Proof-of-Work),
-by money (in Proof-of-Stake), or by count (in permissioned systems). If the assumption
-is violated, safety and liveness can fail. In today's multi-chain world, some chains
-enjoy long-term security because their resource remains in honest hands, while other
-chains fail, not because their protocol is subpar, but because their population has
-dwindled and their honest majority assumption no longer holds. It is not always easy
-to predict which chains will remain secure \emph{a priori}. In this paper, we put
-forth \emph{rollerblade}, a construction of a distributed ledger protocol on \emph{top
-} of
-\emph{multiple} existing distributed ledger protocols. The designer of the rollerblade can
-choose to deploy it on top of whichever underlying ledger protocols she desires.
-The security guarantees that we provide are that the resulting protocol is safe
-and live as long as the (weighted) majority of the underlying protocols are safe
-and live.
+  Distributed system protocols are often designed on top of
+  \emph{authenticated channels} in which participants are assumed
+  to be able to communicate with each other in an untamperable manner.
+  In this paper, we observe that most such protocols can be rewritten
+  by replacing a \emph{party} with a \emph{ledger} (such as
+  a blockchain system) and the communication between parties with
+  cross-chain light clients. This transform is useful because
+  blockchain systems are always online and have battle-tested
+  security assumptions.
+  We posit a \emph{metatheorem} that allows transforming many theorems from the \emph{party}
+  setting into theorems in the \emph{ledger} setting, while preserving
+  analogies between party \emph{honesty} and ledger \emph{security}.
+  Next, we use our transform to instantiate our protocol by running a blockchain protocol
+  on top of other blockchain protocols, treating the underlying blockchains
+  as parties in the overlay protocol. This enables us to create a layer-2 rollup
+  that sits on top of multiple chains and is more reliable than the underlying
+  layer-1s: If the security of a minority of the underlying layer-1 blockchains fails,
+  the layer-2's security is maintained.
 \end{abstract}

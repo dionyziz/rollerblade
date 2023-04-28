@@ -1,0 +1,32 @@
+\begin{algorithm}[H]
+  \caption{\label{alg.known-origin}
+    The ideal \emph{known origin} functionality
+    capturing the usual notion of \emph{authenticated channels}.
+  }
+  \begin{algorithmic}[1]
+    \Functionality{$\fko$}{}
+      \Let{\inboxes}{\{\,\}}
+
+      \CommentLine{Initialize functionality with $n$ parties}
+      \Function{init}{$n$}
+        \For{$i \in [n]$}
+          \Let{\inboxes[i]}{\{\,\}}
+        \EndFor
+      \EndFunction
+
+      \CommentLine{Party $s$ sends message $m$ to party $d$}
+      \Function{send}{$s, d, m$}
+        \Let{\inboxes[d]}{\inboxes[d] \cup \{(s, m)\}}
+      \EndFunction
+
+      \CommentLine{Party $s$ requests its inbox}
+      \Function{recv}{$s$}
+        \Let{\inbox}{\inboxes[s]}
+        \Let{\inboxes[s]}{\{\,\}}
+        \State\Return{$\inbox$}
+      \EndFunction
+    \EndFunctionality
+
+    \vskip2pt
+  \end{algorithmic}
+\end{algorithm}

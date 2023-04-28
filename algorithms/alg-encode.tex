@@ -1,17 +1,17 @@
 \begin{algorithm}[H]
-  \caption{\label{alg.encode} Transaction encoding and decoding functions used by a Rollerblade party.
+  \caption{\label{alg.encode} Transaction encoding and decoding functions used by an $\RB$ party.
   The functions first serialize a message, then encode it into a transaction, which can be broadcast
   on the underlying network. Once a transaction is received on the other end, it is decoded into a
   string and then deserialized back into a message.}
   \begin{algorithmic}[1]
-    \Function{\sf decodeRollerbladeTx}{j, \textsf{tx}}
-      \Let{s}{\overline{P}[j]\textsf{.decode}(\textsf{tx})}
-      \CommentLine{tx type will be either `checkpoint' or `write' -- no `send's here}
-      \State\Return{$\textsf{deserialize}(s)$}
-    \EndFunction
     \Function{\sf encodeRollerbladeTx}{j, m}
       \Let{s}{\textsf{serialize}(m)}
-      \State\Return{$\overline{P}[j]\textsf{.encode}(s)$}
+      \State\Return{$\wheel[j]\textsf{.encode}(s)$}
+    \EndFunction
+    \Function{\sf decodeRollerbladeTx}{j, \textsf{tx}'}
+      \Let{s}{\wheel[j]\textsf{.decode}(\textsf{tx}')}
+      % \CommentLine{tx type will be either `checkpoint' or `write' -- no `send's here}
+      \State\Return{$\textsf{deserialize}(s)$}
     \EndFunction
     \vskip2pt
   \end{algorithmic}

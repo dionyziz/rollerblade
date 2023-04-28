@@ -1,8 +1,11 @@
 \section{Introduction}
+
+\dionyziz{TODO: Rewrite intro}
+
 So many blockchains are out there nowadays. Which one should we choose to secure
 our money? All choices might seem wise today, but any may fail tomorrow.
 
-In this paper, we propose \emph{Rollerblade}: A ledger construction
+In this paper, we propose \rollerblade: A ledger construction
 that runs on top of other chains. If the
 \emph{majority} of the \emph{underlying} chains remains secure, the rollerblade running
 \emph{on top} will also be secure.
@@ -18,13 +21,21 @@ protocols, or a combination thereof.
 \textbf{Our contributions.} The contributions of this paper are the following:
 
 \begin{enumerate}
-  \item We put forth \emph{rollerblade}, a ledger composition protocol that achieves
-        reliability.
-  \item We prove that rollerblade enjoys security if the underlying protocols
-        are secure by majority.
-  \item We axiomatize our composition so that \emph{any} proof-of-work, proof-of-stake,
-        permissioned protocol, or combination thereof, can be used as foundation,
-        and any BFT protocol can run on top as the overlay protocol to compose them.
+  \item We put forth \emph{rollerblade}, a general method that allows transforming
+        distributed systems protocols from the \emph{party} to the \emph{ledger}
+        setting.
+  \item We show how our protocol works on top of any proof-of-work or proof-of-stake
+        blockchain with minimal axiomatic assumptions. We give the exact properties
+        required of the underlying ledger protocols and observe that smart contract
+        capabilities and certificates are not necessary (but are helpful). Our
+        protocols can run on top of Bitcoin, Ethereum, Cardano, etc.
+  \item We precisely define the formulation of distributed systems protocols
+        required so that they can undergo the \rollerblade transform, formalizing
+        and abstracting the notions of authenticated channels and signature schemes
+        that are often used by these protocols.
+  \item We use our transform to instantiate a blockchain protocol on top of
+        other blockchains. The resulting protocol is a layer-2 rollup that
+        guarantees better security than the composited layer-1s.
 \end{enumerate}
 
 \noindent

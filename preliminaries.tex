@@ -83,7 +83,7 @@ are also \emph{sticky}: The ledger of an honest party never decreases in
 length. Any non-sticky safe DLP can easily be made sticky~\cite{streamlet}.
 
 \begin{definition}[Live]
-  An execution $E$ of a DLP $\Pi$ is \emph{live} with parameter $u$ if, whenever
+  An execution $E$ of a DLP $\Pi$ is \emph{live} with parameter $u \in \mathbb{N}$ if, whenever
   \emph{all} honest parties attempt to write the transaction $\tx$ during
   rounds $r, r + 1, \ldots, r + u - 1$, the transaction appears in all
   honest ledgers at all rounds $r' \geq r + u$.
@@ -99,13 +99,14 @@ attempts to introduce a transaction at round $r$, the transaction will
 make it to everyone's ledger by round $r + \Delta + u$.
 
 \begin{definition}[Timely]\label{def:timely}
-  An execution $E$ of a DLP $\Pi$ is \emph{timely} if for all honest parties $P$
+  An execution $E$ of a DLP $\Pi$ is \emph{timely} with parameter $v \in \mathbb{N}$
+  if for all honest parties $P$
   and rounds $r_1 < r_2$ it holds that:
 
   \begin{enumerate}
     \item The timestamps in $\Ledger^P_{r_1}$ are non-decreasing.\label{def:timely-increasing}
     \item The timestamp of $\Ledger^P_{r_1}[-1]$ is at most $r_1$.\label{def:timely-past}
-    \item The timestamps of $\Ledger^P_{r_2}[|\Ledger^P_{r_1}|{:}]$ are at least $r_1$.\label{def:timely-chunk}
+    \item The timestamps of $\Ledger^P_{r_2}[|\Ledger^P_{r_1}|{:}]$ are at least $r_1 - v$.\label{def:timely-chunk}
   \end{enumerate}
 \end{definition}
 
@@ -115,12 +116,12 @@ produce blocks each of which contains a timestamp. These timestamps can be copie
 into the transactions therein. Because the respective protocols do not accept
 chains with decreasing timestamps, or blocks with future timestamps the timeliness
 points~\ref{def:timely-increasing} and~\ref{def:timely-past} are ensured.
-
-% TODO: we need to relax point (3)
+Point~\ref{def:timely-chunk} is more subtle and asks that very old transactions will
+not suddenly appear in the ledger.
 
 \begin{definition}[Secure]
-  An execution $E$ of a DLP $\Pi$ is \emph{secure} if the execution
-  is \emph{safe}, \emph{timely}, and \emph{live}.
+  An execution $E$ of a DLP $\Pi$ is \emph{secure} (with parameters $(u, v)$) if the execution
+  is \emph{safe}, \emph{timely} (with parameter $v$), and \emph{live} (with parameter $u$).
 \end{definition}
 
 \noindent

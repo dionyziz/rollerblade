@@ -1,0 +1,52 @@
+\begin{algorithm}[H]
+  \caption{\label{alg.transferable-origin-recursive}
+    The ideal \emph{recursive transferable origin} functionality
+    capturing the abstract functionality of a signature scheme
+    without interpreting signatures as strings, in which signatures
+    can be further signed.
+  }
+  \begin{algorithmic}[1]
+    \Functionality{$\ftor$}{}
+      \Let{\sent}{\{\,\}}
+      \Let{\recv}{\{\,\}}
+
+      \CommentLine{Initialize functionality with $n$ parties}
+      \Function{init}{$n$}
+        \For{$i \in [n]$}
+          \Let{\inboxes[i]}{\{\,\}}
+        \EndFor
+      \EndFunction
+
+      \CommentLine{Party $s$ signs message $\overline{m} = (m, \sigma')$}
+      \Function{sig}{$s, \overline{m}$}
+        \Let{a}{|\sent[s]|}
+        \Let{\recv[s]}{\recv[s] \conc (s, a)}
+        \Let{\sent[s]}{\sent[s] \conc \overline{m}}
+        \Let{\sigma}{|\recv[s]|}
+        \CommentLine{Return transferable party-specific cookie}
+        \State\Return{$\sigma$}
+      \EndFunction
+
+      \CommentLine{Party $s$ verifies a local signature cookie $\sigma$ against message $\overline{m}$}
+      \Function{ver}{$s, \sigma, \overline{m}$}
+        \Let{m, \sigma'}{\overline{m}}
+        \Let{s', a'}{\recv[s][\sigma']}
+        \Let{s'', a''}{\recv[s][\sigma]}
+        \Let{m'}{\sent[s'][a]}
+        \State\Return{$m' = m$}
+      \EndFunction
+
+      \CommentLine{Party $s$ transfers to party $t$ a signature cookie $\sigma$}
+      \Function{transfer}{$s, t, \sigma$}
+        \Let{s', a}{\recv[s][\sigma]}
+        \Let{\overline{m}}{\sent[s'][a]}
+        \Let{m, \sigma''}{\overline{m}}
+        \Let{\sigma'}{|\recv[t]|}\Comment{Unused}
+        \Let{\recv[t]}{\recv[t] \conc (s', a)}
+        \CommentLine{Do not return $\sigma'$ to $s$; party $t$ can find out by calling \textsf{ver}}
+      \EndFunction
+    \EndFunctionality
+
+    \vskip2pt
+  \end{algorithmic}
+\end{algorithm}

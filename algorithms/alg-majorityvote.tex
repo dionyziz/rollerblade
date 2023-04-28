@@ -1,7 +1,6 @@
 \begin{algorithm}[H]
-  \caption{\label{alg.majorityvote} The Majority Vote algorithm ran by an $\RB$.}
+  \caption{\label{alg.majorityvote} The Majority Vote algorithm ran by an $\RB$ node.}
   \begin{algorithmic}[1]
-    \CommentLine{At round $r$, when ran by $\RB$ party $j$, the value $\overline{L}$ is $(\wheel[0][j][r], \ldots, \wheel[n - 1][j][r])$}
     \Function{\sf MajorityVote}{$\overline{L}$}
       \Let{\sf ret}{[\,]}
       \For{$k = 0 \text{ to } \max\{|\overline{L}[0]|, \ldots, |\overline{L}[|\overline{L}| - 1]|\}$}
@@ -17,7 +16,7 @@
         \EndFor
         \Let{\textsf{pushed}}{\false}
         \For{$\textsf{tx} \in \textsf{freq}$}
-          \If{$\textsf{freq}[\textsf{tx}] > \lceil\frac{|\overline{L}|}{2}\rceil$}
+          \If{$\textsf{freq}[\textsf{tx}] > \lceil\frac{n}{2}\rceil$}
             \Let{\textsf{ret}[k]}{\textsf{tx}}
             \Let{\textsf{pushed}}{\true}
             \Break
