@@ -10,12 +10,12 @@
         \Let{\sf tx}{\textsf{new}[i]}
         \CommentLine{tx type will be ``send''}
 
-        \Let{\sf tx'}{tx}
-        \Let{\sf tx'.type}{\text{``receive''}}
-        \Let{\sf tx'.source}{j}
-        \Let{\sf tx'.round}{r}
+        \Let{\textsf{tx'}}{tx}\Comment{Make a copy of \textsf{tx} so that we can change it}
+        \Let{\textsf{tx'.type}}{\text{``receive''}}
+        \Let{\textsf{tx'.source}}{j}
+        \Let{\textsf{tx'.round}}{r}
 
-        \State{\textsf{inboxSuffix}.\textsf{push}(\textsf{tx}')}
+        \State{\textsf{inboxSuffix}.\textsf{push}(\textsf{tx'})}
       \EndFor
 
       \State\Return{\sf inboxSuffix}

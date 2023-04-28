@@ -1,20 +1,20 @@
 \begin{algorithm}[H]
   \caption{\label{alg.relay} The \emph{relay} algorithm executed by every Rollerblade participant.
-  Each Rollerblade participant is running all $\overline{\Pi}$ protocols.}
+  Each Rollerblade participant is speaking to all the underlying $\wheel[i]$ protocols.}
   \begin{algorithmic}[1]
-    \Function{\sf Relay}{$\overline{\Pi}$}
+    \Function{\sf Relay}{}\Comment{Ran by rollerblade participant $j$}
       \Let{\overline{C}}{[\,]}\Comment{Checkpoints}
 
-      \For{$\Pi \in \overline{\Pi}$}
+      \For{$i \gets 1 \text { to } n$}
         \State{$\overline{C}.\textsf{append}(\{
-          \textsf{sourceIndex}{:} j,
-          \textsf{payload}{:} \Pi.\textsf{transcribe}()
+          \textsf{sourceIndex}{:} i,
+          \textsf{payload}{:} \wheel[i].\textsf{transcribe}()
         \}\})$}
       \EndFor
 
-      \For{$\Pi \in \overline{\Pi}$}
+      \For{$i \gets 1 \text{ to } n$}
         \For{$C \in \overline{C}$}
-          \State{$\Pi.\textsf{write}(\Pi.\textsf{encode}(j, (\text{``checkpoint''}, C)))$}
+          \State{$\wheel[i].\textsf{write}(\Pi.\textsf{encode}(i, (\text{``checkpoint''}, C)))$}
         \EndFor
       \EndFor
     \EndFunction
