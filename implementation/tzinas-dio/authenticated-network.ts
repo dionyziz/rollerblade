@@ -1,5 +1,5 @@
 export interface AuthenticatedNetwork {
-  getChannel(i: number, j: number): AuthenticatedChannel
+  getPartyInterface(i: number): PartyAuthenticatedNetwork
 }
 
 export type AuthenticatedMessage = {
@@ -7,7 +7,7 @@ export type AuthenticatedMessage = {
   msg: string
 }
 
-export interface AuthenticatedChannel { // connects two distinct parties
-  send(msg: string): void
+export interface PartyAuthenticatedNetwork {
+  send(recp: number, msg: string): void
   recv(): AuthenticatedMessage[]
 }

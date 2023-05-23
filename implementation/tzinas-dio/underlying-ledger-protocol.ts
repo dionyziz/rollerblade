@@ -1,16 +1,15 @@
-import { Transaction, Ledger, Transcription } from './types'
+import { Transaction, Ledger, Transcription, TemporalLedger } from './types'
 
-export interface UnderlyingLedgerProtocol {
-  // TODO: temporal ledger
+export abstract class UnderlyingLedgerProtocol {
   // ledger
-  read(): Ledger<UnderlyingLedgerProtocol>
-  write(tx: Transaction<UnderlyingLedgerProtocol>): void
+  abstract read(): TemporalLedger<UnderlyingLedgerProtocol>
+  abstract write(tx: Transaction<UnderlyingLedgerProtocol>): void
 
   // certifiable/transcribable
-  transcribe(): Transcription
-  untranscribe(ts: Transcription[]): Ledger<UnderlyingLedgerProtocol>
+  abstract transcribe(): Transcription
+  abstract untranscribe(ts: Transcription[]): TemporalLedger<UnderlyingLedgerProtocol>
 
   // bulletin board
-  encode(s: string): Transaction<UnderlyingLedgerProtocol>
-  decode(tx: Transaction<UnderlyingLedgerProtocol>): string
+  abstract encode(s: string): Transaction<UnderlyingLedgerProtocol>
+  abstract decode(tx: Transaction<UnderlyingLedgerProtocol>): string
 }

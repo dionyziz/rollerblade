@@ -1,8 +1,14 @@
 import { Streamlet } from './streamlet'
-import { Transaction, Ledger, Transcription } from './types'
+import { Transaction, Ledger, Transcription, timestamp, TemporalLedger, TemporalTransaction } from './types'
 import { OverlayLedgerProtocol } from './overlay-ledger-protocol'
 import { UnderlyingLedgerProtocol } from './underlying-ledger-protocol'
-import { AuthenticatedChannel, AuthenticatedNetwork } from './authenticated-network'
+import { AuthenticatedNetwork, PartyAuthenticatedNetwork } from './authenticated-network'
+
+type OnchainRollerbladeInstruction = {
+  sid: string // rollerblade identifier
+  type: string // 'write' | 'checkpoint'
+  payload: string
+}
 
 /*
 class RollerbladeNetwork implements AuthenticatedNetwork {
@@ -68,45 +74,71 @@ export class Rollerblade<
   execute() {
     this.round += 1
   }
-  simulateZ(i: number, round: number) {
-    const L_i: Ledger<UnderlyingLedgerProtocol> = this.Y[i].read()
+  simulateZ(i: number, round: number): OverlayLedgerProtocol {
+    const L_i: TemporalLedger<UnderlyingLedgerProtocol> = this.Y[i].read()
 
-    const txs = L_i.map(tx => {
-      try {
-        // This will fail if this is not a bulletin board transaction
-        const decoded = this.Y[i].decode(tx)
-        // This will fail if the payload is not valid JSON
-        const parsed = JSON.parse(decoded)
+    const txs: ([timestamp, OnchainRollerbladeInstruction] | null)[] = L_i.map(
+      (temporalTx: TemporalTransaction<UnderlyingLedgerProtocol>): [timestamp, OnchainRollerbladeInstruction] | null => {
+        const {timestamp, tx} = temporalTx
 
-        // 'sid' is not defined -- this underlying bulletin transaction
-        // does not store rollerblade data
-        if (parsed['sid'] === undefined) {
+        try {
+          // This will fail if this is not a bulletin board transaction
+          const decoded = this.Y[i].decode(tx)
+          // This will fail if the payload is not valid JSON
+          const parsed = JSON.parse(decoded) as OnchainRollerbladeInstruction
+
+          // appropriate properties are not defined -- this underlying bulletin transaction
+          // does not store rollerblade data
+          if (parsed['sid'] === undefined || parsed['type'] === undefined) {
+            return null
+          }
+
+          // assume this is valid rollerblade data
+          // (no problem if not)
+          return [timestamp, parsed]
+        }
+        catch (e) {
           return null
         }
-
-        // assume this is valid rollerblade data
-        // (no problem if not)
-        return parsed
       }
-      catch (e) {
-        return null
-      }
-    }).filter(parsed => parsed !== null)
+    ).filter(parsed => parsed !== null)
 
-    txs.forEach(parsed => {
-      parsed
+    class RollerbladeNetworkSimulation implements PartyAuthenticatedNetwork {
+      send(recp: number, msg: string): void {
+      }
+      recv(): AuthenticatedMessage[] {
+      }
+    }
+
+    const network: RollerbladeNetworkSimulation
+    const Z_i: OverlayLedgerProtocol = new this.Π(i, this.n, network)
+    let simulationRound = 0
+
+    txs.forEach(tx => {
+      const [timestamp, parsed] = tx!
+
+      while (simulationRound < timestamp) {
+        Z_i.execute()
+        simulationRound += 1
+      }
+
+      switch (parsed['type']) {
+        case 'write':
+          Z_i.write(parsed['payload'])
+          break
+        case 'checkpoint':
+          break
+        // no 'netout'
+      }
     })
+
+    return Z_i
   }
   // TODO: generalize
   read(): Ledger<Rollerblade<T>> {
     // TODO: implement read functionality
     const L: Ledger<OverlayLedgerProtocol>[] = []
     const Z: OverlayLedgerProtocol[] = []
-
-    for (let i = 0; i < this.n; ++i) {
-      const z = new this.Π(i, this.n, authChannels)
-      Z.push(z)
-    }
 
     // For now assume all underlying liveness u's are the same
     // The reality will be that
@@ -115,6 +147,11 @@ export class Rollerblade<
     // simulationRound = this.round
     // TODO: Fix simulation-reality time discrepancy
     const simulationRound = this.round
+
+    for (let i = 0; i < this.n; ++i) {
+      const z: UnderlyingLedgerProtocol = this.simulateZ(i, simulationRound)
+      L.push(z.read())
+    }
 
     for (let i = 0; i < Z.length; ++i) {
       L.push(Z[i].read())
