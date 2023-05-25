@@ -2,12 +2,32 @@ import { Streamlet } from './streamlet'
 import { Transaction, Ledger, Transcription, timestamp, TemporalLedger, TemporalTransaction } from './types'
 import { OverlayLedgerProtocol } from './overlay-ledger-protocol'
 import { UnderlyingLedgerProtocol } from './underlying-ledger-protocol'
-import { AuthenticatedNetwork, PartyAuthenticatedNetwork } from './authenticated-network'
+import {
+  AuthenticatedIncomingMessage,
+  AuthenticatedOutgoingMessage,
+  AuthenticatedNetwork,
+  PartyAuthenticatedNetwork
+} from './authenticated-network'
 
 type OnchainRollerbladeInstruction = {
   sid: string // rollerblade identifier
-  type: string // 'write' | 'checkpoint'
-  payload: string
+  data: {
+    type: 'write',
+    payload: string
+  } | {
+    type: 'checkpoint',
+    from: number,
+    payload: string
+  }
+}
+
+type PartyNetworkOutbox = AuthenticatedOutgoingMessage[][]
+type PartyNetworkInbox = AuthenticatedIncomingMessage[][]
+
+type SimulationResult = {
+  machine: OverlayLedgerProtocol,
+  simulationRound: number,
+  outbox: PartyNetworkOutbox
 }
 
 /*
@@ -74,22 +94,26 @@ export class Rollerblade<
   execute() {
     this.round += 1
   }
-  simulateZ(i: number, round: number): OverlayLedgerProtocol {
-    const L_i: TemporalLedger<UnderlyingLedgerProtocol> = this.Y[i].read()
 
-    const txs: ([timestamp, OnchainRollerbladeInstruction] | null)[] = L_i.map(
+  static decodeUnderlyingLedger(
+    Y_i: UnderlyingLedgerProtocol,
+    L_i: TemporalLedger<UnderlyingLedgerProtocol>
+  ): [timestamp, OnchainRollerbladeInstruction][] {
+    return L_i.map(
       (temporalTx: TemporalTransaction<UnderlyingLedgerProtocol>): [timestamp, OnchainRollerbladeInstruction] | null => {
         const {timestamp, tx} = temporalTx
 
         try {
           // This will fail if this is not a bulletin board transaction
-          const decoded = this.Y[i].decode(tx)
+          const decoded = Y_i.decode(tx)
           // This will fail if the payload is not valid JSON
           const parsed = JSON.parse(decoded) as OnchainRollerbladeInstruction
 
           // appropriate properties are not defined -- this underlying bulletin transaction
           // does not store rollerblade data
-          if (parsed['sid'] === undefined || parsed['type'] === undefined) {
+          if (parsed['sid'] === undefined
+           || parsed['data'] === undefined
+           || parsed['data']['type'] === undefined) {
             return null
           }
 
@@ -101,38 +125,106 @@ export class Rollerblade<
           return null
         }
       }
-    ).filter(parsed => parsed !== null)
+    ).filter(parsed => parsed !== null) as [timestamp, OnchainRollerbladeInstruction][]
+  }
 
-    class RollerbladeNetworkSimulation implements PartyAuthenticatedNetwork {
-      send(recp: number, msg: string): void {
-      }
-      recv(): AuthenticatedMessage[] {
-      }
-    }
+  // TODO: Make static
+  simulateZ(i: number, L_i: TemporalLedger<UnderlyingLedgerProtocol>): SimulationResult {
+    const txs = Rollerblade.decodeUnderlyingLedger(this.Y[i], L_i)
+    const inbox: PartyNetworkInbox = [] // round => [(from, msg), ...]
+    const writes: string[][] = [] // round => [write, ...]
 
-    const network: RollerbladeNetworkSimulation
-    const Z_i: OverlayLedgerProtocol = new this.Π(i, this.n, network)
-    let simulationRound = 0
+    // counterparty id => number of netins processed
+    const recordedMessageCount: number[] = []
 
-    txs.forEach(tx => {
+    for (let tx of txs) {
       const [timestamp, parsed] = tx!
 
-      while (simulationRound < timestamp) {
-        Z_i.execute()
-        simulationRound += 1
+      if (timestamp >= inbox.length) {
+        for (let r = inbox.length; r <= timestamp; ++r) {
+          inbox.push([])
+        }
+      }
+      if (timestamp >= writes.length) {
+        for (let r = writes.length; r <= timestamp; ++r) {
+          writes.push([])
+        }
       }
 
-      switch (parsed['type']) {
+      switch (parsed['data']['type']) {
         case 'write':
-          Z_i.write(parsed['payload'])
+          writes[timestamp].push(parsed['data']['payload'])
           break
         case 'checkpoint':
+          const { from, payload } = parsed['data']
+          let L_from: TemporalLedger<UnderlyingLedgerProtocol>
+          // TODO: in the case of transcriptions instead of certificates, handle multiple transcriptions
+          try {
+            L_from = this.Y[from].untranscribe([payload])
+          }
+          catch (e) {
+            // wrong checkpoint
+            continue
+          }
+          const { outbox: outboxFrom } = this.simulateZ(from, L_from)
+
+          function flattenOutbox(outbox: PartyNetworkOutbox): AuthenticatedIncomingMessage[] {
+            const ret: AuthenticatedIncomingMessage[] = []
+
+            for (const roundMsgs of outbox) {
+              for (const {to, msg} of roundMsgs) {
+                ret.push({from: to, msg})
+              }
+            }
+
+            return ret
+          }
+
+          const unprocessedNetouts = flattenOutbox(outboxFrom).slice(recordedMessageCount[from])
+          recordedMessageCount[from] += unprocessedNetouts.length
+
+          // TODO: separate the messages that were received just now (reconciliation)
+          // (i.e., excluding messages that were already received from "from" at a previous checkpoint recorded on L_i)
+          for (const authenticatedMsg of unprocessedNetouts) {
+            inbox[timestamp].push(authenticatedMsg)
+          }
           break
         // no 'netout'
       }
-    })
+    }
 
-    return Z_i
+    // Z_i's netout: round => [(recp, msg)...]
+    const outbox: PartyNetworkOutbox = []
+    let inboxThisRound: AuthenticatedIncomingMessage[] = []
+    let outboxThisRound: AuthenticatedOutgoingMessage[] = []
+
+    class RollerbladeNetworkSimulation implements PartyAuthenticatedNetwork {
+      send(to: number, msg: string): void {
+        outboxThisRound.push({ to, msg })
+      }
+      recv(): AuthenticatedIncomingMessage[] {
+        return inboxThisRound
+      }
+    }
+
+    const network: RollerbladeNetworkSimulation = new RollerbladeNetworkSimulation()
+    const Z_i: OverlayLedgerProtocol = new this.Π(i, this.n, network)
+
+    for (let simulationRound = 0; simulationRound < inbox.length; ++simulationRound) {
+      for (const write of writes[simulationRound]) {
+        Z_i.write(write)
+      }
+      inboxThisRound = inbox[simulationRound]
+      outboxThisRound = []
+      Z_i.execute()
+      outbox.push(outboxThisRound)
+    }
+
+    return {
+      machine: Z_i,
+      simulationRound: inbox.length,
+      outbox
+    }
   }
   // TODO: generalize
   read(): Ledger<Rollerblade<T>> {
@@ -149,8 +241,9 @@ export class Rollerblade<
     const simulationRound = this.round
 
     for (let i = 0; i < this.n; ++i) {
-      const z: UnderlyingLedgerProtocol = this.simulateZ(i, simulationRound)
-      L.push(z.read())
+      const L_i: TemporalLedger<UnderlyingLedgerProtocol> = this.Y[i].read()
+      const sim: SimulationResult = this.simulateZ(i, simulationRound, L_i)
+      L.push(sim.machine.read())
     }
 
     for (let i = 0; i < Z.length; ++i) {
@@ -160,5 +253,33 @@ export class Rollerblade<
   }
   write(tx: Transaction<Rollerblade<T>>): void {
     // TODO: implement write functionality
+  }
+}
+
+class Relayer {
+  Y: UnderlyingLedgerProtocol[]
+  sid: string
+
+  constructor(Y: UnderlyingLedgerProtocol[], sid: string) {
+    this.Y = Y
+    this.sid = sid
+  }
+  execute() {
+    for (let i = 0; i < this.Y.length; ++i) {
+      const τ = this.Y[i].transcribe()
+      for (let iPrime = 0; iPrime < this.Y.length; ++iPrime) {
+        if (iPrime === i) {
+          continue
+        }
+        this.Y[iPrime].write(this.Y[iPrime].encode(JSON.stringify({
+          sid: this.sid,
+          data: {
+            type: 'checkpoint',
+            from: i,
+            payload: τ
+          }
+        })))
+      }
+    }
   }
 }

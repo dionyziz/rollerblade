@@ -7,6 +7,7 @@ export abstract class UnderlyingLedgerProtocol {
 
   // certifiable/transcribable
   abstract transcribe(): Transcription
+  // static
   abstract untranscribe(ts: Transcription[]): TemporalLedger<UnderlyingLedgerProtocol>
 
   // bulletin board
