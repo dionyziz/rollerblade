@@ -1,54 +1,20 @@
-import { Number, String, Literal, Record, Union, Static } from 'runtypes';
-
-import { Transaction, Ledger, Transcription, timestamp, TemporalLedger, TemporalTransaction } from './types'
-import { OverlayLedgerProtocol } from './overlay-ledger-protocol'
-import { UnderlyingLedgerProtocol } from './underlying-ledger-protocol'
+import { Transaction, Ledger, Transcription, timestamp, TemporalLedger, TemporalTransaction } from '../types'
+import { OverlayLedgerProtocol } from '../overlay-ledger-protocol'
+import { UnderlyingLedgerProtocol } from '../underlying-ledger-protocol'
 import {
   AuthenticatedIncomingMessage,
   AuthenticatedOutgoingMessage,
   PartyAuthenticatedNetwork
-} from './authenticated-network'
-
-const RuntimeBaseRollerbladeInstruction = Record({
-  sid: String,
-  type: String,
-  data: Record({})
-})
-
-const RuntimeWriteRollerbladeInstruction = RuntimeBaseRollerbladeInstruction.extend({
-  type: Literal('write'),
-  data: Record({
-    payload: String
-  })
-})
-const RuntimeCheckpointRollerbladeInstruction = RuntimeBaseRollerbladeInstruction.extend({
-  type: Literal('checkpoint'),
-  data: Record({
-    from: Number,
-    certificate: String
-  })
-})
-const RuntimeOnchainRollerbladeInstruction = Union(RuntimeWriteRollerbladeInstruction, RuntimeCheckpointRollerbladeInstruction)
-
-type WriteRollerbladeInstruction = Static<typeof RuntimeWriteRollerbladeInstruction>
-type CheckpointRollerbladeInstruction = Static<typeof RuntimeCheckpointRollerbladeInstruction>
-type OnchainRollerbladeInstruction = Static<typeof RuntimeOnchainRollerbladeInstruction>
-
-type PartyNetworkOutbox = AuthenticatedOutgoingMessage[][]
-type PartyNetworkInbox = AuthenticatedIncomingMessage[][]
-
-type SimulationResult = {
-  machine: OverlayLedgerProtocol,
-  simulationRound: number,
-  outbox: PartyNetworkOutbox
-}
-
-/*
-class RollerbladeNetwork implements AuthenticatedNetwork {
-  getChannel(i: number, j: number): AuthenticatedChannel {
-  }
-}
-*/
+} from '../authenticated-network'
+import {
+  CheckpointRollerbladeInstruction,
+  WriteRollerbladeInstruction,
+  OnchainRollerbladeInstruction,
+  RuntimeOnchainRollerbladeInstruction,
+  PartyNetworkInbox,
+  PartyNetworkOutbox,
+  SimulationResult
+} from './types'
 
 export class Rollerblade<
   // T is a metaclass of a class that extends abstract class OverlayLedgerProtocol,
@@ -279,38 +245,6 @@ export class Rollerblade<
       const encoded: Transaction<UnderlyingLedgerProtocol> = Y_i.encode(stringified)
 
       Y_i.write(encoded)
-    }
-  }
-}
-
-class Relayer {
-  Y: UnderlyingLedgerProtocol[]
-  sid: string
-
-  constructor(Y: UnderlyingLedgerProtocol[], sid: string) {
-    this.Y = Y
-    this.sid = sid
-  }
-  execute() {
-    for (let i = 0; i < this.Y.length; ++i) {
-      const τ = this.Y[i].transcribe()
-      for (let iPrime = 0; iPrime < this.Y.length; ++iPrime) {
-        if (iPrime === i) {
-          continue
-        }
-        const instruction: CheckpointRollerbladeInstruction = {
-          sid: this.sid,
-          type: 'checkpoint',
-          data: {
-            from: i,
-            certificate: τ
-          }
-        }
-        const stringified: string = JSON.stringify(instruction)
-        const encoded: Transaction<UnderlyingLedgerProtocol> = this.Y[iPrime].encode(stringified)
-
-        this.Y[iPrime].write(encoded)
-      }
     }
   }
 }
