@@ -1,3 +1,5 @@
+import { Number, String, Literal, Record, Union, Static } from 'runtypes';
+
 import { Transaction, Ledger, Transcription, timestamp, TemporalLedger, TemporalTransaction } from './types'
 import { OverlayLedgerProtocol } from './overlay-ledger-protocol'
 import { UnderlyingLedgerProtocol } from './underlying-ledger-protocol'
@@ -7,28 +9,30 @@ import {
   PartyAuthenticatedNetwork
 } from './authenticated-network'
 
-interface RollerbladeBaseInstruction {
-  sid: string
-  type: string
-  data: {}
-}
+const RuntimeBaseRollerbladeInstruction = Record({
+  sid: String,
+  type: String,
+  data: Record({})
+})
 
-interface WriteRollerbladeInstruction extends RollerbladeBaseInstruction {
-  type: 'write',
-  data: {
-    payload: string
-  }
-}
+const RuntimeWriteRollerbladeInstruction = RuntimeBaseRollerbladeInstruction.extend({
+  type: Literal('write'),
+  data: Record({
+    payload: String
+  })
+})
+const RuntimeCheckpointRollerbladeInstruction = RuntimeBaseRollerbladeInstruction.extend({
+  type: Literal('checkpoint'),
+  data: Record({
+    from: Number,
+    certificate: String
+  })
+})
+const RuntimeOnchainRollerbladeInstruction = Union(RuntimeWriteRollerbladeInstruction, RuntimeCheckpointRollerbladeInstruction)
 
-interface CheckpointRollerbladeInstruction extends RollerbladeBaseInstruction {
-  type: 'checkpoint',
-  data: {
-    from: number,
-    payload: string
-  }
-}
-
-type OnchainRollerbladeInstruction = WriteRollerbladeInstruction | CheckpointRollerbladeInstruction
+type WriteRollerbladeInstruction = Static<typeof RuntimeWriteRollerbladeInstruction>
+type CheckpointRollerbladeInstruction = Static<typeof RuntimeCheckpointRollerbladeInstruction>
+type OnchainRollerbladeInstruction = Static<typeof RuntimeOnchainRollerbladeInstruction>
 
 type PartyNetworkOutbox = AuthenticatedOutgoingMessage[][]
 type PartyNetworkInbox = AuthenticatedIncomingMessage[][]
@@ -112,27 +116,26 @@ export class Rollerblade<
       (temporalTx: TemporalTransaction<UnderlyingLedgerProtocol>): [timestamp, OnchainRollerbladeInstruction] | null => {
         const {timestamp, tx} = temporalTx
 
+        let parsed: {} = {}
         try {
           // This will fail if this is not a bulletin board transaction
           const decoded = Y_i.decode(tx)
           // This will fail if the payload is not valid JSON
-          const parsed = JSON.parse(decoded) as OnchainRollerbladeInstruction
-
-          // appropriate properties are not defined -- this underlying bulletin transaction
-          // does not store rollerblade data
-          if (parsed['sid'] === undefined
-           || parsed['data'] === undefined
-           || parsed['type'] === undefined) {
-            return null
-          }
-
-          // assume this is valid rollerblade data
-          // (no problem if not)
-          return [timestamp, parsed]
+          parsed = JSON.parse(decoded)
         }
         catch (e) {
           return null
         }
+
+        if (!RuntimeOnchainRollerbladeInstruction.guard(parsed)) {
+          // appropriate properties are not defined -- this underlying bulletin transaction
+          // does not store rollerblade data
+          return null
+        }
+
+        // assume this is valid rollerblade data
+        // (no problem if not)
+        return [timestamp, parsed]
       }
     ).filter(parsed => parsed !== null) as [timestamp, OnchainRollerbladeInstruction][]
   }
@@ -165,11 +168,11 @@ export class Rollerblade<
           writes[timestamp].push(parsed['data']['payload'])
           break
         case 'checkpoint':
-          const { from, payload } = parsed['data']
+          const { from, certificate }: { from: number, certificate: Transcription } = parsed['data']
           let L_from: TemporalLedger<UnderlyingLedgerProtocol>
           // TODO: in the case of transcriptions instead of certificates, handle multiple transcriptions
           try {
-            L_from = this.Y[from].untranscribe([payload])
+            L_from = this.Y[from].untranscribe([certificate])
           }
           catch (e) {
             // wrong checkpoint
@@ -189,6 +192,7 @@ export class Rollerblade<
             return ret
           }
 
+          // in case of transcription unliveness, unprocessedNetouts will be empty
           const unprocessedNetouts = flattenOutbox(outboxFrom).slice(recordedMessageCount[from])
           recordedMessageCount[from] += unprocessedNetouts.length
 
@@ -299,7 +303,7 @@ class Relayer {
           type: 'checkpoint',
           data: {
             from: i,
-            payload: τ
+            certificate: τ
           }
         }
         const stringified: string = JSON.stringify(instruction)
