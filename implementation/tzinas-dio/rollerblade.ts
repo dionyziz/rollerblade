@@ -1,25 +1,34 @@
-import { Streamlet } from './streamlet'
 import { Transaction, Ledger, Transcription, timestamp, TemporalLedger, TemporalTransaction } from './types'
 import { OverlayLedgerProtocol } from './overlay-ledger-protocol'
 import { UnderlyingLedgerProtocol } from './underlying-ledger-protocol'
 import {
   AuthenticatedIncomingMessage,
   AuthenticatedOutgoingMessage,
-  AuthenticatedNetwork,
   PartyAuthenticatedNetwork
 } from './authenticated-network'
 
-type OnchainRollerbladeInstruction = {
-  sid: string // rollerblade identifier
+interface RollerbladeBaseInstruction {
+  sid: string
+  type: string
+  data: {}
+}
+
+interface WriteRollerbladeInstruction extends RollerbladeBaseInstruction {
+  type: 'write',
   data: {
-    type: 'write',
     payload: string
-  } | {
-    type: 'checkpoint',
+  }
+}
+
+interface CheckpointRollerbladeInstruction extends RollerbladeBaseInstruction {
+  type: 'checkpoint',
+  data: {
     from: number,
     payload: string
   }
 }
+
+type OnchainRollerbladeInstruction = WriteRollerbladeInstruction | CheckpointRollerbladeInstruction
 
 type PartyNetworkOutbox = AuthenticatedOutgoingMessage[][]
 type PartyNetworkInbox = AuthenticatedIncomingMessage[][]
@@ -113,7 +122,7 @@ export class Rollerblade<
           // does not store rollerblade data
           if (parsed['sid'] === undefined
            || parsed['data'] === undefined
-           || parsed['data']['type'] === undefined) {
+           || parsed['type'] === undefined) {
             return null
           }
 
@@ -151,7 +160,7 @@ export class Rollerblade<
         }
       }
 
-      switch (parsed['data']['type']) {
+      switch (parsed['type']) {
         case 'write':
           writes[timestamp].push(parsed['data']['payload'])
           break
@@ -228,7 +237,6 @@ export class Rollerblade<
   }
   // TODO: generalize
   read(): Ledger<Rollerblade<T>> {
-    // TODO: implement read functionality
     const L: Ledger<OverlayLedgerProtocol>[] = []
     const Z: OverlayLedgerProtocol[] = []
 
@@ -238,11 +246,11 @@ export class Rollerblade<
     // but for now we are working with
     // simulationRound = this.round
     // TODO: Fix simulation-reality time discrepancy
-    const simulationRound = this.round
 
     for (let i = 0; i < this.n; ++i) {
+      // TODO: machine rounds may differ
       const L_i: TemporalLedger<UnderlyingLedgerProtocol> = this.Y[i].read()
-      const sim: SimulationResult = this.simulateZ(i, simulationRound, L_i)
+      const sim: SimulationResult = this.simulateZ(i, L_i)
       L.push(sim.machine.read())
     }
 
@@ -253,6 +261,21 @@ export class Rollerblade<
   }
   write(tx: Transaction<Rollerblade<T>>): void {
     // TODO: implement write functionality
+
+    const instruction: WriteRollerbladeInstruction = {
+      sid: this.sid,
+      type: 'write',
+      data: {
+        payload: tx
+      }
+    }
+    const stringified = JSON.stringify(instruction)
+
+    for (let Y_i of this.Y) {
+      const encoded: Transaction<UnderlyingLedgerProtocol> = Y_i.encode(stringified)
+
+      Y_i.write(encoded)
+    }
   }
 }
 
@@ -271,14 +294,18 @@ class Relayer {
         if (iPrime === i) {
           continue
         }
-        this.Y[iPrime].write(this.Y[iPrime].encode(JSON.stringify({
+        const instruction: CheckpointRollerbladeInstruction = {
           sid: this.sid,
+          type: 'checkpoint',
           data: {
-            type: 'checkpoint',
             from: i,
             payload: τ
           }
-        })))
+        }
+        const stringified: string = JSON.stringify(instruction)
+        const encoded: Transaction<UnderlyingLedgerProtocol> = this.Y[iPrime].encode(stringified)
+
+        this.Y[iPrime].write(encoded)
       }
     }
   }
