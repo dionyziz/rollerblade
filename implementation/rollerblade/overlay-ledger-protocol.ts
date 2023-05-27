@@ -1,4 +1,4 @@
-import { Ledger } from './types'
+import { TemporalLedger } from './types'
 import { Transaction } from './types'
 import { PartyAuthenticatedNetwork } from './authenticated-network'
 import { DistributedProtocol } from './distributed-protocol'
@@ -8,6 +8,8 @@ export abstract class OverlayLedgerProtocol extends DistributedProtocol {
     super(j, n, network)
   }
   abstract execute(): void
-  abstract read(): Ledger<this>
+  abstract read(): TemporalLedger<this>
   abstract write(tx: Transaction<this>): void
+
+  abstract readonly promisedU: number
 }

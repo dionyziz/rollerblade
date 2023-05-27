@@ -52,16 +52,8 @@ export class ComposedConsensus<
   read(): Ledger<Rollerblade<T>> {
     const L: Ledger<OverlayLedgerProtocol>[] = []
 
-    // For now assume all underlying liveness u's are the same
-    // The reality will be that
-    // simulationRound ~= this.round / u
-    // but for now we are working with
-    // simulationRound = this.round
-    // TODO: Fix simulation-reality time discrepancy
-
     for (let i = 0; i < this.n; ++i) {
-      // TODO: machine rounds may differ
-      L.push(this.readFromMachine(i))
+      L.push(this.readFromMachine(i, this.round - this.v - 1))
     }
 
     return this.maxLedger(L)

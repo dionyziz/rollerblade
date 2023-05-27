@@ -25,6 +25,8 @@ export class Rollerblade<
   n: number
   Y: UnderlyingLedgerProtocol[] = []
   Π: T
+  v: number // maximum promised timeliness
+
   round: number = 0
   // a Rollerblade party
   // Rollerblade realizes a concrete consensus protocol;
@@ -37,6 +39,7 @@ export class Rollerblade<
     this.sid = sid
     this.n = Y.length
     this.Y = Y
+    this.v = Math.max(...Y.map(y => y.promisedV))
     this.Π = Π
   }
 
@@ -76,9 +79,17 @@ export class Rollerblade<
     ).filter(parsed => parsed !== null) as [timestamp, OnchainRollerbladeInstruction][]
   }
 
-  createSimulationInputs(i: number, L_i: TemporalLedger<UnderlyingLedgerProtocol>): {
-    inbox: PartyNetworkInbox, // round => [(from, msg), ...]
-    writes: string[][], // round => [write, ...]
+  // Create all the simulation inputs (network inputs [inbox] and user inputs [writes])
+  // needed to simulate party i from round 0 to round simulationRound (inclusive),
+  // when external reality has reached round realityRound (ledger L_i has been read at realityRound)
+  createSimulationInputs(
+    i: number,
+    L_i: TemporalLedger<UnderlyingLedgerProtocol>,
+    simulationRound: number,
+    realityRound: number // the one global "reality" clock shared by all rollerblade parties j
+  ): {
+    inbox: PartyNetworkInbox, // network inputs: round => [(from, msg), ...]
+    writes: string[][], // user inputs: round => [write, ...]
   } {
     const txs = Rollerblade.decodeUnderlyingLedger(this.Y[i], L_i)
     const inbox: PartyNetworkInbox = []
@@ -88,22 +99,21 @@ export class Rollerblade<
     const recordedMessageCount: number[] = []
 
     for (let tx of txs) {
-      const [timestamp, parsed] = tx!
+      const [txRound, parsed] = tx!
 
-      if (timestamp >= inbox.length) {
-        for (let r = inbox.length; r <= timestamp; ++r) {
+      assert(txRound > 0)
+
+      if (txRound >= inbox.length) {
+        assert(inbox.length === writes.length)
+        for (let r = inbox.length; r <= txRound; ++r) {
           inbox.push([])
-        }
-      }
-      if (timestamp >= writes.length) {
-        for (let r = writes.length; r <= timestamp; ++r) {
           writes.push([])
         }
       }
 
       switch (parsed['type']) {
         case 'write':
-          writes[timestamp].push(parsed['data']['payload'])
+          writes[txRound].push(parsed['data']['payload'])
           break
         case 'checkpoint':
           const { from, certificate }: { from: number, certificate: Transcription } = parsed['data']
@@ -116,7 +126,10 @@ export class Rollerblade<
             // wrong checkpoint
             continue
           }
-          const { outbox: outboxFrom } = this.simulateZ(from, L_from)
+          // The time relationship between simulation and reality is 1:1
+          // Time passes at the same rate within the simulation and in reality
+          // (For every round that passes in reality, a round passes in the simulation)
+          const { outbox: outboxFrom } = this.simulateZ(from, L_from, txRound - 1)
 
           function flattenOutbox(outbox: PartyNetworkOutbox): AuthenticatedIncomingMessage[] {
             const ret: AuthenticatedIncomingMessage[] = []
@@ -135,21 +148,31 @@ export class Rollerblade<
           recordedMessageCount[from] += unprocessedNetouts.length
 
           for (const authenticatedMsg of unprocessedNetouts) {
-            inbox[timestamp].push(authenticatedMsg)
+            inbox[txRound].push(authenticatedMsg)
           }
           break
         // no 'netout'
       }
     }
+
+    // Timeliness: Now that we have read L^i at realityRound, we know
+    // that, at future reads of L^i, no new transactions with timestamps
+    // smaller than realityRound - v will appear.
+    if (simulationRound >= realityRound - this.v) {
+      throw new Error(`Not enough data to simulate up to round ${simulationRound} (reality round: ${realityRound})`)
+    }
+
     return {
       inbox,
       writes
     }
   }
 
-  // TODO: Make static
-  simulateZ(i: number, L_i: TemporalLedger<UnderlyingLedgerProtocol>): SimulationResult {
-    const { inbox, writes } = this.createSimulationInputs(i, L_i)
+  simulateZ(i: number, L_i: TemporalLedger<UnderlyingLedgerProtocol>, simulationRound: number): SimulationResult {
+    const { inbox, writes } = this.createSimulationInputs(i, L_i, simulationRound)
+
+    assert(inbox.length === writes.length) // number of rounds available
+    assert(inbox.length < simulationRound) // we have enough data to simulate up to round r
 
     // Z_i's netout: round => [(recp, msg)...]
     const outbox: PartyNetworkOutbox = []
@@ -186,8 +209,8 @@ export class Rollerblade<
   }
 
   // TODO: pass round number?
-  readFromMachine(i: number) {
-    // For now assume all underlying liveness u's are the same
+  readFromMachine(i: number, r: number) {
+    // TODO: u and v might be different for each underlying
     // The reality will be that
     // simulationRound ~= this.round / u
     // but for now we are working with
@@ -195,7 +218,7 @@ export class Rollerblade<
     // TODO: Fix simulation-reality time discrepancy
 
     const L_i: TemporalLedger<UnderlyingLedgerProtocol> = this.Y[i].read()
-    const sim: SimulationResult = this.simulateZ(i, L_i)
+    const sim: SimulationResult = this.simulateZ(i, L_i, r)
 
     return sim.machine.read()
   }
@@ -214,4 +237,8 @@ export class Rollerblade<
 
     Y_i.write(encoded)
   }
+}
+
+function assert(arg0: boolean) {
+  throw new Error('Function not implemented.')
 }
