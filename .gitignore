@@ -1,5 +1,7 @@
+## TypeScript / JavaScript files
+node_modules/
 
-# Exclude compiled output file
+## Exclude compiled output file
 rollerblade.pdf
 rollerblade.synctex.gz
 
