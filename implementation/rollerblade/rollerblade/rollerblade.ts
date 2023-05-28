@@ -82,7 +82,7 @@ export class Rollerblade<
 
   // Create all the simulation inputs (network inputs [inbox] and user inputs [writes])
   // needed to simulate party i from round 0 to round simulationRound (inclusive),
-  // ledger L_i was read at realityRound
+  // ledger L_i was read at realityRound (or later)
   createSimulationInputs(
     i: number,
     L_i: TemporalLedger<UnderlyingLedgerProtocol>,
@@ -140,7 +140,7 @@ export class Rollerblade<
             from,
             L_from,
             txRound - this.Y[i].promisedU - this.Y[from].promisedV - 1,
-            txRound - this.Y[i].promisedU - 1
+            txRound - this.Y[i].promisedU
           )
 
           function flattenOutbox(outbox: PartyNetworkOutbox): AuthenticatedIncomingMessage[] {
