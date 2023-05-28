@@ -1,16 +1,14 @@
 \begin{abstract}
-  Distributed system protocols are often designed on top of
-  \emph{authenticated channels} in which participants are assumed
-  to be able to communicate with each other in an untamperable manner.
-  In this paper, we observe that most such protocols can be rewritten
+  We observe that most fixed-party distributed protocols can be rewritten
   by replacing a \emph{party} with a \emph{ledger} (such as
-  a blockchain system) and the communication between parties with
+  a blockchain system) and the authenticated channel communication between parties with
   cross-chain light clients. This transform is useful because
   blockchain systems are always online and have battle-tested
   security assumptions.
-  We posit a \emph{metatheorem} that allows transforming many theorems from the \emph{party}
+  We posit and prove a \emph{metatheorem} that allows transforming all theorems from the \emph{party}
   setting into theorems in the \emph{ledger} setting, while preserving
   analogies between party \emph{honesty} and ledger \emph{security}.
+  In the heart of our proof lies a reduction-based simulation argument.
   Next, we use our transform to instantiate our protocol by running a blockchain protocol
   on top of other blockchain protocols, treating the underlying blockchains
   as parties in the overlay protocol. This enables us to create a layer-2 rollup

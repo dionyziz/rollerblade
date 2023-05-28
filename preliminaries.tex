@@ -15,13 +15,30 @@ when every element of $X$ appears in $Y$ at the
 same location (but $Y$ may have more elements beyond $|X|$).
 We write $X[i] = \bot$ for $i \geq |X|$ to indicate that the sequence
 has been exhausted.
+We use $[n]$ to denote the set $\{1, 2, \ldots, n\}$.
 
 \noindent
-\textbf{Distributed Ledger Protocols.}
-In this work, we are concerned with the composition of Distributed Ledger
-Protocols (DLPs). A DLP $\Pi$ is an interactive machine (in modern programming
-lingo corresponding to an OOP \emph{class}). The same
-protocol $\Pi$ is \emph{instanciated} into multiple instances,
+\textbf{Distributed Protocols.}
+In this work, we are concerned with the composition of distributed
+protocols. A distributed protocol $\Pi$ is an interactive Turing machine
+(in modern programming lingo corresponding to an OOP \emph{class}),
+which:
+
+\begin{itemize}
+  \item Is \emph{initialized} with its own identity $j \in \mathbb{N}$
+        and the number $n \in \mathbb{N}$ of parties it will coordinate
+        with.
+  \item Can take user input by accepting a \emph{write} instruction which
+        is accompanied by some \emph{data} string.
+  \item Produces user output by accepting a \emph{read} instruction which
+        produces some \emph{data} string as its output. We mandate that,
+        upon its completion, the execution of a \emph{read} instruction
+        does not change the state of the interactive machine.
+  \item Uses a \emph{netout} functionality to send messages.
+  \item Uses a \emph{netin} functionality to receive messages.
+\end{itemize}
+
+The same protocol $\Pi$ is \emph{instantiated} into multiple instances,
 each called a \emph{party} (conceptually running on a different computer each).
 We are interested in a population of parties, some of which are designated
 as \emph{honest}, while others are designated as \emph{adversarial}.
@@ -30,60 +47,104 @@ parties may run any protocol of their choice (including $\Pi$).
 All adversarial parties are controlled by one colluding adversary $\mathcal{A}$.
 
 \noindent
-\textbf{Time and networking.}
-We model time as taking place in discrete \emph{rounds} $1, 2, \ldots$.
-During each round, all parties are allowed to run some (finite) computation.
-The parties are allowed to communicate with one another through an
-underlying \emph{network}. This is accomplished when the party \emph{broadcasts}
-a message to the network. The network is external to the parties and ensures
-every message broadcast by an honest party is delivered to every other honest
-party. The adversary may delay the delivery of honest messages up to the
-\emph{network delay} $\Delta$ rounds, which is known to the parties, but cannot delay
-messages indefinitely. The adversary may also introduce new messages, reorder
-existing messages, and do so differently for each receiving honest
-party~\cite{backbone}.
-
-\noindent
-\textbf{Ledgers.}
-A DLP offers two functionalities to the user running
-it: \emph{write} and \emph{read}. The \emph{write} functionality allows the
-user to \emph{write a transaction} $\tx$ to the DLP. The \emph{read}
-functionality allows the user to \emph{read a ledger} $\Ledger$ from the DLP.
-The ledger is a finite sequence of transactions
-$\tx_1, \tx_2, \ldots, \tx_{|\Ledger|}$,
-each annotated with a timestamp $r_1, r_2, \ldots, r_{|\Ledger|} \in \mathbb{N}$:
-
-\[
-  \Ledger = ((\tx_1, r_1), (\tx_2, r_2), \ldots, (\tx_{|\Ledger|}, r_{|\Ledger|}))
-\]
-
-The user of a DLP is typically a computer program such as a wallet.
-We denote by $\Ledger^P_r$ the output of the \emph{read} functionality of
-party $P$ when executed at the end of round $r$.
-
-\noindent
-\textbf{Security.}
+\textbf{Executions.}
 Because $\Pi$ can be randomized, we are interested in particular
-\emph{executions} of DLPs. An execution captures
+\emph{executions} $\Exec$ of protocols. An execution captures
 everything that happened between the honest parties running the
 protocol and the adversary, including the local state of each
 party and the network messages that were exchanged. The execution
-concludes after a finite amount of time. It is desirable that our
-DLPs produce executions that satisfy the following virtues.
+concludes after a finite amount of time.
 
-\begin{definition}[Safe]
-  An execution $E$ of a DLP $\Pi$ is \emph{safe} if for all rounds $r_1, r_2$
-  and all honest parties $P_1, P_2$ we have that
-  $\Ledger^{P_1}_{r_1} \preceq \Ledger^{P_2}_{r_2}$ or
-  $\Ledger^{P_1}_{r_1} \succeq \Ledger^{P_2}_{r_2}$.
+\noindent
+\textbf{Time.}
+We model time as taking place in discrete \emph{rounds} $1, 2, \ldots$.
+The parties run in \emph{lockstep}:
+During each round, each party is allowed to run some (finite) computation.
+
+\noindent
+\textbf{Network.}
+The parties are allowed to communicate with one another through an
+underlying \emph{network}. We make use of two types of networks.
+
+% TODO: this is probably useless, since all its guarantees are provided through
+% the underlying liveness
+% TODO: citation for gossip
+\begin{definition}[Gossip Network]
+  A \emph{gossip network}
+  allows any party to \emph{diffuse} a message $m$ to the rest of the parties.
+  The network ensures that, if the sender is honest, then every other honest party
+  will receive the diffused message $m$.
 \end{definition}
 
-Without loss of generality, we assume that all \emph{safe} protocols
-are also \emph{sticky}: The ledger of an honest party never decreases in
-length. Any non-sticky safe DLP can easily be made sticky~\cite{streamlet}.
+% TODO: citation for authenticated channels
+\begin{definition}[Authenticated Channels]
+  An \emph{authenticated channels network}
+  allows any party $P$ to \emph{point-to-point} send a message to another
+  party $Q$. The network faithfully reports the sending party to the receiving
+  party, and the adversary cannot forge the origin of messages.
+\end{definition}
+
+% TODO: consider the psync setting?
+\begin{definition}[Synchrony]
+  A network is \emph{synchronous} with parameter $\Delta \in \mathbb{N}$ if
+  any message $m$ sent by an honest party $P$
+  at the end of round $r$ is delivered by the beginning of round $r + \Delta$.
+\end{definition}
+
+In the gossip network model, the adversary may introduce an arbitrary number of
+messages and forge their origin, and may also reorder messages before they are
+delivered to the honest parties. In the authenticated channels model, the adversary
+is not allowed to forge the origin of messages, but may send an arbitrary number
+of messages from each of the corrupted parties she controls.
+In both models, the adversary may send different messages
+to each honest party at each round. The delay of each honestly sent message is
+also adversarially controlled, as long as the bound $\Delta$ is respected.
+However, the adversary is not allowed to censor honestly produced messages
+after the bound $\Delta$ has elapsed.
+
+% TODO: Consider the case where no authenticated channels are available?
+% authenticated channels --> transcriptions
+% signatures --> certificates
+% Observation: certificates are too strong for authenticated channels
+
+\noindent
+\textbf{Ledgers.}
+% TODO: Do we need non-temporal ledgers?
+\begin{definition}[Temporal Ledger]
+A distributed protocol $\Pi$, together with a \emph{transaction validity language} $\mathcal{V}$
+is a \emph{temporal ledger} protocol if its \emph{read} and \emph{write}
+functionalities have the following semantics:
+
+\begin{itemize}
+  \item $\lwrite(\tx)$: The write functionality accepts a \emph{transaction}, which is
+        a string that belongs to $\mathcal{V}$.
+  \item $L \gets \lread()$: The read functionality returns a \emph{ledger} $L \in (\mathbb{N} \times \mathcal{V})^*$, which is
+        a finite sequence of pairs $(r, \tx)$ where $\tx \in \mathcal{V}$ is a transaction, and
+        $r$ is a \emph{round} indicating the time at which the transaction in question
+        is recorded on the ledger.
+\end{itemize}
+\end{definition}
+
+It is desirable that our
+ledger protocols produce executions that satisfy the following virtues.
+Let $\Ledger[P][][r]$ denote the ledger reported by the honest party $P$
+issuing a \emph{read} instruction to its ledger protocol at round $r$.
+
+\begin{definition}[Safe]
+  An execution $\Exec$ of a ledger protocol $\Pi$ is \emph{safe} if for all rounds $r_1, r_2 \in \mathbb{N}$
+  and all honest parties $P_1, P_2$ running instances $\Pi^1, \Pi^2$,
+  we have that
+  $\Ledger[P_1][][r_1] \preceq \Ledger[P_2][][r_2]$ or
+  $\Ledger[P_1][][r_1] \succeq \Ledger[P_2][][r_2]$.
+\end{definition}
+
+% TODO: get rid of this stickiness
+% Without loss of generality, we assume that all \emph{safe} protocols
+% are also \emph{sticky}: The ledger of an honest party never decreases in
+% length. Any non-sticky safe ledger protocol can be easily made sticky~\cite{streamlet}.
 
 \begin{definition}[Live]
-  An execution $E$ of a DLP $\Pi$ is \emph{live} with parameter $u \in \mathbb{N}$ if, whenever
+  An execution $\Exec$ of a ledger protocol $\Pi$ is \emph{live} with parameter $u \in \mathbb{N}$ if, whenever
   \emph{all} honest parties attempt to write the transaction $\tx$ during
   rounds $r, r + 1, \ldots, r + u - 1$, the transaction appears in all
   honest ledgers at all rounds $r' \geq r + u$.
@@ -98,32 +159,32 @@ will also attempt to include it, and, so, if \emph{one} honest party
 attempts to introduce a transaction at round $r$, the transaction will
 make it to everyone's ledger by round $r + \Delta + u$.
 
+The following definition is first introduced in this work, as it will prove
+immensely useful for composability, but is a natural property that all well-designed
+blockchain systems have:
+
 \begin{definition}[Timely]\label{def:timely}
-  An execution $E$ of a DLP $\Pi$ is \emph{timely} with parameter $v \in \mathbb{N}$
-  if for all honest parties $P$
-  and rounds $r_1 < r_2$ it holds that:
+  An execution $\Exec$ of a ledger protocol $\Pi$ is \emph{timely} with parameter $v \in \mathbb{N}$
+  if for all honest parties $P$ and rounds $r_1 \leq r_2$ it holds that:
 
   \begin{enumerate}
-    \item The timestamps in $\Ledger^P_{r_1}$ are non-decreasing.\label{def:timely-increasing}
-    \item The timestamp of $\Ledger^P_{r_1}[-1]$ is at most $r_1$.\label{def:timely-past}
-    \item The timestamps of $\Ledger^P_{r_2}[|\Ledger^P_{r_1}|{:}]$ are at least $r_1 - v$.\label{def:timely-chunk}
+    \item The timestamps in $\Ledger[P][][r_1]$ are non-decreasing.\label{def:timely-increasing}
+    \item The timestamp of $\Ledger[P][][r_1][-1]$ is at most $r_1$.\label{def:timely-past}
+    \item The timestamps of $\Ledger[P][][r_2][|\Ledger[P][][r_1]|{:}]$ are at least $r_1 - v$.\label{def:timely-chunk}
   \end{enumerate}
 \end{definition}
 
 All popular blockchain protocols report timestamps together with their
 transactions and ensure their timeliness. For example, Bitcoin and Ethereum
 produce blocks each of which contains a timestamp. These timestamps can be copied
-into the transactions therein. Because the respective protocols do not accept
+into the transactions therein when \emph{reading}. Because the respective protocols do not accept
 chains with decreasing timestamps, or blocks with future timestamps the timeliness
 points~\ref{def:timely-increasing} and~\ref{def:timely-past} are ensured.
 Point~\ref{def:timely-chunk} is more subtle and asks that very old transactions will
 not suddenly appear in the ledger.
+% TODO: prove timeliness of Bitcoin?
 
 \begin{definition}[Secure]
-  An execution $E$ of a DLP $\Pi$ is \emph{secure} (with parameters $(u, v)$) if the execution
+  An execution $\Exec$ of a ledger protocol $\Pi$ is \emph{secure} (with parameters $(u, v)$) if the execution
   is \emph{safe}, \emph{timely} (with parameter $v$), and \emph{live} (with parameter $u$).
 \end{definition}
-
-\noindent
-\textbf{SMT protocol.}
-Definition of SMT ...

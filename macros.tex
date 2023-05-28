@@ -1,5 +1,4 @@
 \newcommand{\tx}{\textsf{tx}}
-\newcommand{\Ledger}{\pmb{L}}
 \newcommand{\LState}{\mathsf{L}}
 \newcommand{\negl}{\textsf{negl}(\kappa)}
 \newcommand{\view}{\textsc{view}}
@@ -39,11 +38,12 @@
 [1]{\textbf{protocol #1}}
 [0]{\textbf{end protocol}}
 
-\newcommandx{\RB}[1][1=]{\ensuremath{\ensuremath{\textsf{RB}^{#1}}}}
+\newcommandx{\RB}[1][1=]{\prescript{#1}{}{\textsf{RB}}}
 % \newcommand{\wheel}[3]{\prescript{}{#1}Y^{#2}{#3}}
-\newcommandx{\wheel}[3][1=,2=,3=]{\prescript{#1}{}{\textsf{Y}}^{#2}_{#3}}
+\newcommandx{\Y}[3][1=,2=,3=]{\prescript{#1}{}{\textsf{Y}}^{#2}_{#3}}
+\newcommandx{\Ledger}[3][1=,2=,3=]{\prescript{#1}{}{\pmb{L}}^{#2}_{#3}}
 
-\newcommand{\rollerblade}{\textsc{Rollerblade}}
+\newcommand{\rollerblade}{\textsc{Rollerblade}\xspace}
 \newcommand{\fko}{\mathcal{F}_{ko}}
 \newcommand{\fto}{\mathcal{F}_{to}}
 \newcommand{\ftor}{\mathcal{F}_{tor}}
@@ -51,3 +51,10 @@
 \newcommand{\inboxes}{\textsf{inboxes}}
 \newcommand{\sent}{\textsf{sent}}
 \newcommand{\recv}{\textsf{recv}}
+
+\newcommand{\lwrite}{\textsf{write}}
+\newcommand{\lread}{\textsf{read}}
+\newcommand{\Exec}{\mathcal{E}}
+
+\newcommandx{\RBView}[6][1=,2=,3=,4=,5=,6=]{\textsc{View}^{\textsf{RB}}(#1,#2,#3,#4,#5,#6)}
+\newcommandx{\PEView}[5][1=,2=,3=,4=,5=]{\textsc{View}^{\textsf{PE}}(#1,#2,#3,#4,#5)}
