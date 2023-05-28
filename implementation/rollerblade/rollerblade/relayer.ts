@@ -5,11 +5,14 @@ import { CheckpointRollerbladeInstruction } from "./types"
 export class Relayer {
   Y: UnderlyingLedgerProtocol[]
   sid: string
+  round: number
 
   constructor(sid: string, Y: UnderlyingLedgerProtocol[]) {
     this.Y = Y
     this.sid = sid
+    this.round = 0
   }
+  // runs in every round
   execute() {
     for (let i = 0; i < this.Y.length; ++i) {
       const τ = this.Y[i].transcribe()
@@ -31,6 +34,6 @@ export class Relayer {
         this.Y[iPrime].write(encoded)
       }
     }
+    this.round += 1
   }
-
 }

@@ -1,9 +1,9 @@
 import { Number, String, Literal, Record, Union, Static } from 'runtypes';
-import { OverlayLedgerProtocol } from '../overlay-ledger-protocol'
 import {
   AuthenticatedIncomingMessage,
   AuthenticatedOutgoingMessage
 } from '../authenticated-network'
+import { DistributedProtocol } from '../distributed-protocol';
 
 export const RuntimeBaseRollerbladeInstruction = Record({
   sid: String,
@@ -34,7 +34,7 @@ export type PartyNetworkOutbox = AuthenticatedOutgoingMessage[][]
 export type PartyNetworkInbox = AuthenticatedIncomingMessage[][]
 
 export type SimulationResult = {
-  machine: OverlayLedgerProtocol,
+  machine: DistributedProtocol,
   simulationRound: number,
   outbox: PartyNetworkOutbox
 }
