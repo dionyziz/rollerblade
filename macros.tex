@@ -52,6 +52,7 @@
 % TODO: if #1 is not specified, then do not do \prescript
 % to avoid unnecessary spacing
 \newcommandx{\Y}[3][1=,2=,3=]{\prescript{#1}{}{\textsf{Y}}^{#2}_{#3}}
+\newcommandx{\Z}[3][1=,2=,3=]{\prescript{#1}{}{\textsf{Z}}^{#2}_{#3}}
 \newcommandx{\Ledger}[3][1=,2=,3=]{\prescript{#1}{}{\pmb{L}}^{#2}_{#3}}
 
 \newcommand{\rollerblade}{\textsc{Rollerblade}\xspace}
@@ -74,12 +75,19 @@
 \newcommand{\encode}{\textsf{encode}}
 \newcommand{\decode}{\textsf{decode}}
 \newcommand{\instruction}{\textsf{instruction}}
+\newcommand{\consumedLengths}{\textsf{consumedLengths}}
+\newcommand{\netout}{\textsf{netout}}
+\newcommand{\netin}{\textsf{netin}}
+\newcommand{\unprocessedNetins}{\textsf{unprocessedNetins}}
+\newcommand{\outboxesToInbox}{\textsf{outboxesToInbox}}
+\newcommand{\prepareSimulationInputs}{\textsf{prepareSimulationInputs}}
+\newcommand{\net}{\textsc{Net}}
 
 \newcommand{\lwrite}{\textsf{write}}
 \newcommand{\lread}{\textsf{read}}
 \newcommand{\Exec}{\mathcal{E}}
-\newcommand{\simulationRound}{\textsf{simulation-round}}
-\newcommand{\realityRound}{\textsf{reality-round}}
+\newcommand{\simulationRound}{\textsf{simulationRound}}
+\newcommand{\realityRound}{\textsf{realityRound}}
 \newcommand{\msg}{\textsf{msg}}
 
 \newcommandx{\RBView}[6][1=,2=,3=,4=,5=,6=]{\textsc{View}^{\textsf{RB}}(#1,#2,#3,#4,#5,#6)}

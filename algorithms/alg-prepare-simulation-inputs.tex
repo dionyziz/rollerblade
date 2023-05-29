@@ -1,5 +1,5 @@
 \begin{algorithm}[H]
-  \caption{\label{alg.view}
+  \caption{\label{alg.prepare-simulation-inputs}
     The \emph{prepare-simulation-inputs} function ran by \rollerblade party $j$
     to prepare the necessary inputs for the simulation of overlay party
     $i$ at round $\simulationRound$ based on the underlying ledger $\Ledger[j][i]$.
@@ -9,8 +9,12 @@
     arranged by round.
   }
   \begin{algorithmic}[1]
-    \Function{\sf prepare-simulation-inputs}{$i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
-      \Let{\sf consumed-lengths}{[\,]}
+    \Function{\prepareSimulationInputs}{$\Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
+      \Let{v}{\max_{\Y[j][i'] \in \Y[j]}{\{\Y[j][i'].v\}}}
+      \If{$\simulationRound \geq \realityRound - v$}
+        \State\Return{$\bot$} \Comment{Simulation round is too far in the future}
+      \EndIf
+
       \Let{\inboxes}{[\,]}
       \Let{\writes}{[\,]}
 
@@ -22,8 +26,10 @@
 
       \Let{n}{|\Y[j]|}\Comment{Number of overlay parties}
 
-      \For{$i' \in [n]$}\Comment{Keep track of what each other overlay party $i'$ has ``sent'' us}
-        \Let{\textsf{outbox.append}}{[\,]}
+      \Let{\sf \consumedLengths}{[\,]}
+
+      \For{$i' \in [n]$}\Comment{How many messages each other overlay party $i'$ has ``sent'' us}
+        \State{\consumedLengths.\textsf{append}(0)}
       \EndFor
 
       \Let{L}{\textsf{decode-underlying}(\Y[j][i]\textsf{.decode}, \Ledger[][i])}
@@ -34,22 +40,21 @@
           \Break
         \EndIf
         % TODO(dionyziz): Turn this into "switch"?
-        \If{$m\textsf{.type} = `\text{write}'$}
-          \State{$\writes[r]\textsf{.append}(m\textsf{.data})$}
+        \If{$\instruction\textsf{.type} = `\text{write}'$}
+          \State{$\writes[r]\textsf{.append}(\instruction\textsf{.data})$}
           \Continue
         \EndIf
         \If{$\instruction\textsf{.type} = \text{`checkpoint'}$}
           \Let{i'}{\instruction\textsf{.from}}
           \Let{\Ledger[j][i']}{\Y[][i']\textsf{.untranscribe}(\instruction\textsf{.data.certificate})}
-          % TODO(dionyziz): Rename to outboxes?
-          \Let{\outbox}{\textsf{simulate}(i', \Ledger[j][i'], r - u_i - v_{i'} - 1, r - u_i)\textsf{.outbox}}
-          \Let{\textsf{unprocessed-netouts}}{\textsf{outbox-to-inbox}(\textsf{outbox}[i'])[|\textsf{consumed-lengths}[i']|{:}]}
+          \Let{\outboxes}{\textsf{simulate}(\Pi, i', \Ledger[j][i'], \Y[j], r - u_i - v_{i'} - 1, r - u_i)\textsf{.outboxes}}
+          \Let{\textsf{netins}}{\outboxesToInbox(\outboxes)}
+          \Let{\unprocessedNetins}{\textsf{netins}[\consumedLengths[i']{:}]}
 
-          \For{$\msg \in \textsf{unprocessed-netouts}$}
-            \State{$\inboxes[r]\textsf{.append}(\msg)$}
+          \For{$\netin \in \unprocessedNetins$}
+            \State{$\inboxes[r]\textsf{.append}(\netin)$}
           \EndFor
-          % TODO: Keep only new messages?
-          \Let{\textsf{consumed-lengths}[i']}{|\outbox|}
+          \Let{\consumedLengths[i']}{\consumedLengths[i'] + |\unprocessedNetins|}
         \EndIf
       \EndFor
       \State\Return{$(\writes, \inboxes)$}

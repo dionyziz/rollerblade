@@ -92,6 +92,13 @@ export class Rollerblade<
     inbox: PartyNetworkInbox, // network inputs: round => [(from, msg), ...]
     writes: string[][], // user inputs: round => [write, ...]
   } {
+    // Timeliness: Now that we have read L^i at realityRound, we know
+    // that, at future reads of L^i, no new transactions with timestamps
+    // smaller than realityRound - v will appear.
+    if (simulationRound >= realityRound - this.v) {
+      throw new Error(`Not enough data to simulate up to round ${simulationRound} (reality round: ${realityRound})`)
+    }
+
     const txs = Rollerblade.decodeUnderlyingLedger(this.Y[i], L_i)
     const inbox: PartyNetworkInbox = []
     const writes: string[][] = []
@@ -169,13 +176,6 @@ export class Rollerblade<
           break
         // no 'netout'
       }
-    }
-
-    // Timeliness: Now that we have read L^i at realityRound, we know
-    // that, at future reads of L^i, no new transactions with timestamps
-    // smaller than realityRound - v will appear.
-    if (simulationRound >= realityRound - this.v) {
-      throw new Error(`Not enough data to simulate up to round ${simulationRound} (reality round: ${realityRound})`)
     }
 
     return {
