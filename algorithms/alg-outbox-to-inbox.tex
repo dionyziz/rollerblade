@@ -1,0 +1,23 @@
+\begin{algorithm}[H]
+  \caption{\label{alg.outbox-to-inbox} The outbox reconciliation algorithm ran by party $\RB[j]$.
+  The algorithm rewrites messages placed in an outbox of one overlay party and translates them into
+  messages in an inbox which is to be consumed by a different overlay party.}
+  \begin{algorithmic}[1]
+    \Function{\sf outbox-to-inbox}{$\outbox$}
+      \Let{\sf inbox}{[\,]}
+
+      \For{$\textsf{round-msgs} \in \outbox$}
+        \For{$\tx \in \textsf{outbox}$}
+          % TODO(dionyziz): typeset
+          \State{\textsf{inbox}.\textsf{append}(\{
+            \textsf{from}{:} \tx\textsf{.to},
+            \textsf{msg}{:} \tx\textsf{.msg}
+          \})}
+        \EndFor
+      \EndFor
+
+      \State\Return{\sf inbox}
+    \EndFunction
+    \vskip2pt
+  \end{algorithmic}
+\end{algorithm}

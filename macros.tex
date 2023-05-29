@@ -38,8 +38,19 @@
 [1]{\textbf{protocol #1}}
 [0]{\textbf{end protocol}}
 
+\algblockdefx[Party]{Party}{EndParty}
+[1]{\textbf{party #1}}
+[0]{\textbf{end party}}
+
+% TODO(dionyziz): Typeset this
+\algblock{Try}{EndTry}
+\algcblock[Try]{Try}{Catch}{EndTry}
+\algcblock{Try}{Catch}{EndTry}
+
 \newcommandx{\RB}[1][1=]{\prescript{#1}{}{\textsf{RB}}}
 % \newcommand{\wheel}[3]{\prescript{}{#1}Y^{#2}{#3}}
+% TODO: if #1 is not specified, then do not do \prescript
+% to avoid unnecessary spacing
 \newcommandx{\Y}[3][1=,2=,3=]{\prescript{#1}{}{\textsf{Y}}^{#2}_{#3}}
 \newcommandx{\Ledger}[3][1=,2=,3=]{\prescript{#1}{}{\pmb{L}}^{#2}_{#3}}
 
@@ -49,8 +60,20 @@
 \newcommand{\ftor}{\mathcal{F}_{tor}}
 \newcommand{\inbox}{\textsf{inbox}}
 \newcommand{\inboxes}{\textsf{inboxes}}
+\newcommand{\writes}{\textsf{writes}}
+\newcommand{\outbox}{\textsf{outbox}}
+\newcommand{\outboxes}{\textsf{outboxes}}
 \newcommand{\sent}{\textsf{sent}}
 \newcommand{\recv}{\textsf{recv}}
+\newcommand{\this}{\textsf{this}}
+\newcommand{\sid}{\textsf{sid}}
+\newcommand{\transcribe}{\textsf{transcribe}}
+\newcommand{\untranscribe}{\textsf{untranscribe}}
+\newcommand{\serialize}{\textsf{serialize}}
+\newcommand{\deserialize}{\textsf{deserialize}}
+\newcommand{\encode}{\textsf{encode}}
+\newcommand{\decode}{\textsf{decode}}
+\newcommand{\instruction}{\textsf{instruction}}
 
 \newcommand{\lwrite}{\textsf{write}}
 \newcommand{\lread}{\textsf{read}}

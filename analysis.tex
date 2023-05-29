@@ -4,7 +4,7 @@
 %       Definition of transcribility...
 % \end{definition}
 %
-% \begin{definition}[Soft Determinism]
+% \begin{definition}[Determinism]
 %       Let $\Pi^\Sigma$ be a State Machine Replication protocol that makes
 %       oracle use of a signature protocol $\Sigma = (\textsf{Gen}, \textsf{Sig}, \textsf{Ver})$.
 %       The protocol $\Pi$ is called \emph{soft deterministic} if,
@@ -12,72 +12,7 @@
 %       with index $i$, the machine does not make use of any local randomness.
 % \end{definition}
 %
-% The above definition still allows for use of randomness within the $\Sigma$ protocol of the
-% signature, which captures the functionality of generating keys, signing, and verifying
-% messages. Typical BFT protocols such as Streamlet~\cite{streamlet} and Hot Stuff~\cite{hotstuff}
-% satisfy the \emph{soft determinism} definition.
-%
-% \begin{definition}[Authenticated Communication Protocol]
-%       An Authenticated Communication Protocol ACP is...
-%       Define what is the syntax of $\Sigma$... (and maybe use a different letter)
-%       ... TODO
-% \end{definition}
-%
-% \begin{definition}[Peer-to-Peer ACP]
-%       Make an ACP by composing an existentially unforgeable signature scheme and
-%       a synchronous network... TODO
-% \end{definition}
-%
-% \begin{conjecture}[Similarity]
-%       Consider any SMR protocol $\Pi$, and let $\Sigma^S$ be a
-%       Peer-to-Peer ACP. Consider $\Sigma^\mathrm{RB}$ to be the RollerBlade
-%       ACP constructed using some DLPs... TODO
-%
-%       TODO: How do we model the fact that RB is running multiple instances
-%       each simulating multiple parties inside?...
-%
-%       For any adversary $\mathcal{A}$ and any number of parties $n$,
-%       there is a simulator $\mathcal{S}$ such that
-%       for any environment $\mathcal{Z}$,
-%       the following two distributions
-%       are computationally indistinguishable:
-%
-%       \[
-%             \textsc{View}^{\mathcal{Z},\mathcal{S},\Pi,\Sigma^S}_{\mathcal{Z}}(1^\lambda, n)
-%             \simeq_c
-%             \textsc{View}^{\mathcal{Z},\mathcal{A},\Pi,\Sigma^\mathrm{RB}}_{\mathcal{Z}}(1^\lambda, n)
-%       \]
-% \end{conjecture}
-% \begin{proof}
-%       How do we prevent the adversary from looking at the substrate of signatures?
-%       It seems that we may have to use an abstract functionality here... TODO
-% \end{proof}
-%
-% \begin{corollary}[Safety]
-%       Let $\mathcal{L}$ be a weighted set of transcribable Distributed Ledger Protocols,
-%       and $\Pi$ be a soft-deterministic State Machine Replication protocol.
-%       Consider a rollerblade constructed with $\Pi$ as a blade and
-%       $\mathcal{L}$ as its wheels.
-%       Consider a rollerblade execution in which the weighted majority of $\mathcal{L}$
-%       is secure.
-%       Then the rollerblade is safe.
-% \end{corollary}
-% \begin{proof}
-% \end{proof}
-%
-% \begin{corollary}[Liveness]
-%       Let $\mathcal{L}$ be a weighted set of transcribable Distributed Ledger Protocols,
-%       and $\Pi$ be a soft-deterministic State Machine Replication protocol.
-%       Consider a rollerblade constructed with $\Pi$ as a blade and
-%       $\mathcal{L}$ as its wheels.
-%       Consider a rollerblade execution in which the weighted majority of $\mathcal{L}$
-%       is secure.
-%       Then the rollerblade is live.
-% \end{corollary}
-% \begin{proof}
-% \end{proof}
-
-% TODO: define underlying, overlay, good
+% TODO: define underlying, overlay, good, VIEW...
 
 \begin{conjecture}[Simulation]
   Consider any overlay protocol $\Pi$, any number of overlay parties $n \in \mathbb{N}$,
@@ -85,7 +20,8 @@
   and any $n$ overlay protocols $\Y[][1], \ldots, \Y[][n]$
   % TODO: can we speak of "goodness" outside of executions?
   such that $\forall i \in \mathcal{H}: \Y[][i] \text{ is good}$.
-  % TODO: Is the environment PPT? Is the adversary PPT?
+  % TODO: There is no need for the polynomiality constraint on A and Z,
+  % but the reduction maintains polynomiality
   For all PPT adversaries $\mathcal{A}$ and all PPT $\mathcal{Z}$ environments,
   there is a PPT simulator $\mathcal{S}$ and there is a PPT environment $\mathcal{Z}'$ such that:
 
@@ -93,3 +29,22 @@
    =
    \PEView[\Pi][\mathcal{S}][\mathcal{Z}'][n][\mathcal{H}]$
 \end{conjecture}
+
+\begin{conjecture}[Cross-party]
+  TODO: Write cross-party conjecture...
+\end{conjecture}
+
+% TODO: Consider the case of "written communication", or "transferable origin" constructions
+% \begin{definition}[Authenticated Communication Protocol]
+%       An Authenticated Communication Protocol ACP is...
+%       Define what is the syntax of $\Sigma$... (and maybe use a different letter)
+%       ... TODO
+% \end{definition}
+% \begin{definition}[Peer-to-Peer ACP]
+%       Make an ACP by composing an existentially unforgeable signature scheme and
+%       a synchronous network... TODO
+% \end{definition}
+% The above definition still allows for use of randomness within the $\Sigma$ protocol of the
+% signature, which captures the functionality of generating keys, signing, and verifying
+% messages. Typical BFT protocols such as Streamlet~\cite{streamlet} and Hot Stuff~\cite{hotstuff}
+% satisfy the \emph{soft determinism} definition.

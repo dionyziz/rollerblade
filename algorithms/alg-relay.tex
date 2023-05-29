@@ -1,23 +1,42 @@
 \begin{algorithm}[H]
-  \caption{\label{alg.relay} The \emph{relay} algorithm executed by every Rollerblade participant.
-  Each Rollerblade participant is speaking to all the underlying $\wheel[i]$ protocols.}
+  \caption{\label{alg.relay} The \emph{Relayer} party.
+  This can be executed by any helpful but untrusted party.
+  At least one honest relayer must be running.
+  A \rollerblade client can run the relayer themselves if they so wish.}
   \begin{algorithmic}[1]
-    \Function{\sf Relay}{}\Comment{Ran by rollerblade participant $j$}
-      \Let{\overline{C}}{[\,]}\Comment{Checkpoints}
+    \Party{\sf Relayer}
+      % TODO(dionyziz): Typeset this
+      \State{$Y$}
+      \State{$\sid$}
 
-      \For{$i \gets 1 \text { to } n$}
-        \State{$\overline{C}.\textsf{append}(\{
-          \textsf{sourceIndex}{:} i,
-          \textsf{payload}{:} \wheel[i].\textsf{transcribe}()
-        \}\})$}
-      \EndFor
+      \Function{\sf construct}{$Y$, $\sid$}\Comment{Ran before round $0$}
+        \Let{\this.Y}{Y}
+        \Let{\this.\sid}{\sid}
+      \EndFunction
 
-      \For{$i \gets 1 \text{ to } n$}
-        \For{$C \in \overline{C}$}
-          \State{$\wheel[i].\textsf{write}(\Pi.\textsf{encode}(i, (\text{``checkpoint''}, C)))$}
+      \Function{\sf execute}{$\,$}\Comment{Executed on every round}
+        \For{$i \gets 1 \text{ to } n$}\Comment{Source}
+          \Let{\tau}{\this.\Y[][i].\transcribe()}\Comment{Checkpoint}
+
+          \For{$i' \gets 1 \text{ to } n$}\Comment{Target}
+            \If{$i = i'$}
+              \Continue
+            \EndIf
+            % TODO(dionyziz): typeset this
+            \Let{\instruction}{\{
+              \sid{:} \this.\sid,
+              \textsf{type}{:} \text{`checkpoint'},
+              \textsf{data}{:} \{
+                \textsf{from}{:} i,
+                \textsf{certificate}{:} \tau
+              \}
+            \}}
+            \Let{\textsf{encoded}}{\Y[][i'].\encode(\serialize(\instruction))}
+            \State{$\Y[][i'].\lwrite(\textsf{encoded})$}
+          \EndFor
         \EndFor
-      \EndFor
-    \EndFunction
+      \EndFunction
+    \EndParty
     \vskip2pt
   \end{algorithmic}
 \end{algorithm}

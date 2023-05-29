@@ -1,0 +1,24 @@
+\begin{algorithm}[H]
+  \caption{\label{alg.decode-underlying}
+    The \emph{sanitize} function ran by party $\RB[j]$
+    at round $r$ on an underlying ledger $L = \Y[j][i].\lread()$
+    sanitizes the underlying ledger by decoding and deserializing
+    each of its transactions into a sequence of messages.
+  }
+  \begin{algorithmic}[1]
+    \Function{\sf decode-underlying}{$\decode, L$}
+      \Let{\textsf{ret}}{[\,]}
+      \For{$(r, \tx) \in L$}
+        \Try
+          \Let{s}{\decode(\tx)}\Comment{Bulletin board decoding}
+          \Let{\instruction}{\deserialize(s)}
+        \Catch\Comment{Not a bulletin transaction, or invalid serialization}
+          \Continue
+        \EndTry
+        \State{$\textsf{ret.append}((r, \instruction))$}
+      \EndFor
+      \State\Return$\textsf{ret}$
+    \EndFunction
+    \vskip2pt
+  \end{algorithmic}
+\end{algorithm}

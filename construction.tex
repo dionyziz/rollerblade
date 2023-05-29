@@ -27,7 +27,7 @@ round $r$ by the full node instance $\Y[j][i]$ running the underlying ledger pro
 operated by the overlay party $\RB[j]$
 (this ledger, like all ledgers, is a sequence of round/transaction pairs, and its
 $k^\text{th}$ round/transaction pair is $\Ledger[j][i][r][k]$).
-
+%
 % TODO: move this to consensus section
 % Our goal is to build a \emph{new} DLP $\RB$
 % on top of these such that, if the majority of \emph{underlying}
@@ -151,7 +151,6 @@ $k^\text{th}$ round/transaction pair is $\Ledger[j][i][r][k]$).
 % in a sequence of $n$ ledgers $\overline{L}$, each a sequence of overlay transactions.
 % We call this process \emph{sanitization} and list it in Algorithm~\ref{alg.sanitize}.
 %
-% \import{./}{algorithms/alg-sanitize}
 %
 % Next, the overlay party $\RB[j']$ will need a mechanism to combine these sanitized ledgers
 % into \emph{one} ledger in order to answer the \emph{read} call from the user.
@@ -215,12 +214,11 @@ $k^\text{th}$ round/transaction pair is $\Ledger[j][i][r][k]$).
 %
 % \subsection{Compatibility}\label{sec:compatibility}
 %
-% \import{./}{algorithms/alg-rollerblade}
-% \import{./}{algorithms/alg-relay}
-% \import{./}{algorithms/alg-view}
+\import{./}{algorithms/alg-decode-underlying}
+\import{./}{algorithms/alg-outbox-to-inbox}
+\import{./}{algorithms/alg-relay}
+\import{./}{algorithms/alg-view}
 % \import{./}{algorithms/alg-simulate}
-% \import{./}{algorithms/alg-encode}
-% \import{./}{algorithms/alg-ledger}
 %
 % \section{New material 2023-04-19}
 %

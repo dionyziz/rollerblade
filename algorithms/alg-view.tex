@@ -8,37 +8,33 @@
     to the overlay protocol's desired format.
   }
   \begin{algorithmic}[1]
-    \Function{\sf view}{$j, L_j, r$}
-      \Let{\sf outbox}{[\,]}
-      \Let{\sf inbox}{[\,]}
-      \Let{\overline{C}}{[\,]}\Comment{Checkpoints}
+    \Function{\sf prepare-simulation-inputs}{$i, \Ledger[][i], r$}
+      \Let{\sf consumed-lengths}{[\,]}
+      \Let{\inboxes}{[\,]}
+      \Let{\writes}{[\,]}
 
       \For{$P \in \overline{P}$}
         \Let{\textsf{outbox.append}}{[\,]}
-        \Let{\textsf{checkpoints.append}}{[\,]}
       \EndFor
 
-      \For{$(r, \textsf{tx}) \in L_j$}
-        \Let{m}{decodeRollerbladeTx(j, \textsf{tx})}
-        \If{$m = \bot$}
-          \Continue
-        \EndIf
-        \If{$m\textsf{.type} = `\text{checkpoint}'$}
-          \State{\textsf{checkpoints.append}(m\textsf{.payload})}
-          \Let{j'}{m\textsf{.sourceIndex}}
-          \Let{L_{j'}}{\overline{P}[j']\textsf{.untranscribe}(\textsf{checkpoints})}
+      \Let{L}{\textsf{decode-underlying}(\Y[][i]\textsf{.decode}, \Ledger[][i])}
+      \For{$(r, m) \in L$}
+        \If{$m\textsf{.type} = \text{`checkpoint'}$}
+          \Let{i'}{m\textsf{.from}}
+          \Let{\Ledger[][i']}{\Y[][i']\textsf{.untranscribe}(m\textsf{.data.certificate})}
           \CommentLine{TODO: We need to translate overlay rounds to underlay liveness here}
-          \Let{\sf newOutbox}{\textsf{view}(j', L_{j'}, r - 1)\textsf{.outbox}}
-          \Let{\sf newEvents}{\textsf{ReconciliateOutboxes}(\textsf{outbox}[j'], \textsf{newOutbox}, j', r)}
-          \Let{\textsf{outbox}[j']}{\textsf{newOutbox}}
+          % TODO(dionyziz): Rename to outboxes?
+          \Let{\outbox}{\textsf{simulate}(i', \Ledger[][i'], r - 1)\textsf{.outbox}}
+          \Let{\inbox}{\textsf{inbox-to-outbox}(\textsf{outbox}[i'], \textsf{newOutbox}, i', r)}
+          % TODO: Keep only new messages?
+          \Let{\textsf{consumed-lengths}[i']}{|\outbox|}
         \EndIf
         \If{$m\textsf{.type} = `\text{write}'$}
-          \Let{\sf newEvents}{[(r, (`\text{write}', m\textsf{.payload}))]}
+          \State{$\writes\textsf{.append}(m\textsf{.data})$}
         \EndIf
         \Let{\sf inbox}{\textsf{inbox} \concat \textsf{newEvents}}
       \EndFor
-      \Let{\sf myOutbox}{simulate(j, \textsf{inbox}, r)}
-      \State\Return{\sf myOutbox}
+      \State\Return{$(\writes, \inboxes)$}
     \EndFunction
     \vskip2pt
   \end{algorithmic}
