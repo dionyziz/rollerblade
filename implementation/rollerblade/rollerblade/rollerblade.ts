@@ -99,6 +99,10 @@ export class Rollerblade<
     // counterparty id => number of netins processed
     const recordedMessageCount: number[] = []
 
+    for (let iPrime = 0; iPrime < this.Y.length; ++iPrime) {
+      recordedMessageCount.push(0)
+    }
+
     // Fill in inbox and writes up to simulationRound (exclusive),
     // as inbox and writes of round simulationRound - 1 are used
     // as inputs to simulate round simulationRound
@@ -108,22 +112,22 @@ export class Rollerblade<
     }
 
     for (let tx of txs) {
-      const [txRound, parsed] = tx!
+      const [r, instruction] = tx!
 
-      if (txRound >= simulationRound) {
+      if (r >= simulationRound) {
         break
       }
 
-      assert(txRound > 0)
+      assert(r > 0)
 
-      switch (parsed['type']) {
+      switch (instruction['type']) {
         case 'write':
-          writes[txRound].push(parsed['data']['payload'])
+          writes[r].push(instruction['data']['payload'])
           break
         case 'checkpoint':
           // "message" from "from" to i, received at time txRound,
           // this will play a role in simulation round txRound + 1 or later
-          const { from, certificate }: { from: number, certificate: Transcription } = parsed['data']
+          const { from, certificate }: { from: number, certificate: Transcription } = instruction['data']
           let L_from: TemporalLedger<UnderlyingLedgerProtocol>
           // TODO: in the case of transcriptions instead of certificates, handle multiple transcriptions
           try {
@@ -139,8 +143,8 @@ export class Rollerblade<
           const { outbox: outboxFrom } = this.simulateZ(
             from,
             L_from,
-            txRound - this.Y[i].promisedU - this.Y[from].promisedV - 1,
-            txRound - this.Y[i].promisedU
+            r - this.Y[i].promisedU - this.Y[from].promisedV - 1,
+            r - this.Y[i].promisedU
           )
 
           function flattenOutbox(outbox: PartyNetworkOutbox): AuthenticatedIncomingMessage[] {
@@ -160,7 +164,7 @@ export class Rollerblade<
           recordedMessageCount[from] += unprocessedNetouts.length
 
           for (const authenticatedMsg of unprocessedNetouts) {
-            inbox[txRound].push(authenticatedMsg)
+            inbox[r].push(authenticatedMsg)
           }
           break
         // no 'netout'

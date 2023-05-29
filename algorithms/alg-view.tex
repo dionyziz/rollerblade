@@ -1,38 +1,56 @@
 \begin{algorithm}[H]
   \caption{\label{alg.view}
-    The \emph{view} function ran by a Rollerblade party
-    capturing the perceived view of running overlay party
-    $j$
-    based on the underlying DLP ledger $L_j$. The transcript
-    returned is a sequence of \emph{send} messages according
-    to the overlay protocol's desired format.
+    The \emph{prepare-simulation-inputs} function ran by \rollerblade party $j$
+    to prepare the necessary inputs for the simulation of overlay party
+    $i$ at round $\simulationRound$ based on the underlying ledger $\Ledger[j][i]$.
+    The inputs consist of \emph{writes} (user inputs)
+    and \emph{inboxes} (network inputs produced as network output when recursively
+    simulating all other parties $\Y[j][i']$)
+    arranged by round.
   }
   \begin{algorithmic}[1]
-    \Function{\sf prepare-simulation-inputs}{$i, \Ledger[][i], r$}
+    \Function{\sf prepare-simulation-inputs}{$i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
       \Let{\sf consumed-lengths}{[\,]}
       \Let{\inboxes}{[\,]}
       \Let{\writes}{[\,]}
 
-      \For{$P \in \overline{P}$}
+      \For{$r \in [\simulationRound]$}
+        \CommentLine{For each round $r$, $\inboxes[r]$ and $\writes[r]$ is a \emph{list} of inputs}
+        \State{\inboxes\textsf{.append}([\,])}
+        \State{\writes\textsf{.append}([\,])}
+      \EndFor
+
+      \Let{n}{|\Y[j]|}\Comment{Number of overlay parties}
+
+      \For{$i' \in [n]$}\Comment{Keep track of what each other overlay party $i'$ has ``sent'' us}
         \Let{\textsf{outbox.append}}{[\,]}
       \EndFor
 
-      \Let{L}{\textsf{decode-underlying}(\Y[][i]\textsf{.decode}, \Ledger[][i])}
-      \For{$(r, m) \in L$}
-        \If{$m\textsf{.type} = \text{`checkpoint'}$}
-          \Let{i'}{m\textsf{.from}}
-          \Let{\Ledger[][i']}{\Y[][i']\textsf{.untranscribe}(m\textsf{.data.certificate})}
-          \CommentLine{TODO: We need to translate overlay rounds to underlay liveness here}
+      \Let{L}{\textsf{decode-underlying}(\Y[j][i]\textsf{.decode}, \Ledger[][i])}
+      \For{$(r, \instruction) \in L$}
+        % TODO: Mention that timeliness (time marches forward)
+        \If{$r \geq \simulationRound$}
+          \CommentLine{Further data is irrelevant for the simulation at round $\simulationRound$}
+          \Break
+        \EndIf
+        % TODO(dionyziz): Turn this into "switch"?
+        \If{$m\textsf{.type} = `\text{write}'$}
+          \State{$\writes[r]\textsf{.append}(m\textsf{.data})$}
+          \Continue
+        \EndIf
+        \If{$\instruction\textsf{.type} = \text{`checkpoint'}$}
+          \Let{i'}{\instruction\textsf{.from}}
+          \Let{\Ledger[j][i']}{\Y[][i']\textsf{.untranscribe}(\instruction\textsf{.data.certificate})}
           % TODO(dionyziz): Rename to outboxes?
-          \Let{\outbox}{\textsf{simulate}(i', \Ledger[][i'], r - 1)\textsf{.outbox}}
-          \Let{\inbox}{\textsf{inbox-to-outbox}(\textsf{outbox}[i'], \textsf{newOutbox}, i', r)}
+          \Let{\outbox}{\textsf{simulate}(i', \Ledger[j][i'], r - u_i - v_{i'} - 1, r - u_i)\textsf{.outbox}}
+          \Let{\textsf{unprocessed-netouts}}{\textsf{outbox-to-inbox}(\textsf{outbox}[i'])[|\textsf{consumed-lengths}[i']|{:}]}
+
+          \For{$\msg \in \textsf{unprocessed-netouts}$}
+            \State{$\inboxes[r]\textsf{.append}(\msg)$}
+          \EndFor
           % TODO: Keep only new messages?
           \Let{\textsf{consumed-lengths}[i']}{|\outbox|}
         \EndIf
-        \If{$m\textsf{.type} = `\text{write}'$}
-          \State{$\writes\textsf{.append}(m\textsf{.data})$}
-        \EndIf
-        \Let{\sf inbox}{\textsf{inbox} \concat \textsf{newEvents}}
       \EndFor
       \State\Return{$(\writes, \inboxes)$}
     \EndFunction
