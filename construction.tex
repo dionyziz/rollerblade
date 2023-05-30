@@ -64,6 +64,10 @@ $k^\text{th}$ round/transaction pair is $\Ledger[j][i][r][k]$).
 %   transaction and that $\textsf{decode}(\textsf{encode}(s)) = s$.
 % \end{definition}
 %
+% % TODO: Require that "encode" produces a high-entropy transaction
+% % so that we know that honest relayers will produce new honest transactions
+% % in every round, and the Past Perfect conjecture will follow.
+%
 % Bulletins provide ordering and data availability of arbitrary data without checking
 % any semantic validity. As such, they constitute a \emph{lazy} use of a ledger~\cite{lazyledger,lazylight}.
 % All popular blockchains such as, for example, Ethereum and Bitcoin are bulletins.

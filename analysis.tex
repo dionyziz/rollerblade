@@ -1,7 +1,44 @@
 \section{Analysis}
 
+\begin{lemma}[Past Perfect]
+  Consider a temporal ledger protocol $\Y$
+  constrained to report ledgers in which each transaction appears at most once.
+  Consider an execution $\Exec$ with duration $R$ rounds in which $\Y$ is
+  safe, live with liveness $u$, timely with timeliness $v$, and for which
+  new honest transactions appear in every round.
+  If for some honest party $P_1$ and some round $r_1$ it holds that
+  $(r^*, \tx) \in \Ledger[P_1][][r_1]$, then
+  for all honest parties $P_2$ and for all rounds $r^* + v < r_2 < R - u - 1$
+  it holds that
+  $(r^*, \tx) \in \Ledger[P_2][][r_2]$.
+\end{lemma}
+\begin{proof}
+  Consider an execution as in the statement and suppose, towards a contradiction,
+  that $(r^*, \tx) = \Ledger[P_1][][r_1][k]$ for some $k \in \mathbb{N}$
+  with $r^* + v < r_2$, but
+  $(r^*, \tx) \not\in \Ledger[P_2][][r_2]$.
+  Due to the contiguous honest participation, at round $r_2 + 1$ there is
+  a new honest transaction $\tx'$. Due to liveness,
+  $(*, \tx') = \Ledger[P_1][][r_2 + 1 + u][k']$ for some $k' \in \mathbb{N}$.
+  As $\tx'$ is new, it is not in $\Ledger[P_1][][r_1]$.
+  Because the ledger is safe, $k' > k$.
+  Due to liveness, $(*, \tx') \in \Ledger[P_2][][r_2 + 1 + u]$.
+  Due to safety, $(*, \tx') = \Ledger[P_2][][r_2 + 1 + u][k']$.
+  Therefore, $|\Ledger[P_2][][r_2 + 1 + u]| \geq k$.
+  Due to safety, $\Ledger[P_2][][r_2 + 1 + u][k] = (r^*, \tx)$.
+  Because $\Ledger[P_2][][r_2 + 1 + u]$ has a transaction
+  that $\Ledger[P_2][][r_2]$ does not have (namely $\tx$)
+  and it is safe, therefore
+  $(r^*, \tx) \in \Ledger[P_2][][r_2 + 1 + u][|\Ledger[P_2][][r_2]|{:}]$.
+  Since $r^* < r_2 - v$, this contradicts the timeliness with parameter $v$.\qed
+\end{proof}
+
+The above property, which follows from safety, liveness, timeliness and
+contiguous honest participation is also known in the literature as
+\emph{persistence}~\cite{backbone}.
+
 % \begin{definition}[Transcribability]
-%       Definition of transcribility...
+%       Definition of transcribality...
 % \end{definition}
 %
 % \begin{definition}[Determinism]
