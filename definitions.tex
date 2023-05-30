@@ -1,0 +1,102 @@
+\section{Definitions}
+
+\subsection{The Setting}
+
+We are given $n \in \mathbb{N}$ ledger protocols
+$\Y[][1], \Y[][2], \ldots, \Y[][i], \ldots, \Y[][n]$,
+the so-called \emph{underlying} ledger protocols.
+While mathematically, these $\Y$s are interactive Turing machines of ledger protocols,
+in practice, these are preexisting, already operational ledger protocol executions
+such as Bitcoin, Ethereum, and Cardano, for which we have access to already running full nodes
+and we are asked to compose on top of.
+
+We are also given a distributed protocol $\Pi$ (not necessarily a ledger protocol),
+the so-called \emph{overlay} protocol. We will simulate an $n$-party execution of $\Pi$,
+with each $i$ of these $n$ parties corresponding to the underlying ledger protocol $\Y[][i]$.
+
+The users of the protocol are $m \in \mathbb{N}$ \rollerblade \emph{clients} termed
+$\RB[1], \RB[2], \ldots, \RB[j], \ldots, \RB[m]$ (with, potentially $m \neq n$).
+\emph{Each} $\RB[j]$ client runs a separate full node $\Y[j][1], \ldots, \Y[j][i], \ldots, \Y[j][n]$
+for each of the underlying $\Y$s. The $\RB$ nodes do not have direct network communication, but only
+use the read/write functionalities of their respective $\Y$ instances to communicate.
+For example, when party $\RB[1]$ \emph{writes} a transaction $\tx$ to its $\Y[1][1]$ instance,
+this transaction will eventually appear in $\RB[2]$'s $\Y[2][1]$ instance ledger output,
+as long as $\Y[][1]$ is live.
+We will use $\Ledger[j][i][r] \gets \Y[j][i][r].\lread()$ to refer to the ledger reported at
+round $r$ by the full node instance $\Y[j][i]$ running the underlying ledger protocol $\Y[][i]$
+operated by the overlay party $\RB[j]$
+(this ledger, like all ledgers, is a sequence of round/transaction pairs, and its
+$k^\text{th}$ round/transaction pair is $\Ledger[j][i][r][k]$).
+
+%
+% TODO: move this to consensus section
+% Our goal is to build a \emph{new} DLP $\RB$
+% on top of these such that, if the majority of \emph{underlying}
+% $\wheel[1], \ldots, \wheel[n]$ are \emph{secure}, then so is the
+% \emph{overlay} DLP $\RB$. As $\RB$ is a DLP, it will have its own population of $m$ nodes
+% $\RB_1, \RB_2, \ldots, \RB_m$. The $\RB$ DLP will have its own type of transaction and a
+% ledger consisting of these transactions. For example, it can maintain its own coin\footnote{
+% We will not be concerned with bridging this coin from the overlay ledger to the underlying
+% ledgers. This can be done using various standard bridging techniques which are orthogonal
+% to this work~\cite{pow-sidechains,pos-sidechains,zkbridge}.}. Importantly, similarly to
+% a rollup, \emph{we will not make any additional security assumptions about the honesty of the
+% $\RB$ nodes}.
+%
+
+We now describe the requirements of our underlying and overlay protocols.
+
+\subsection{Underlying Requirements}
+
+Firstly, in order to record data on our underlying ledgers, we require that any arbitrary string
+can be written to them. This is called a \emph{bulletin}.
+
+\paragraph{Bulletins}
+% We do not want to modify the underlying DLPs to support our protocol. However, the underlying DLPs
+% do not understand the transaction semantics of our overlay ledger. We will therefore use the underlying
+% DLPs as a simple lazy transaction ordering service. We will assume that we can take any
+% arbitrary string $w$ and \emph{encode} it into a transaction suitable for each underlying ledger.
+% Such transactions are \emph{always} accepted by the underlying ledger, and their contents
+% are not validated (beyond checking that a minimum fee is suitably paid to avoid spamming attacks).
+% We call a DLP that supports writing such arbitrary data into it a \emph{bulletin}.
+A bulletin ledger protocol offers two additional
+functions $\encode$ and $\decode$:
+$\tx \gets \textsf{encode}(s)$ and $s \gets \textsf{decode}(\tx)$.
+The $\textsf{encode}$ function takes a string $s$ and encodes it into a transaction $\tx$ that can be \emph{written}
+into the ledger and is guaranteed to be accepted.
+The $\textsf{decode}$ function takes a transaction $\tx$
+and, if it is a bulletin transaction, decodes it back into $s$.
+Otherwise, $\textsf{decode}$ can return $\bot$.
+All transactions produced by $\textsf{encode}$
+are bulletin transactions, but the adversary can also introduce arbitrary bulletin transactions of her choice
+indiscriminately. The ledger may also include non-bulletin transactions among the bulletin transactions.
+
+\begin{definition}[Bulletin Board]
+  A ledger protocol $\Pi$ accompanied by a pair of computable
+  functions $(\encode, \decode)$, of which $\decode$ is deterministic,
+  is called a \emph{bulletin board} if it holds that, for any $s \in \{0, 1\}^*$,
+  the output of $\tx = \encode(s)$ is always a valid
+  transaction and that $\decode(\encode(s)) = s$.
+\end{definition}
+
+Bulletins provide ordering and data availability of arbitrary data without checking
+any semantic validity. As such, they constitute a \emph{lazy} use of a ledger~\cite{lazyledger,lazylight}.
+All popular blockchains such as, for example, Ethereum and Bitcoin are bulletins.
+Bitcoin allows the recording of arbitrary data using \textsf{OP\_RETURN}
+transactions, whereas Ethereum allows such recording by including the
+data in the \textsf{CALLDATA} of a smart contract call, or in the parameters
+of an event.
+
+\paragraph{Certifiability}
+
+\begin{definition}[Certifiability]
+  A ledger protocol $\Pi$ accompanied by a functionality $\transcribe$
+  and a computable deterministic function $\untranscribe$ is called
+  \emph{certifiable} if, ???
+  % TODO: describe safety and liveness in context of certificates
+\end{definition}
+
+% TODO: restore this definition
+% \begin{definition}[Transcribability]
+%       Definition of transcribability...
+% \end{definition}
+%
