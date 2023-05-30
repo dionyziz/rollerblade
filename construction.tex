@@ -242,26 +242,5 @@ $k^\text{th}$ round/transaction pair is $\Ledger[j][i][r][k]$).
 %   \item Rollerblade ledger: A construction of a ledger protocol on top of rollerblade.
 % \end{enumerate}
 %
-% \dionyziz{
-% I think the above conjecture can be stated in the UC framework as:
-% ``$\rollerblade_{ko}$'' \emph{UC-realizes} $\fko$
-% }
-%
-% Underlying network model: Lockstep (rounds) but delays can be arbitrary
-%
-% A similar conjecture is posited between $\fto$ and $\rollerblade_{to}$.
-%
-% \begin{conjecture}[B]
-%   Consider two executions $\mathcal{E}_1, \mathcal{E}_2$
-%   of $\Pi$ on top of $\rollerblade_{ko}$ using the same underlying ledgers
-%   $\{Y_i\}_{i\in[n]}$. Then, consider the subset of secure underlying ledgers
-%   $\overline{Y}$.
-%
-%   For any $Y_i \in \overline{Y}$, consider the views $V^1_i$, $V^2_i$
-%   of party $Y_i$ in $\Pi$ during executions $\mathcal{E}_1$ and $\mathcal{E}_2$
-%   respectively. Then these views are ``similar enough'' (they will converge
-%   if we wait a few rounds).
-% \end{conjecture}
-%
 % % TODO: Remark: Dolev--Strong can be ran on top of \rollerblade. This is useful when combined with interoperability.
 %
