@@ -40,7 +40,7 @@
           \Break
         \EndIf
         % TODO(dionyziz): Turn this into "switch"?
-        \If{$\instruction\textsf{.type} = `\text{write}'$}
+        \If{$\instruction\textsf{.type} = \text{`write'}$}
           \State{$\writes[r]\textsf{.append}(\instruction\textsf{.data})$}
           \Continue
         \EndIf
