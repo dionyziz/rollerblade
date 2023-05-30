@@ -51,6 +51,11 @@ contiguous honest participation is also known in the literature as
 %
 % TODO: define underlying, overlay, good, VIEW...
 
+% TODO: Define the relationship between Z and Z';
+%       we are hoping that Z' will have exactly the same writes as Z
+%       (perhaps more due to adversarial writes) for each party
+%       and that those will appear in "close enough" times (maybe up to $u$ away
+%       from the original)
 \begin{conjecture}[Simulation]
   Consider any overlay protocol $\Pi$, any number of overlay parties $n \in \mathbb{N}$,
   indices $\mathcal{H} \subseteq [n]$ of honest parties,
