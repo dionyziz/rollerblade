@@ -88,15 +88,81 @@ of an event.
 
 \paragraph{Certifiability}
 
+% TODO: generalize from certificates to transcriptions
+% TODO: clean up this definition
 \begin{definition}[Certifiability]
-  A ledger protocol $\Pi$ accompanied by a functionality $\transcribe$
-  and a computable deterministic function $\untranscribe$ is called
-  \emph{certifiable} if, ???
-  % TODO: describe safety and liveness in context of certificates
+  A ledger protocol $\Pi$ accompanied by a computable functionality $\transcribe$
+  and a computable deterministic (non-interactive) function $\untranscribe$ is called
+  \emph{certifiable}. The functionality $\transcribe$ is called on a full node
+  and returns a \emph{transcription} of its current ledger. The function
+  $\untranscribe$ is called with the transcription as the parameter,
+  and is hoped to return the original ledger.
+  The certifiable protocol is \emph{live}
+  % TODO: Can we unify this definition of liveness/safety with the ledger protocol
+  % using one definition for both?
+  if, in addition to the liveness requirements of the ledger protocol,
+  whenever $\transcribe()$ is called on an honest
+  party $P$ with a ledger $L$ and returns a transcription $\tau$,
+  then $\untranscribe(\tau) = L$.
+
+  % TODO: I don't like that this talks about "whenever" untranscribe is called...
+  % it might be called incorrectly? Also this seems kind of internal to the construction...
+  The certifiable protocol is \emph{safe}
+  if,
+  in addition to the safety requirements of the ledger protocol,
+  whenever an honest party $P_1$ executes $\untranscribe(\tau)$ at round $r_1$
+  with some (honestly or adversarially produced) transcription $\tau$,
+  then for all honest parties $P_2$ at round $r_2$, it holds that
+
+  \[
+    \Ledger[P_1][][r_1] \preceq \Ledger[P_2][][r_2] \lor
+    \Ledger[P_2][][r_2] \preceq \Ledger[P_1][][r_1]
+  \]
 \end{definition}
+
+\begin{definition}[Underlying Protocol]
+  An \emph{underlying protocol} is a
+  (potentially permissionless)
+  distributed temporal ledger protocol
+  which is a bulletin board and a
+  certifiable protocol.
+\end{definition}
+
+In summary, the underlying ledgers provide the following functionalities:
+
+\begin{enumerate}
+  \item \textbf{construct}: Initializes the protocol.
+  \item \textbf{execute}: Executes one round of the protocol.
+  \item \textbf{write}: Writes a transaction to the ledger. The transaction
+        appears within $u$ rounds if the ledger protocol is \emph{live}.
+  \item \textbf{read}: Reads the temporal ledger. The ledger read is
+        consistent with whatever other honest parties are reading if the
+        ledger protocol is \emph{safe}, and the transactions appear with
+        correct recorded rounds if the protocol is \emph{timely}.
+  \item \textbf{encode}: Given an arbitrary string, produces a valid bulletin transaction.
+  \item \textbf{decode}: Given a bulletin transaction, produces the original
+        string used to encode it.
+  \item \textbf{transcribe}: Produces a transcription $\tau$ of the
+        current temporal ledger.
+  \item \textbf{untranscribe}: Given a transcription $\tau$, produces a ledger
+        promised to be \emph{safe} and \emph{live} as compared to the
+        rest of the honest parties.
+\end{enumerate}
 
 % TODO: restore this definition
 % \begin{definition}[Transcribability]
 %       Definition of transcribability...
 % \end{definition}
 %
+
+\subsection{Overlay Requirements}
+
+Our construction allows running \emph{any} deterministic
+overlay permissioned distributed protocol
+working over authenticated channels.
+
+% TODO: write out the execution environment...
+\begin{definition}[Overlay Protocol]
+  An \emph{overlay protocol} is any deterministic
+  permissioned distributed protocol.
+\end{definition}

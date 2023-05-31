@@ -10,6 +10,21 @@
   for all honest parties $P_2$ and for all rounds $r^* + v < r_2 < R - u - 1$
   it holds that
   $(r^*, \tx) \in \Ledger[P_2][][r_2]$,
+  % TODO:
+  % We may be able to remove this extra assumption if
+  % we change temporal ledgers to also report their "current time"
+  % under the following constraints:
+  % 1) In synchronous settings, or after GST in psync, the "current time"
+  %    reported by the ledger must not be too far in the past (more than $v$?)
+  % 2) The "current time" reported must march only forward;
+  %    the next "current time" reported must be larger than the
+  %    current "current time" reported.
+  % 3) If I read the ledger at some round r_1 and the current time reported
+  %    is r_1', then I read the ledger again at round r_2 > r_1, then
+  %    any *new* transactions that appear must have a recorded round of
+  %    at least r_1'.
+  % We may be able to replace "timeliness" completely with the above
+  % definition.
   as long as at least one new honest transaction $\tx'$ appears at
   any round $r_3 > r_2$.
 \end{lemma}

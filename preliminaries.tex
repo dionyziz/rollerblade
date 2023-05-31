@@ -15,28 +15,46 @@ when every element of $X$ appears in $Y$ at the
 same location (but $Y$ may have more elements beyond $|X|$).
 We write $X[i] = \bot$ for $i \geq |X|$ to indicate that the sequence
 has been exhausted.
-We use $[n]$ to denote the set $\{1, 2, \ldots, n\}$.
+% TODO: This is a bit unconventional?...
+We use $[n]$ to denote the set $\{0, 1, \ldots, n - 1\}$.
 
 \noindent
 \textbf{Distributed Protocols.}
 In this work, we are concerned with the composition of distributed
-protocols. A distributed protocol $\Pi$ is an interactive Turing machine
-(in modern programming lingo corresponding to an OOP \emph{class}),
-which:
+protocols.
+% TODO: Maybe move this to separate paragraph outside of distributed protocols
 
-\begin{itemize}
-  \item Is \emph{initialized} with its own identity $j \in \mathbb{N}$
-        and the number $n \in \mathbb{N}$ of parties it will coordinate
-        with.
-  \item Can take user input by accepting a \emph{write} instruction which
-        is accompanied by some \emph{data} string.
-  \item Produces user output by accepting a \emph{read} instruction which
-        produces some \emph{data} string as its output. We mandate that,
-        upon its completion, the execution of a \emph{read} instruction
-        does not change the state of the interactive machine.
-  \item Uses a \emph{netout} functionality to send messages.
-  \item Uses a \emph{netin} functionality to receive messages.
-\end{itemize}
+A distributed protocol $\Pi$ is an interactive Turing machine (ITM).
+To simplify the exposition, we treat this ITM
+as an object-oriented class $\Pi$ and the respective \emph{party}
+(a particular ITM \emph{instance}) as an object (class instance).
+
+\begin{definition}[Distributed Protocol]
+  A \emph{distributed protocol} is an ITM which exposes the follow methods:
+
+  \begin{itemize}
+    \item $\construct^\net()$:
+          This method called when the protocol is \emph{instantiated} into a
+          \emph{party}. We denote this using the notation $\new \Pi^\net()$,
+          which returns a party that can be interacted with.
+          It is also given oracle access to a network functionality
+          $\net$.
+    \item $\lwrite(\data)$:
+          Takes user input by accepting some \emph{data} string.
+    \item $\lread()$:
+          Produces user output in the form of some \emph{data} string.
+          We mandate that,
+          upon its completion, the execution of a \emph{read} instruction
+          does not change the state of the interactive machine.
+    \item $\execute()$:
+          Executes a single round of the protocol.
+          Within $\execute$, the machine can
+          use the \emph{netout} functionality of $\net$ to send messages
+          (as many times as it wishes)
+          and the \emph{netin} functionality of $\net$ to receive messages
+          (once per round).
+  \end{itemize}
+\end{definition}
 
 The same protocol $\Pi$ is \emph{instantiated} into multiple instances,
 each called a \emph{party} (conceptually running on a different computer each).
@@ -45,6 +63,13 @@ as \emph{honest}, while others are designated as \emph{adversarial}.
 All honest parties run the prescribed protocol $\Pi$, whereas adversarial
 parties may run any protocol of their choice (including $\Pi$).
 All adversarial parties are controlled by one colluding adversary $\mathcal{A}$.
+
+% TODO: Write out the environment?
+\begin{definition}[Permissioned Distributed Protocol]
+  A distributed protocol is \emph{permissioned} if its \emph{construct}
+  method accepts its own identity $j \in \mathbb{N}$
+  and the number $n \in \mathbb{N}$ of parties it will coordinate with.
+\end{definition}
 
 \noindent
 \textbf{Executions.}
@@ -55,11 +80,22 @@ protocol and the adversary, including the local state of each
 party and the network messages that were exchanged. The execution
 concludes after a finite amount of time.
 
+% TODO: Consider moving time above the "distributed protocol" definition,
+% since the concept of "round" is used within that definition.
 \noindent
 \textbf{Time.}
-We model time as taking place in discrete \emph{rounds} $1, 2, \ldots$.
+We model time as taking place in discrete \emph{rounds} $0, 1, \ldots$.
 The parties run in \emph{lockstep}:
 During each round, each party is allowed to run some (finite) computation.
+Each party is initialized (by having its $\construct$ function called)
+before round $0$ commences.
+Subsequently, round $0$ starts by having the $\execute$ function of each
+party called, without any inputs provided by the environment (in the form
+of ``writes'' or network inputs).
+By the end of each round, the machine can produce some network outputs
+to the environment. During every non-zero round, the environment
+makes some network inputs available to the party being executed,
+subject to the network constraints defined below.
 
 \noindent
 \textbf{Network.}

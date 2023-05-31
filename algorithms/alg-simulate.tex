@@ -26,11 +26,11 @@
       \CommentLine{Oracles passed to the overlay protocol}
       \Let{\net}{(\textsf{send}, \textsf{receive})}
 
-      \Let{\Z[j][i]}{\textsf{new } \Pi^\net(j, n)}
+      \Let{\Z[j][i]}{\new \Pi^\net(j, n)}
+      \State{$\Z[j][i].\textsf{execute}()$}\Comment{Execute the machine for round $0$ without any inputs}
       \For{$r \in [\simulationRound]$}
         \Let{\sf roundReceives}{[\,]}
         \Let{\sf outboxThisRound}{[\,]}
-
 
         \For{$\textsf{data} \in \textsf{writes}[r]$}
           \State{$\Z[j][i].\textsf{write}(\textsf{data})$}
