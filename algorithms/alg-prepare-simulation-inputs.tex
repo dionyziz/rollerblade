@@ -9,7 +9,7 @@
     arranged by round.
   }
   \begin{algorithmic}[1]
-    \Function{\prepareSimulationInputs}{$\Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
+    \Function{\prepareSimulationInputs}{$\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
       \Let{v}{\max_{\Y[j][i'] \in \Y[j]}{\{\Y[j][i'].v\}}}
       \If{$\simulationRound \geq \realityRound - v$}
         \State\Return{$\bot$} \Comment{Simulation round is too far in the future}
@@ -32,7 +32,7 @@
         \State{\consumedLengths.\textsf{append}(0)}
       \EndFor
 
-      \Let{L}{\textsf{decode-underlying}(\Y[j][i]\textsf{.decode}, \Ledger[][i])}
+      \Let{L}{\decodeUnderlying(\sid, \Y[j][i]\textsf{.decode}, \Ledger[][i])}
       \For{$(r, \instruction) \in L$}
         % TODO: Mention that timeliness (time marches forward)
         \If{$r \geq \simulationRound$}

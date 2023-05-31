@@ -1,5 +1,20 @@
 \section{Construction}\label{sec:construction}
 
+Before diving into the details of the pseudocode, we give an intuitive overview
+of the \rollerblade construction.
+
+% TODO: Consider whether there is duplication with the introduction here
+
+There are $m$ \rollerblade clients numbered $1, 2, \ldots, j, \ldots, m$
+and $n$ underlying protocols $\Y[][][1], \Y[][][2], \ldots, \Y[][][i], \ldots, \Y[][][n]$.
+Each $\RB[j]$ of the clients runs a full node for each of the $n$ underlying
+ledger protocols $\Y[j][][i]$.
+Each $\RB[j]$ \emph{simulates} within its implementation $n$ different instances
+of the overlay protocol $\Pi$, one for every underlying ledger protocol $\Y[j][][i]$.
+% TODO: figure
+The \rollerblade client allows the external user to issue a \emph{write} instruction
+to any $i^\text{th}$ simulated machine.
+
 % \subsection{A Majority Vote}\label{sec:construction-naive}
 %
 % Composing many underlying ledgers into an overlay ledger is not complicated, but it is complex
@@ -141,11 +156,14 @@
 %
 % \subsection{Compatibility}\label{sec:compatibility}
 %
+
+\import{./}{algorithms/alg-relay}
 \import{./}{algorithms/alg-decode-underlying}
 \import{./}{algorithms/alg-outboxes-to-inbox}
-\import{./}{algorithms/alg-relay}
 \import{./}{algorithms/alg-prepare-simulation-inputs}
 \import{./}{algorithms/alg-simulate}
+\import{./}{algorithms/alg-read-write}
+
 %
 % \section{New material 2023-04-19}
 %

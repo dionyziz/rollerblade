@@ -1,0 +1,21 @@
+\begin{algorithm}[H]
+  \caption{\label{alg.read-write}
+    The \emph{readFromMachine} and \emph{writeToMachine} functions
+    made available to the external user by a \rollerblade party.
+  }
+  \begin{algorithmic}[1]
+    \Function{\sf readFromMachine}{$\sid, \Pi, i, \Y[j], \simulationRound, \realityRound$}
+      \Let{\Ledger[j][i]}{\Y[j][i].\lread()}
+      \Let{Z}{\simulate(\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound){.}Z}
+      \State\Return{$Z.\lread()$}
+    \EndFunction
+
+    \Function{\sf writeToMachine}{$\sid, i, \data, \Y[j]$}
+      \Let{\instruction}{\{\sid{:} \sid, \type{:} \text{`write'}, \data{:} \data\}}
+      \Let{s}{\serialize(\instruction)}
+      \Let{\tx}{\Y[j][i].\encode(s)}
+      \State{$\Y[j][i].\lwrite(\tx)$}
+    \EndFunction
+    \vskip2pt
+  \end{algorithmic}
+\end{algorithm}

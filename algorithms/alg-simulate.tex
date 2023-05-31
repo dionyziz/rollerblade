@@ -8,8 +8,8 @@
     as reported by overlay party $i$.
   }
   \begin{algorithmic}[1]
-    \Function{\sf simulate}{$\Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
-      \Let{(\writes, \inboxes)}{\prepareSimulationInputs(\Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound)}
+    \Function{\sf simulate}{$\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
+      \Let{(\writes, \inboxes)}{\prepareSimulationInputs(\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound)}
 
       \Let{\sf outboxes}{[\,]}
       \Let{\sf inboxThisRound}{[\,]}
