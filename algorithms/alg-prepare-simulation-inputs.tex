@@ -10,8 +10,7 @@
   }
   \begin{algorithmic}[1]
     \Function{\prepareSimulationInputs}{$\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
-      \Let{v}{\max_{\Y[j][i'] \in \Y[j]}{\{\Y[j][i'].v\}}}
-      \If{$\simulationRound \geq \realityRound - v$}
+      \If{$\simulationRound \geq \realityRound - \Y[j][i].v$}
         \State\Return{$\bot$} \Comment{Simulation round is too far in the future}
       \EndIf
 
@@ -20,8 +19,8 @@
 
       \For{$r \in [\simulationRound]$}
         \CommentLine{For each round $r$, $\inboxes[r]$ and $\writes[r]$ is a \emph{list} of inputs}
-        \State{\inboxes\textsf{.append}([\,])}
-        \State{\writes\textsf{.append}([\,])}
+        \State{\inboxes.\append([\,])}
+        \State{\writes.\append([\,])}
       \EndFor
 
       \Let{n}{|\Y[j]|}\Comment{Number of overlay parties}
@@ -29,7 +28,7 @@
       \Let{\sf \consumedLengths}{[\,]}
 
       \For{$i' \in [n]$}\Comment{How many messages each other overlay party $i'$ has ``sent'' us}
-        \State{\consumedLengths.\textsf{append}(0)}
+        \State{\consumedLengths.\append(0)}
       \EndFor
 
       \Let{L}{\decodeUnderlying(\sid, \Y[j][i]\textsf{.decode}, \Ledger[][i])}
@@ -41,7 +40,7 @@
         \EndIf
         % TODO(dionyziz): Turn this into "switch"?
         \If{$\instruction\textsf{.type} = \text{`write'}$}
-          \State{$\writes[r]\textsf{.append}(\instruction\textsf{.data})$}
+          \State{$\writes[r].\append(\instruction\textsf{.data})$}
           \Continue
         \EndIf
         \If{$\instruction\textsf{.type} = \text{`checkpoint'}$}
@@ -52,7 +51,7 @@
           \Let{\unprocessedNetins}{\textsf{netins}[\consumedLengths[i']{:}]}
 
           \For{$\netin \in \unprocessedNetins$}
-            \State{$\inboxes[r]\textsf{.append}(\netin)$}
+            \State{$\inboxes[r].\append(\netin)$}
           \EndFor
           \Let{\consumedLengths[i']}{\consumedLengths[i'] + |\unprocessedNetins|}
         \EndIf

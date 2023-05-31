@@ -1,0 +1,24 @@
+\begin{algorithm}[H]
+  \caption{\label{alg.consensus} The write and read functionalities of a consensus \rollerblade node.}
+  \begin{algorithmic}[1]
+    \Function{\lread}{$\sid, \Pi, \Y[j], \realityRound$}
+      \Let{\overline{L}}{[\,]}
+      %TODO: is this zero-based?
+      \Let{v}{\max_{\Y[j][i] \in \Y[j]}{\{\Y[j][i].v\}}}
+      \Let{\simulationRound}{\realityRound - v - 1}
+      \For{$i \in [|\Y[j]|]$}
+        \Let{L}{\readFromMachine(\sid, \Pi, i, \Y[j], \simulationRound, \realityRound)}
+        \State{$\overline{L}$.\append($L$)}
+      \EndFor
+      \State{\Return{$\majorityVote(\overline{L})$}}
+    \EndFunction
+
+    \Function{\lwrite}{$\sid, \Y[j], \tx$}
+      \For{$i \in [|\Y[j]|]$}
+        \State{$\writeToMachine(\sid, i, \tx, \Y[j])$}
+      \EndFor
+    \EndFunction
+
+    \vskip2pt
+  \end{algorithmic}
+\end{algorithm}

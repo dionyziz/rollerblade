@@ -9,7 +9,7 @@
       \For{$\outbox \in \outboxes$}
         \For{$\netout \in \outbox$}
           % TODO(dionyziz): typeset
-          \State{\inbox.\textsf{append}(\{
+          \State{\inbox.\append(\{
             \textsf{from}{:} \netout\textsf{.to},
             \textsf{msg}{:} \netout\textsf{.msg}
           \})}

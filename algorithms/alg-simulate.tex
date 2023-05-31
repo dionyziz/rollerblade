@@ -16,7 +16,7 @@
       \Let{\sf outboxThisRound}{[\,]}
 
       \Function{\sf send}{recp, m}
-        \State{$\textsf{outboxThisRound}\textsf{.append}((\textsf{recp}, m))$}
+        \State{$\textsf{outboxThisRound}.\append((\textsf{recp}, m))$}
       \EndFunction
 
       \Function{\sf receive}{}
@@ -37,13 +37,13 @@
         \EndFor
 
         \For{$(\textsf{from}, m) \in \textsf{inboxes[r]}$}
-          \State{$\textsf{inboxThisRound.append}((\textsf{from},m))$}
+          \State{$\textsf{inboxThisRound}.\append((\textsf{from},m))$}
         \EndFor
 
         \CommentLine{Run a single round of the overlay machine for round $r+1$}
         \State{$\Z[j][i].\textsf{execute}()$}
 
-        \State{$\textsf{outboxes.append}(\textsf{outboxThisRound})$}
+        \State{$\textsf{outboxes}.\append(\textsf{outboxThisRound})$}
       \EndFor
 
       \State\Return{$\{\textsf{outboxes}{:} \textsf{outboxes}, Z{:} \Z[j][i]\}$}
