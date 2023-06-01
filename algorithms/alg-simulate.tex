@@ -32,15 +32,17 @@
         \Let{\sf roundReceives}{[\,]}
         \Let{\sf outboxThisRound}{[\,]}
 
-        \For{$\textsf{data} \in \textsf{writes}[r]$}
+        \For{$\textsf{data} \in \textsf{writes}[r - 1]$}
+          \CommentLine{Submit `write' commands recorded at round $r - 1$}
           \State{$\Z[j][i].\textsf{write}(\textsf{data})$}
         \EndFor
 
-        \For{$(\textsf{from}, m) \in \textsf{inboxes[r]}$}
+        \For{$(\textsf{from}, m) \in \textsf{inboxes[r - 1]}$}
+          \CommentLine{Record network messages disbursed at round $r - 1$}
           \State{$\textsf{inboxThisRound}.\append((\textsf{from},m))$}
         \EndFor
 
-        \CommentLine{Run a single round of the overlay machine for round $r+1$}
+        \CommentLine{Run a single round of the overlay machine for round $r$}
         \State{$\Z[j][i].\textsf{execute}()$}
 
         \State{$\textsf{outboxes}.\append(\textsf{outboxThisRound})$}
