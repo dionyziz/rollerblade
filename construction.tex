@@ -18,10 +18,12 @@ $\Y[j][1], \Y[j][2], \ldots, \Y[j][i], \ldots, \Y[j][n]$.
 % TODO: figure
 
 The \rollerblade client $\RB[j]$ allows the external user to issue a \emph{write} instruction
+with some \data
 to any $i^\text{th}$ simulated machine $\Z[j][i]$. This is done as follows. When the user
 of $\RB[j]$ issues a \emph{write} instruction to $\Z[j][i]$, this instruction is not given to
-$\Z[j][i]$ directly. Instead, it is \emph{encoded} into a transaction and recorded on the
-respective underlying ledger $\Y[j][i]$.
+$\Z[j][i]$ directly. Instead, it is serialized into a string and \emph{encoded} into a transaction
+to be recorded on the respective underlying ledger $\Y[j][i]$. This is captured by
+the \writeToMachine function illustrated in Algorithm~\ref{alg.read-write}.
 The encoding functionality is made available because
 the underlying ledgers are assumed to be bulletin boards.
 When the `write' instruction becomes recorded in the ledger $\Ledger[j][i]$ reported
@@ -61,7 +63,133 @@ produced by any of the $\Z[j][i]$ are ever written on the ledger. Instead, we ob
 that reading the checkpoints is sufficient for each rollerblade client to reproduce
 the network outputs of all simulated machines.
 
-Let us now explore, in more detail, how this simulation works.
+Let us now explore, in more detail, how this simulation works. Each rollerblade execution
+of a particular overlay protocol $\Pi$ on top of a certain number of underlying ledger
+protocols $\Y$ is marked with a \emph{session id} \sid in order to achieve context
+separation with other rollerblades running, potentially different, protocols $\Pi'$
+on top of a, potentially different but not disjoint, set of underlying ledger protocols
+$\Y[][']$. This \sid is placed into every instruction recorded on-ledger, in particular
+the `write' and `checkpoint' instructions.
+
+The simulation only runs
+on-demand when the user of $\RB[j]$ issues a \emph{read} instruction to the machine
+$\Z[j][i]$. The user can indicate that the read instruction pertains to a particular
+round $\simulationRound$, and the \emph{read} instruction is conveyed to the snapshot
+of $\Z[j][i]$ immediate after round $\simulationRound$ has been executed.
+
+The entry point for $\RB[j]$'s reading from a simulated machine
+is illustrated in Algorithm~\ref{alg.read-write}.
+The \readFromMachine function takes the \sid, the overlay protocol $\Pi$ to run,
+the identity $i$ of the simulated machine to read from,
+and the array of underlying ledger protocol instances $\Y[j]$
+(corresponding to the full node parties maintained by $\RB[j]$),
+with $|\Y[j]| = n$. Additionally, the round for which the read is requested
+is passed in the \simulationRound parameter, and \realityRound denotes the
+current round of the external clock of $\RB[j]$. During our analysis, we will
+see that, while \simulationRound and \realityRound pass at the same rate,
+the user of $\RB[j]$ must wait for some \realityRound rounds for the simulation
+to ``settle'' before he can invoke \readFromMachine with the respective \simulationRound.
+The \readFromMachine machine function simulates the execution of the machine
+$\Z[j][i]$ using the data obtained by \emph{reading} the ledger $\Ledger[j][i]$
+reported by $\Y[j][i]$ at round \realityRound. Upon reading the ledger,
+the \readFromMachine function invokes the \simulate function to obtain an instance
+of the $\Z[j][i]$ machine executed up to round \simulationRound (inclusive).
+Lastly, the \readFromMachine function invokes the \lread function of the simulated
+machine $\Z[j][i]$ right after the \simulationRound execution has completed.
+
+The core simulation is implemented in the function \simulate illustrated in
+Algorithm~\ref{alg.simulate}, which takes parameters with the same semantics as
+the \readFromMachine function parameters. The job of the \simulate function
+is to simulate the execution of machine $\Z[j][i]$ up to, and including, round
+$\simulationRound$. This is all done within the mind of machine $\RB[j]$,
+with no external communication at all. Upon completing the simulation,
+the \simulate function returns the instance of the machine $\Z[j][i]$,
+which can be used to apply \lread on it by the user.
+
+Additionally, the
+\simulate function returns all the network outputs that $\Z[j][i]$
+produced during the simulation, which we call its \emph{outboxes}
+(Line~\ref{alg.simulate:return}). The outboxes (initialized in
+Line~\ref{alg.simulate:outboxes-init}) are structured as an array
+containing one \emph{outbox} per index, each index corresponding to
+a round of execution. In particular $\outboxes[r]$ contains the
+outbox produced by simulated party $\Z[j][i]$ during round $r$.
+This outbox $\outboxes[r]$, produced during round $r$, is a list
+of authenticated messages \netouts. Each such authenticated
+message \netout in \netouts is a dictionary containing two entries:
+The \emph{to} entry is a number between $1$ and $n$
+indicating the recipient of the message; the \emph{msg}
+entry is the string of the message to be delivered.
+Since rounds begin at $0$, the entry $\outboxes[0]$ is the
+empty outbox (ensured in its initialization in
+Line~\ref{alg.simulate:outboxes-init}).
+
+To conduct the simulation, the \simulate function initially calls
+\prepareSimulationInputs (Line~\ref{alg.simulate:recursion}),
+which prepares two arrays \emph{writeboxes}
+and \emph{inboxes} to be used by the simulation of $\Z[j][i]$.
+These sequences are produced by reading the ledger $\Ledger[j][i]$.
+\emph{The whole simulation of $\Z[j][i]$ is based only on the data
+recorded on its respective ledger.}
+The array \emph{writeboxes} is structured as an array containing
+one \emph{writebox} per index, each index corresponding to a
+round of execution. In particular, $\writeboxes[r]$ contains the
+writebox to be used prior to the execution of round $r$.
+The writebox $\writeboxes[r]$ is a list of strings that must be
+written using the \emph{write} functionality of the $\Z[j][i]$.
+These writes correspond to (honestly or adversarially) recorded
+`write' instructions on the ledger $\Ledger[j][i]$.
+The data structure $\inboxes$ is structured similarly.
+The inbox $\inboxes[r]$ contains the inbox to be used \emph{during}
+the execution of $\Z[j][i]$ at round $r$. The inbox $\inboxes[r]$
+is a list of authenticated messages \netins. Each such authenticated
+message \netin in \netins is a dictionary containing two entries:
+The \emph{from} entry is a number between $1$ and $n$ indicating the
+sender of the message; the \emph{msg} entry is the string of
+the message to be delivered.
+
+The simulation begins by initializing a new machine $\Z[j][i]$
+from scratch (Line~\ref{alg.simulate:construct}). The simulation
+proceeds in rounds managed by the main loop in
+Line~\ref{alg.simulate:for}. For each iteration of this \emph{for}
+loop, the \emph{execute} function of the simulated machine
+is invoked, once per every round $r$. In preparation of the
+execution for round $r$, we have to invoke the \emph{write}
+function of $\Z[j][i]$ for every write in the writebox pertaining
+to round $r$. This is performed in the \emph{for} loop of
+Line~\ref{alg.simulate:write}, which invokes $\Z[j][i]$'s
+\emph{write} method for each \emph{write} in the current
+round's writebox.
+
+During initialization (Line~\ref{alg.simulate:construct}),
+the simulated machine is
+initialized by giving it access to the network oracle $\net$.
+Whereas, normally, the protocol $\Pi$ would have expected this
+oracle to realize an authenticated channels functionality, we
+\emph{trap} the calls to the network \emph{send} and network
+\emph{receive} functions that the instance $\Z[j][i]$ of $\Pi$
+may call and we replace them with our own implementation based on
+the underlying ledgers. The trapped functions are implemented
+in Line~\ref{alg.simulate:send} and Line~\ref{alg.simulate:receive}
+respectively. The machine $\Z[j][i]$ may invoke the network
+\emph{send} method during its \emph{execute} invocation $0$
+or more times during the round. When the network \emph{send} method
+is invoked by $\Z[j][i]$, the message is \emph{not} conveyed
+to other machines. Instead, it is appended to the array
+$\outboxThisRound$. The variable contains the append-only
+outbox produced by the simulation during round $r$. It is
+initialized as the empty array
+(Line~\ref{alg.simulate:outboxThisRound-init}) at the beginning
+of every round. Upon the completion of a round's execution,
+the particular outbox is appended to the list of all outboxes
+(Line~\ref{alg.simulate:outboxes-append}).
+Lastly, in preparation for the execution of round $r$,
+the variable $\inboxThisRound$ is initialized to
+$\inboxes[r - 1]$ (Line~\ref{alg.simulate:netin})
+and is an inbox containing the network messages to be
+delivered at round $r$ (and may have been disbursed during
+rounds $r - \Delta, \ldots, r - 1$). This inbox is returned
+whenever the simulated machine calls network \emph{receive}.
 
 % \subsection{A Majority Vote}\label{sec:construction-naive}
 %

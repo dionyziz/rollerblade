@@ -62,15 +62,17 @@
 \newcommand{\ftor}{\mathcal{F}_{tor}}
 \newcommand{\inbox}{\textsf{inbox}}
 \newcommand{\inboxes}{\textsf{inboxes}}
-\newcommand{\writes}{\textsf{writes}}
+\newcommand{\writeboxes}{\textsf{writeboxes}}
 \newcommand{\outbox}{\textsf{outbox}}
 \newcommand{\outboxes}{\textsf{outboxes}}
+\newcommand{\outboxThisRound}{\textsf{outboxThisRound}}
+\newcommand{\inboxThisRound}{\textsf{inboxThisRound}}
 \newcommand{\sent}{\textsf{sent}}
 \newcommand{\recv}{\textsf{recv}}
 \newcommand{\this}{\textsf{this}}
 \newcommand{\sid}{\textsf{sid}}
 \newcommand{\construct}{\textsf{construct}}
-\newcommand{\new}{\textsf{new}}
+\newcommand{\new}{\textsf{new}\xspace}
 \newcommand{\transcribe}{\textsf{transcribe}}
 \newcommand{\untranscribe}{\textsf{untranscribe}}
 \newcommand{\serialize}{\textsf{serialize}}
@@ -84,8 +86,10 @@
 \newcommand{\consumedLengths}{\textsf{consumedLengths}}
 \newcommand{\decodeUnderlying}{\textsf{decodeUnderlying}}
 \newcommand{\netout}{\textsf{netout}}
+\newcommand{\netouts}{\textsf{netouts}}
 \newcommand{\type}{\textsf{type}}
 \newcommand{\netin}{\textsf{netin}}
+\newcommand{\netins}{\textsf{netins}}
 \newcommand{\unprocessedNetins}{\textsf{unprocessedNetins}}
 \newcommand{\outboxesToInbox}{\textsf{outboxesToInbox}}
 \newcommand{\prepareSimulationInputs}{\textsf{prepareSimulationInputs}}
@@ -95,8 +99,9 @@
 \newcommand{\writeToMachine}{\textsf{writeToMachine}}
 \newcommand{\append}{\textsf{append}}
 
-\newcommand{\lwrite}{\textsf{write}}
-\newcommand{\lread}{\textsf{read}}
+% TODO(dionyziz): \xspace everywhere
+\newcommand{\lwrite}{\textsf{write}\xspace}
+\newcommand{\lread}{\textsf{read}\xspace}
 \newcommand{\Exec}{\mathcal{E}}
 \newcommand{\simulationRound}{\textsf{simulationRound}}
 \newcommand{\realityRound}{\textsf{realityRound}}

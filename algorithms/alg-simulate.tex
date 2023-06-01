@@ -9,46 +9,44 @@
   }
   \begin{algorithmic}[1]
     \Function{\sf simulate}{$\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
-      \Let{(\writes, \inboxes)}{\prepareSimulationInputs(\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound)}
+      \Let{(\writeboxes, \inboxes)}{\prepareSimulationInputs(\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound)}\label{alg.simulate:recursion}
 
-      \Let{\sf outboxes}{[\,]}
-      \Let{\sf inboxThisRound}{[\,]}
-      \Let{\sf outboxThisRound}{[\,]}
+      \Let{\sf outboxes}{[[\,]]}\label{alg.simulate:outboxes-init}
+      \Let{\inboxThisRound}{[\,]}
+      \Let{\outboxThisRound}{[\,]}
 
-      \Function{\sf send}{recp, m}
-        \State{$\textsf{outboxThisRound}.\append((\textsf{recp}, m))$}
+      \Function{\sf send}{recp, m}\label{alg.simulate:send}
+        \State{$\outboxThisRound.\append(\{\textsf{to}{:} \textsf{recp}, \textsf{msg}{:}m\})$}
       \EndFunction
 
-      \Function{\sf receive}{}
-        \State\Return{\sf inboxThisRound}
+      \Function{\sf receive}{\,}\label{alg.simulate:receive}
+        \State\Return{\inboxThisRound}
       \EndFunction
 
       \CommentLine{Oracles passed to the overlay protocol}
       \Let{\net}{(\textsf{send}, \textsf{receive})}
 
-      \Let{\Z[j][i]}{\new \Pi^\net(j, n)}
+      \Let{\Z[j][i]}{\new \Pi^\net(j, n)}\label{alg.simulate:construct}
       \State{$\Z[j][i].\textsf{execute}()$}\Comment{Execute the machine for round $0$ without any inputs}
-      \For{$r \in [\simulationRound]$}
+      \For{$r \in [\simulationRound]$}\label{alg.simulate:for}
         \Let{\sf roundReceives}{[\,]}
-        \Let{\sf outboxThisRound}{[\,]}
+        \Let{\outboxThisRound}{[\,]}\label{alg.simulate:outboxThisRound-init}
 
-        \For{$\textsf{data} \in \textsf{writes}[r - 1]$}
+        \For{$\textsf{data} \in \textsf{writeboxes}[r - 1]$}\label{alg.simulate:write}
           \CommentLine{Submit `write' commands recorded at round $r - 1$}
           \State{$\Z[j][i].\textsf{write}(\textsf{data})$}
         \EndFor
 
-        \For{$(\textsf{from}, m) \in \textsf{inboxes[r - 1]}$}
-          \CommentLine{Record network messages disbursed at round $r - 1$}
-          \State{$\textsf{inboxThisRound}.\append((\textsf{from},m))$}
-        \EndFor
+        \CommentLine{Prepare network messages to be delivered at round $r$}
+        \Let{\inboxThisRound}{\inboxes[r - 1]}\label{alg.simulate:netin}
 
         \CommentLine{Run a single round of the overlay machine for round $r$}
-        \State{$\Z[j][i].\textsf{execute}()$}
+        \State{$\Z[j][i].\textsf{execute}()$}\label{alg.simulate:execute}
 
-        \State{$\textsf{outboxes}.\append(\textsf{outboxThisRound})$}
+        \State{$\outboxes.\append(\outboxThisRound)$}\label{alg.simulate:outboxes-append}
       \EndFor
 
-      \State\Return{$\{\textsf{outboxes}{:} \textsf{outboxes}, Z{:} \Z[j][i]\}$}
+      \State\Return{$\{\outboxes{:} \outboxes, Z{:} \Z[j][i]\}$}\label{alg.simulate:return}
     \EndFunction
     \vskip2pt
   \end{algorithmic}

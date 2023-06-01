@@ -14,13 +14,13 @@
         \State\Return{$\bot$} \Comment{Simulation round is too far in the future}
       \EndIf
 
-      \Let{\inboxes}{[\,]}
-      \Let{\writes}{[\,]}
+      \Let{\inboxes}{[[\,]]}
+      \Let{\writeboxes}{[[\,]]}
 
       \For{$r \in [\simulationRound]$}
-        \CommentLine{For each round $r$, $\inboxes[r]$ and $\writes[r]$ is a \emph{list} of inputs}
+        \CommentLine{For each round $r$: $\inboxes[r]$ and $\writeboxes[r]$ is a \emph{list} of inputs}
         \State{\inboxes.\append([\,])}
-        \State{\writes.\append([\,])}
+        \State{\writeboxes.\append([\,])}
       \EndFor
 
       \Let{n}{|\Y[j]|}\Comment{Number of overlay parties}
@@ -40,13 +40,13 @@
         \EndIf
         % TODO(dionyziz): Turn this into "switch"?
         \If{$\instruction\textsf{.type} = \text{`write'}$}
-          \State{$\writes[r].\append(\instruction\textsf{.data})$}
+          \State{$\writeboxes[r].\append(\instruction\textsf{.data})$}
           \Continue
         \EndIf
         \If{$\instruction\textsf{.type} = \text{`checkpoint'}$}
           \Let{i'}{\instruction\textsf{.from}}
           \Let{\Ledger[j][i']}{\Y[][i']\textsf{.untranscribe}(\instruction\textsf{.data.certificate})}
-          \Let{\outboxes}{\textsf{simulate}(\Pi, i', \Ledger[j][i'], \Y[j], r - u_i - v_{i'} - 1, r - u_i)\textsf{.outboxes}}
+          \Let{\outboxes}{\textsf{simulate}(\Pi, i', \Ledger[j][i'], \Y[j], r - u_i - v_{i'} - 1, r - u_i)\textsf{.outboxes}}\label{alg.prepare-simulation-inputs:recursion}
           \Let{\textsf{netins}}{\outboxesToInbox(\outboxes)}
           \Let{\unprocessedNetins}{\textsf{netins}[\consumedLengths[i']{:}]}
 
@@ -56,7 +56,7 @@
           \Let{\consumedLengths[i']}{\consumedLengths[i'] + |\unprocessedNetins|}
         \EndIf
       \EndFor
-      \State\Return{$(\writes, \inboxes)$}
+      \State\Return{$(\writeboxes, \inboxes)$}
     \EndFunction
     \vskip2pt
   \end{algorithmic}
