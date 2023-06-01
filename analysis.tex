@@ -67,7 +67,7 @@ contiguous honest participation is also known in the literature as
 %       (perhaps more due to adversarial writes) for each party
 %       and that those will appear in "close enough" times (maybe up to $u$ away
 %       from the original)
-\begin{conjecture}[Simulation]
+\begin{conjecture}[Simulation]\label{conj:simulation}
   Consider any overlay protocol $\Pi$, any number of overlay parties $n \in \mathbb{N}$,
   indices $\mathcal{H} \subseteq [n]$ of honest parties,
   and any $n$ overlay protocols $\Y[][1], \ldots, \Y[][n]$
@@ -83,7 +83,7 @@ contiguous honest participation is also known in the literature as
    \PEView[\Pi][\mathcal{S}][\mathcal{Z}'][n][\mathcal{H}]$
 \end{conjecture}
 
-\begin{conjecture}[Cross-party]
+\begin{conjecture}[Cross-party]\label{conj:cross-party}
   Consider an \rollerblade execution with $n \in \mathbb{N}$ underlying
   and $m \in \mathbb{N}$ overlay parties.
   For all rounds $r$, all overlay parties $\RB[j], \RB[j']$,
