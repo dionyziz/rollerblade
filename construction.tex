@@ -6,14 +6,62 @@ of the \rollerblade construction.
 % TODO: Consider whether there is duplication with the introduction here
 
 There are $m$ \rollerblade clients numbered $1, 2, \ldots, j, \ldots, m$
-and $n$ underlying protocols $\Y[][][1], \Y[][][2], \ldots, \Y[][][i], \ldots, \Y[][][n]$.
+and $n$ underlying protocols $\Y[][1], \Y[][2], \ldots, \Y[][i], \ldots, \Y[][n]$.
 Each $\RB[j]$ of the clients runs a full node for each of the $n$ underlying
-ledger protocols $\Y[j][][i]$.
+ledger protocols,
+$\Y[j][1], \Y[j][2], \ldots, \Y[j][i], \ldots, \Y[j][n]$.
 Each $\RB[j]$ \emph{simulates} within its implementation $n$ different instances
-of the overlay protocol $\Pi$, one for every underlying ledger protocol $\Y[j][][i]$.
+of the overlay protocol $\Pi$,
+$\Z[j][1], \Z[j][2], \ldots, \Z[j][i], \ldots, \Z[j][n]$,
+one for every underlying ledger protocol,
+$\Y[j][1], \Y[j][2], \ldots, \Y[j][i], \ldots, \Y[j][n]$.
 % TODO: figure
-The \rollerblade client allows the external user to issue a \emph{write} instruction
-to any $i^\text{th}$ simulated machine.
+
+The \rollerblade client $\RB[j]$ allows the external user to issue a \emph{write} instruction
+to any $i^\text{th}$ simulated machine $\Z[j][i]$. This is done as follows. When the user
+of $\RB[j]$ issues a \emph{write} instruction to $\Z[j][i]$, this instruction is not given to
+$\Z[j][i]$ directly. Instead, it is \emph{encoded} into a transaction and recorded on the
+respective underlying ledger $\Y[j][i]$.
+The encoding functionality is made available because
+the underlying ledgers are assumed to be bulletin boards.
+When the `write' instruction becomes recorded in the ledger $\Ledger[j][i]$ reported
+by $\Y[j][i]$, then it will be passed to the simulated
+machine $\Z[j][i]$ as soon as the respective round simulation takes place.
+Through this recording of machine inputs on-ledger, we intent for other
+rollerblade clients $\RB[j']$ to replicate the exact simulation of $\Z[j'][i]$ for that
+same $i$ (in the Analysis section, this is made precise in Conjecture~\ref{conj:cross-party}).
+Additionally, the external user can, at any time, issue a \emph{read} instruction to
+the simulated machine $\Z[j][i]$, without affecting its current state (recall that we
+require $\Pi$'s \emph{read} method to not alter the machine's internal state upon completion).
+
+Each of $\Z[j][i]$ is simulated in a per-round basis by having its \emph{execute}
+function invoked once per round $r$. When it is simulated, it expects its \emph{write} function to have
+been called some ($0$ or more) number of times prior to \emph{execute} being invoked,
+indicating user input for round $r$. When \emph{execute} is invoked, it has access to read
+and write into the network through the authenticated channels interface $\net$.
+When it \emph{reads} from the network, it consumes network messages that other machines
+have dispersed into the network during previous rounds (potentially with some delay $\Delta$).
+
+In order to simulate this communication between machines, the system works as follows.
+A \emph{relayer} node is tasked with \emph{checkpointing} every ledger to every other ledger
+during every round. There is no trust placed upon this relayer, but at least one relayer
+is assumed to be honest (a client can run its own relayer if it so wishes, so this does
+not introduce any additional trust assumptions). Checkpointing is performed as follows.
+The relayer runs a full node in each of the underlying protocols $\Y[][i]$ and
+invokes the \emph{transcribe} function $\Y[][i].\transcribe()$ to obtain a transcription
+$\tau$; this functionality is made available because underlying ledgers are assumed to be
+transcribable. This transcription is then checkpointed into every other ledger protocol
+$\Y[][i']$ by \emph{encoding} it into a bulletin transaction $\tx = \Y[][i'].\encode(\tau)$
+and \emph{writing} it into $\Y[][i']$. The relayer is illustrated in
+Algorithm~\ref{alg.relayer}.
+
+\emph{These ``write'' and ``checkpoint'' instructions are the only thing ever written
+to the ledger from the honest rollerblade clients}. In particular, no network outputs
+produced by any of the $\Z[j][i]$ are ever written on the ledger. Instead, we observe
+that reading the checkpoints is sufficient for each rollerblade client to reproduce
+the network outputs of all simulated machines.
+
+Let us now explore, in more detail, how this simulation works.
 
 % \subsection{A Majority Vote}\label{sec:construction-naive}
 %
