@@ -207,12 +207,22 @@ our security results that the output of \prepareSimulationInputs is deterministi
 and depends only on the ledger $\Ledger[j][i]$ and not on any of the other ledgers $\Ledger[j][i'], i' \neq i$.
 
 In particular, the function \prepareSimulationInputs receives as parameters the \sid of the \rollerblade, the
-overlay protocol $\Pi$, the underlying index $i$, the ledger $\Ledger[j][i]$, all the underlying ledger protocol instances,
-the simulation round \simulationRound and the round \realityRound during which the ledger $\Ledger[j][i]$ was read.
+overlay protocol $\Pi$, the underlying index $i$, the ledger $\Ledger[j][i]$, all the underlying ledger protocol instances $\Y[j]$,
+the simulation round \simulationRound, and the round \realityRound during which the ledger $\Ledger[j][i]$ was read.
 The method begins by initializing \inboxes and \writeboxes. For every round $r = 0 \ldots \simulationRound$ we set
-$\inboxes[r]$ and $\writeboxes[r]$ to be empty lists. The entries $\inboxes[0]$ and $\writeboxes[0]$ will remain empty
+$\inboxes[r]$ and $\writeboxes[r]$ to be empty lists initially (Line~\ref{alg.prepare-simulation-inputs:init}). The entries $\inboxes[0]$ and $\writeboxes[0]$ will remain empty
 since the simulation begins at round $1$ with an empty \inbox and \writebox.
 
+The rest of the indices in $\inboxes$
+and $\writeboxes$ we fill in by reading the relevant rollerblade transactions within $\Ledger[j][i]$. Initially, the relevant transactions are extracted from the ledger $\Ledger[j][i]$ into a sequence of instructions $L$ by invoking $\decodeUnderlying$ (Line~\ref{alg.prepare-simulation-inptus:decode-underlying}). The sequence $L$ contains pairs $(r, \instruction)$ of instructions, each accompanied by the round with which the relevant instruction was recorded on the ledger $\Ledger[j][i]$. This is where we will use the temporal nature of the underlying ledger $\Ledger[j][i]$: The round $r$ recorded on-ledger for the instruction $\instruction$ is the round of the simulation of $\Z[j][i]$ in which we will utilize this instruction.
+
+The instructions in $L$ are processed sequentially by the \emph{for} loop in Line~\ref{alg.prepare-simulation-inputs:for}. As we are only interested in the data necessary to simulate up to round $\simulationRound$, we can conclude this loop early if we see a transaction recorded with round $r \geq \simulationRound$ (Line~\ref{alg.prepare-simulation-inputs:early-exit}). The easy case is when the instruction type is a `write'. In that case, we extend the writebox $\writeboxes[r]$ for round $r$ by appending the data $\instruction.\data$ to be written to it (Line~\ref{alg.prepare-simulation-inputs:write}).
+
+The more complicated case pertains to instruction type `checkpoint'. This is a checkpoint from underlying ledger $i'$ to underlying ledger $i$, i.e., concerns a certificate of ledger $i'$ that was recorded onto ledger $i$. This certificate's data $\instruction.\data.\certificate$ is fully recorded within $\Ledger[j][i]$ and does not require reading from $\Y[j][i']$. The function $\untranscribe$ of $\Y[j][i']$ is used to untranscribe this certificate into a ledger $\ImaginaryLedger[j][i']$ (Line~\ref{alg.prepare-simulation-inputs:untranscribe}), but the return value of this untranscribe function does not at all depend on the local state of $\Y[j][i']$, but only on the parameter $\instruction.\data.\certificate$ passed to it. This ``imaginary ledger'' $\ImaginaryLedger[j][i']$ extracted from untranscribing is the ledger with index $i'$ extracted based on the data included within $i$. It is possible that $\ImaginaryLedger[j][i'] \neq \Y[j][i'].\lread()$ (especially if ledger $i'$ is unsafe).
+
+This ledger $\ImaginaryLedger[j][i']$, obtained by untranscribing, is then passed into a \emph{new} \simulate invocation for machine $\Z[j][i']$ (Line~\ref{alg.prepare-simulation-inputs:recursion}). This simulation is performed based on ledger $\ImaginaryLedger[j][i']$ and not on $\Y[j][i'].\lread()$, and so may differ from the result of invoking \simulate using $\Ledger[j][i'] = \Y[j][i'].\lread()$. The \simulate function is executed up to simulation round $r - u_i - v_{i'} - 1$ (the reason for this arithmetic will become apparent in the security proof). The \emph{outboxes} returned from this simulation of ledger $i'$ are then collected and translated into inboxes for consumption by the simulation of ledger $i$ (Line~\ref{alg.prepare-simulation-inputs:outboxes-to-input})
+
+This
 
 % \subsection{A Majority Vote}\label{sec:construction-naive}
 %
