@@ -13,7 +13,8 @@
         \Try
           \Let{s}{\decode(\tx)}\Comment{Bulletin board decoding}
           \Let{\instruction}{\deserialize(s)}
-        \Catch\Comment{Not a bulletin transaction, or invalid serialization}
+        \Catch
+          \CommentLine{Not a bulletin transaction, or invalid serialization}
           \Continue
         \EndTry
         \If{$\instruction.\type = \text{`write'} \land \instruction.\sid \neq \sid$}

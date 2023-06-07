@@ -43,9 +43,25 @@
 [0]{\textbf{end party}}
 
 % TODO(dionyziz): Typeset this
-\algblock{Try}{EndTry}
-\algcblock[Try]{Try}{Catch}{EndTry}
-\algcblock{Try}{Catch}{EndTry}
+% \algblock[Try]{Try}{EndTry}
+% \algblockdefx[Try]{Try}{EndTry}
+% [0]{\textbf{try}}
+% [0]{\textbf{end try}}
+%
+% \algblockdefx[Catch]{Catch}{EndCatch}
+% [0]{\textbf{catch}}{}
+
+\algblock[TryCatch]{Try}{EndTry}
+\algcblockdefx[TryCatch]{TryCatch}{Catch}{EndTry}
+  [0]{\textbf{catch}}
+  [0]{\textbf{end try}}
+\algcblockdefx[TryCatch]{TryCatch}{Catch}{EndTry}
+  [0]{\textbf{catch}}
+  [0]{\textbf{end try}}
+\algrenewtext{Try}{\textbf{try}}
+
+% \algcblock[Try]{Try}{Catch}{EndTry}
+% \algcblock{Try}{Catch}{EndTry}
 
 \newcommandx{\RB}[1][1=]{\prescript{#1}{}{\textsf{RB}}}
 % \newcommand{\wheel}[3]{\prescript{}{#1}Y^{#2}{#3}}
@@ -55,6 +71,7 @@
 \newcommandx{\Z}[3][1=,2=,3=]{\prescript{#1}{}{\textsf{Z}}^{#2}_{#3}}
 \newcommandx{\Sim}[2][1=,2=]{\prescript{#1}{}{\textsc{Sim}}_{#2}}
 \newcommandx{\Ledger}[3][1=,2=,3=]{\prescript{#1}{}{\pmb{L}}^{#2}_{#3}}
+\newcommandx{\ImaginaryLedger}[3][1=,2=,3=]{\prescript{#1}{}{\mathfrak{L}}^{#2}_{#3}}
 
 \newcommand{\rollerblade}{\textsc{Rollerblade}\xspace}
 \newcommand{\fko}{\mathcal{F}_{ko}\xspace}
@@ -84,6 +101,7 @@
 \newcommand{\simulate}{\textsf{simulate}\xspace}
 \newcommand{\data}{\textsf{data}\xspace}
 \newcommand{\instruction}{\textsf{instruction}\xspace}
+\newcommand{\certificate}{\textsf{certificate}\xspace}
 \newcommand{\consumedLengths}{\textsf{consumedLengths}\xspace}
 \newcommand{\decodeUnderlying}{\textsf{decodeUnderlying}\xspace}
 \newcommand{\netout}{\textsf{netout}\xspace}
