@@ -78,16 +78,16 @@ export class Rollerblade<
         // assume this is valid rollerblade data
         // (no problem if not)
         return RuntimeOnchainRollerbladeInstruction.match(
-          (instruction: WriteRollerbladeInstruction) => {
+          (instruction: WriteRollerbladeInstruction): [number, OnchainRollerbladeInstruction] | null => {
             if (instruction.sid != sid) {
               return null
             }
             return [timestamp, instruction]
           },
-          (instruction: CheckpointRollerbladeInstruction) => [timestamp, instruction]
+          (instruction: CheckpointRollerbladeInstruction): [number, OnchainRollerbladeInstruction] | null => [timestamp, instruction]
         )(parsed)
       }
-    ).filter(parsed => parsed !== null) as [timestamp, OnchainRollerbladeInstruction][]
+    ).filter(parsed => parsed !== null) as [timestamp, OnchainRollerbladeInstruction][] // assert no nulls
   }
 
   // Create all the simulation inputs (network inputs [inbox] and user inputs [writes])
@@ -109,7 +109,7 @@ export class Rollerblade<
       throw new Error(`Not enough data to simulate up to round ${simulationRound} (reality round: ${realityRound})`)
     }
 
-    const txs = Rollerblade.decodeUnderlyingLedger(this.Y[i], L_i)
+    const txs = Rollerblade.decodeUnderlyingLedger(this.sid, this.Y[i], L_i)
     const inbox: PartyNetworkInbox = []
     const writes: string[][] = []
 
@@ -169,7 +169,9 @@ export class Rollerblade<
 
             for (const roundMsgs of outbox) {
               for (const {to, msg} of roundMsgs) {
-                ret.push({from: to, msg})
+                if (to === i) { // Keep only network messages with i as a recipient
+                  ret.push({from, msg})
+                }
               }
             }
 
