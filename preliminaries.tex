@@ -87,8 +87,8 @@ We model time as taking place in discrete \emph{rounds} $1, 2, \ldots$.
 The parties run in \emph{lockstep}:
 During each round, each party is allowed to run some (finite) computation.
 Each party is initialized (by having its $\construct$ function called)
-before round $0$ commences.
-Subsequently, round $0$ starts by having the $\execute$ function of each
+before round $1$ commences.
+Subsequently, round $1$ starts by having the $\execute$ function of each
 party called, without any inputs provided by the environment (in the form
 of ``writes'' or network inputs).
 By the end of each round, the machine can produce some network outputs
