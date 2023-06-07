@@ -6,12 +6,12 @@ import {
 import { DistributedProtocol } from '../distributed-protocol';
 
 export const RuntimeBaseRollerbladeInstruction = Record({
-  sid: String,
   type: String,
   data: Record({})
 })
 
 export const RuntimeWriteRollerbladeInstruction = RuntimeBaseRollerbladeInstruction.extend({
+  sid: String,
   type: Literal('write'),
   data: Record({
     payload: String

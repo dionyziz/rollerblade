@@ -8,6 +8,7 @@ import {
 } from '../authenticated-network'
 import {
   WriteRollerbladeInstruction,
+  CheckpointRollerbladeInstruction,
   OnchainRollerbladeInstruction,
   RuntimeOnchainRollerbladeInstruction,
   PartyNetworkInbox,
@@ -49,6 +50,7 @@ export class Rollerblade<
   }
 
   static decodeUnderlyingLedger(
+    sid: string,
     Y_i: UnderlyingLedgerProtocol,
     L_i: TemporalLedger<UnderlyingLedgerProtocol>
   ): [timestamp, OnchainRollerbladeInstruction][] {
@@ -75,7 +77,15 @@ export class Rollerblade<
 
         // assume this is valid rollerblade data
         // (no problem if not)
-        return [timestamp, parsed]
+        return RuntimeOnchainRollerbladeInstruction.match(
+          (instruction: WriteRollerbladeInstruction) => {
+            if (instruction.sid != sid) {
+              return null
+            }
+            return [timestamp, instruction]
+          },
+          (instruction: CheckpointRollerbladeInstruction) => [timestamp, instruction]
+        )(parsed)
       }
     ).filter(parsed => parsed !== null) as [timestamp, OnchainRollerbladeInstruction][]
   }

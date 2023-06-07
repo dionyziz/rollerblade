@@ -7,11 +7,9 @@
     \Party{\sf Relayer}
       % TODO(dionyziz): Typeset this
       \State{$Y$}
-      \State{$\sid$}
 
-      \Function{\sf construct}{$Y$, $\sid$}\Comment{Ran before round $0$}
+      \Function{\sf construct}{$Y$}\Comment{Ran before round $0$}
         \Let{\this.Y}{Y}
-        \Let{\this.\sid}{\sid}
       \EndFunction
 
       \Function{\sf execute}{$\,$}\Comment{Executed on every round}
@@ -24,7 +22,6 @@
             \EndIf
             % TODO(dionyziz): typeset this
             \Let{\instruction}{\{
-              \sid{:} \this.\sid,
               \type{:} \text{`checkpoint'},
               \data{:} \{
                 \textsf{from}{:} i,

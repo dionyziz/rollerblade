@@ -4,12 +4,10 @@ import { CheckpointRollerbladeInstruction } from "./types"
 
 export class Relayer {
   Y: UnderlyingLedgerProtocol[]
-  sid: string
   round: number
 
-  constructor(sid: string, Y: UnderlyingLedgerProtocol[]) {
+  constructor(Y: UnderlyingLedgerProtocol[]) {
     this.Y = Y
-    this.sid = sid
     this.round = 0
   }
   // runs in every round
@@ -21,7 +19,6 @@ export class Relayer {
           continue
         }
         const instruction: CheckpointRollerbladeInstruction = {
-          sid: this.sid,
           type: 'checkpoint',
           data: {
             from: i,

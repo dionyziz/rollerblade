@@ -16,7 +16,7 @@
         \Catch\Comment{Not a bulletin transaction, or invalid serialization}
           \Continue
         \EndTry
-        \If{$\instruction.\sid \neq \sid$}
+        \If{$\instruction.\type = \text{`write'} \land \instruction.\sid \neq \sid$}
           \Continue
         \EndIf
         \State{$\textsf{ret}.\append((r, \instruction))$}
