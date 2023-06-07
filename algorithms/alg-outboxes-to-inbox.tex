@@ -1,18 +1,22 @@
 \begin{algorithm}[H]
   \caption{\label{alg.outboxes-to-inbox} The outbox reconciliation algorithm ran by party $\RB[j]$.
-  The algorithm rewrites messages placed in an outbox of one overlay party and translates them into
-  messages in an inbox which is to be consumed by a different overlay party.}
+  The algorithm rewrites messages placed in an outbox of one overlay party $i'$ and translates them into
+  messages in an inbox which is to be consumed by a different overlay party $i$. Only the relevant messages
+  are reported by filtering out the messages that have a $\textsf{to}$ field that does not match $i$.
+  }
   \begin{algorithmic}[1]
-    \Function{\outboxesToInbox}{$\outboxes$}
+    \Function{\outboxesToInbox}{$\outboxes, i', i$}
       \Let{\inbox}{[\,]}
 
       \For{$\outbox \in \outboxes$}
         \For{$\netout \in \outbox$}
           % TODO(dionyziz): typeset
-          \State{\inbox.\append(\{
-            \textsf{from}{:} \netout\textsf{.to},
-            \textsf{msg}{:} \netout\textsf{.msg}
-          \})}
+          \If{$\netout\textsf{.to} = i$}
+            \State{\inbox.\append(\{
+              \textsf{from}{:} i',
+              \textsf{msg}{:} \netout\textsf{.msg}
+            \})}
+          \EndIf
         \EndFor
       \EndFor
 
