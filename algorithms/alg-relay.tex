@@ -1,4 +1,4 @@
-\begin{algorithm}[H]
+\begin{algorithm}
   \caption{\label{alg.relay} The \emph{Relayer} party.
   This can be executed by any helpful but untrusted party.
   At least one honest relayer must be running.
@@ -6,9 +6,9 @@
   \begin{algorithmic}[1]
     \Party{\sf Relayer}
       % TODO(dionyziz): Typeset this
-      \State{$Y$}
+      \State{$\Y$}\Comment{Array $\Y[][1], \ldots, \Y[][n]$ of underlying ledger protocol clients}
 
-      \Function{\sf construct}{$Y$}\Comment{Ran before round $0$}
+      \Function{\sf construct}{$Y$}\Comment{Ran before round $1$}
         \Let{\this.Y}{Y}
       \EndFunction
 
