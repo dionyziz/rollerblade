@@ -13,7 +13,8 @@ import {
   RuntimeOnchainRollerbladeInstruction,
   PartyNetworkInbox,
   PartyNetworkOutbox,
-  SimulationResult
+  SimulationResult,
+  RuntimeWriteRollerbladeInstruction
 } from './types'
 import { DistributedProtocol } from '../distributed-protocol'
 import { assert } from '../assert'
@@ -75,17 +76,15 @@ export class Rollerblade<
           return null
         }
 
+        if (RuntimeWriteRollerbladeInstruction.guard(parsed)) {
+          if (parsed.sid != sid) {
+            return null
+          }
+        }
+
         // assume this is valid rollerblade data
         // (no problem if not)
-        return RuntimeOnchainRollerbladeInstruction.match(
-          (instruction: WriteRollerbladeInstruction): [number, OnchainRollerbladeInstruction] | null => {
-            if (instruction.sid != sid) {
-              return null
-            }
-            return [timestamp, instruction]
-          },
-          (instruction: CheckpointRollerbladeInstruction): [number, OnchainRollerbladeInstruction] | null => [timestamp, instruction]
-        )(parsed)
+        return [timestamp, parsed]
       }
     ).filter(parsed => parsed !== null) as [timestamp, OnchainRollerbladeInstruction][] // assert no nulls
   }
