@@ -1,4 +1,4 @@
-\begin{algorithm}[H]
+\begin{algorithm}
   \caption{\label{alg.simulate}
     The \emph{simulate} function ran by a \rollerblade party
     executing the overlay protocol for party $i$ at a
@@ -28,7 +28,7 @@
 
       \Let{\Z[j][i]}{\new \Pi^\net(j, n)}\label{alg.simulate:construct}
       \State{$\Z[j][i].\textsf{execute}()$}\Comment{Execute the machine for round $0$ without any inputs}
-      \For{$r \in [\simulationRound]$}\label{alg.simulate:for}
+      \For{$r \gets 1 \text{ to } \simulationRound$}\label{alg.simulate:for}
         \Let{\sf roundReceives}{[\,]}
         \Let{\outboxThisRound}{[\,]}\label{alg.simulate:outboxThisRound-init}
 

@@ -8,16 +8,15 @@
   }
   \begin{algorithmic}[1]
     \Function{\decodeUnderlying}{$\decode, \sid, L$}
-      \Let{\textsf{ret}}{[\,]}
-      \For{$(r, \tx) \in L$}
+      \Let{\textsf{ret}}{[\,]}\label{alg.decode-underlying:init}
+      \For{$(r, \tx) \in L$}\label{alg.decode-underlying:loop}
         \Try
-          \Let{s}{\decode(\tx)}\Comment{Bulletin board decoding}
-          \Let{\instruction}{\deserialize(s)}
+          \Let{s}{\decode(\tx)}\Comment{Bulletin board decoding}\label{alg.decode-underlying:decode}
+          \Let{\instruction}{\deserialize(s)}\label{alg.decode-underlying:deserialize}
         \Catch
-          \CommentLine{Not a bulletin transaction, or invalid serialization}
-          \Continue
+          \Continue \Comment{Not a bulletin transaction, or invalid serialization}\label{alg.decode-underlying:catch}
         \EndTry
-        \If{$\instruction.\type = \text{`write'} \land \instruction.\sid \neq \sid$}
+        \If{$\instruction.\type = \text{`write'} \land \instruction.\sid \neq \sid$}\label{alg.decode-underlying:check}
           \Continue
         \EndIf
         \State{$\textsf{ret}.\append((r, \instruction))$}

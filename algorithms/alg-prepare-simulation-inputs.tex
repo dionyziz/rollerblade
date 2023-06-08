@@ -1,6 +1,6 @@
-\begin{algorithm}[H]
+\begin{algorithm}
   \caption{\label{alg.prepare-simulation-inputs}
-    The \emph{prepare-simulation-inputs} function ran by \rollerblade party $j$
+    The \emph{prepare simulation inputs} function ran by \rollerblade party $j$
     to prepare the necessary inputs for the simulation of overlay party
     $i$ at round $\simulationRound$ based on the underlying ledger $\Ledger[j][i]$.
     The inputs consist of \emph{writes} (user inputs)
@@ -10,14 +10,14 @@
   }
   \begin{algorithmic}[1]
     \Function{\prepareSimulationInputs}{$\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
-      \If{$\simulationRound \geq \realityRound - \Y[j][i].v$}
+      \If{$\simulationRound \geq \realityRound - v_i$}
         \State\Return{$\bot$} \Comment{Simulation round is too far in the future}
       \EndIf
 
       \Let{\inboxes}{[[\,]]}
       \Let{\writeboxes}{[[\,]]}
 
-      \For{$r \in [\simulationRound]$}\label{alg.prepare-simulation-inputs:init}
+      \For{$r \gets 1 \text{ to } \simulationRound$}\label{alg.prepare-simulation-inputs:init}
         \CommentLine{For each round $r$: $\inboxes[r]$ and $\writeboxes[r]$ is a \emph{list} of inputs}
         \State{\inboxes.\append([\,])}
         \State{\writeboxes.\append([\,])}
@@ -25,9 +25,11 @@
 
       \Let{n}{|\Y[j]|}\Comment{Number of overlay parties}
 
+      % TODO(dionyziz): Typeset \CommentLine and \Comment to both use the same \emph{} style
+      \CommentLine{How many messages each other overlay party $i'$ has ``sent'' us}
       \Let{\sf \consumedLengths}{[\,]}
 
-      \For{$i' \in [n]$}\Comment{How many messages each other overlay party $i'$ has ``sent'' us}
+      \For{$i' \gets 1 \text{ to } n$}
         \State{\consumedLengths.\append(0)}
       \EndFor
 
@@ -50,10 +52,10 @@
           \Let{\textsf{netins}}{\outboxesToInbox(\outboxes, i', i)}\label{alg.prepare-simulation-inputs:outboxes-to-inbox}
           \Let{\unprocessedNetins}{\textsf{netins}[\consumedLengths[i']{:}]}
 
-          \For{$\netin \in \unprocessedNetins$}
+          \For{$\netin \in \unprocessedNetins$}\label{alg.prepare-simulation-inputs:for-netin}
             \State{$\inboxes[r].\append(\netin)$}
           \EndFor
-          \Let{\consumedLengths[i']}{\consumedLengths[i'] + |\unprocessedNetins|}
+          \Let{\consumedLengths[i']}{\consumedLengths[i'] + |\unprocessedNetins|}\label{alg.prepare-simulation-inputs:consumed-lengths}
         \EndIf
       \EndFor
       \State\Return{$(\writeboxes, \inboxes)$}

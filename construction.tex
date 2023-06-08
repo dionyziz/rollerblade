@@ -5,16 +5,19 @@ of the \rollerblade construction.
 
 % TODO: Consider whether there is duplication with the introduction here
 
-There are $m$ \rollerblade clients numbered $1, 2, \ldots, j, \ldots, m$
-and $n$ underlying protocols $\Y[][1], \Y[][2], \ldots, \Y[][i], \ldots, \Y[][n]$.
+There are $m$ \rollerblade clients numbered $1, 2,\allowbreak \ldots,\allowbreak j,\allowbreak \ldots,\allowbreak m$
+and $n$ underlying protocols $\Y[][1], \Y[][2],\allowbreak \ldots,\allowbreak \Y[][i],\allowbreak \ldots,\allowbreak \Y[][n]$.
 Each $\RB[j]$ of the clients runs a full node for each of the $n$ underlying
 ledger protocols,
-$\Y[j][1], \Y[j][2], \ldots, \Y[j][i], \ldots, \Y[j][n]$.
+$\Y[j][1], \Y[j][2],\allowbreak\ldots,\allowbreak \Y[j][i],\allowbreak \ldots,\allowbreak \Y[j][n]$.
+Each $\Y[][i]$ of these underlying protocols promises (but may not deliver on that promise)
+to be safe, live with liveness $u_i$, and timely with timeliness $v_i$.
+
 Each $\RB[j]$ \emph{simulates} within its implementation $n$ different instances
 of the overlay protocol $\Pi$,
-$\Z[j][1], \Z[j][2], \ldots, \Z[j][i], \ldots, \Z[j][n]$,
+$\Z[j][1], \Z[j][2],\allowbreak \ldots,\allowbreak \Z[j][i],\allowbreak \ldots,\allowbreak \Z[j][n]$,
 one for every underlying ledger protocol,
-$\Y[j][1], \Y[j][2], \ldots, \Y[j][i], \ldots, \Y[j][n]$.
+$\Y[j][1], \Y[j][2],\allowbreak \ldots,\allowbreak \Y[j][i],\allowbreak \ldots,\allowbreak \Y[j][n]$.
 % TODO: figure
 
 The \rollerblade client $\RB[j]$ allows the external user to issue a \emph{write} instruction
@@ -23,7 +26,7 @@ to any $i^\text{th}$ simulated machine $\Z[j][i]$. This is done as follows. When
 of $\RB[j]$ issues a \emph{write} instruction to $\Z[j][i]$, this instruction is not given to
 $\Z[j][i]$ directly. Instead, it is serialized into a string and \emph{encoded} into a transaction
 to be recorded on the respective underlying ledger $\Y[j][i]$. This is captured by
-the \writeToMachine function illustrated in Algorithm~\ref{alg.read-write}.
+the \writeToMachine function illustrated in Algorithm~\ref{alg.write-to}.
 The encoding functionality is made available because
 the underlying ledgers are assumed to be bulletin boards.
 When the `write' instruction becomes recorded in the ledger $\Ledger[j][i]$ reported
@@ -35,6 +38,8 @@ same $i$ (in the Analysis section, this is made precise in Conjecture~\ref{conj:
 Additionally, the external user can, at any time, issue a \emph{read} instruction to
 the simulated machine $\Z[j][i]$, without affecting its current state (recall that we
 require $\Pi$'s \emph{read} method to not alter the machine's internal state upon completion).
+
+\import{./}{algorithms/alg-write-to}
 
 Each of $\Z[j][i]$ is simulated in a per-round basis by having its \emph{execute}
 function invoked once per round $r$. When it is simulated, it expects its \emph{write} function to have
@@ -55,7 +60,9 @@ $\tau$; this functionality is made available because underlying ledgers are assu
 transcribable. This transcription is then checkpointed into every other ledger protocol
 $\Y[][i']$ by \emph{encoding} it into a bulletin transaction $\tx = \Y[][i'].\encode(\tau)$
 and \emph{writing} it into $\Y[][i']$. The relayer is illustrated in
-Algorithm~\ref{alg.relayer}.
+Algorithm~\ref{alg.relay}.
+
+\import{./}{algorithms/alg-relay}
 
 \emph{These ``write'' and ``checkpoint'' instructions are the only thing ever written
 to the ledger from the honest rollerblade clients}. In particular, no network outputs
@@ -71,6 +78,33 @@ on top of a, potentially different but not disjoint, set of underlying ledger pr
 $\Y[][']$. This \sid is placed into every instruction recorded on-ledger, in particular
 the `write' and `checkpoint' instructions.
 
+When a series of `write' and `checkpoint' instructions have been recorded as bulletin
+transactions onto an underlying ledger, a time will come for them to be re-read in order to fuel
+the simulation. The responsibility of re-reading the instructions from the ledger is
+bestowed upon the function \decodeUnderlying illustrated in
+Algorithm~\ref{alg.decode-underlying}. The function is given an underlying ledger $L$,
+which may contain relevant and irrelevant transactions,
+a session id \sid of the \rollerblade in question,
+as well as the respective stateless \decode function (provided by the bulletin functionality)
+of the $i^\text{th}$ underlying ledger.
+Its task is to filter out the irrelevant transactions and decode the relevant ones.
+It returns a sequence of $(r, \instruction)$ pairs, where $r$ is the round number
+with which the instruction $\instruction$ is recorded.
+To do this, it fills the sequence $\textsf{ret}$ to be returned with the
+relevant instructions. It iterates over all transactions $\tx$ in the ledger $L$
+(Line~\ref{alg.decode-underlying:loop}). For each such transaction, it attempts
+to \emph{decode} it (Line~\ref{alg.decode-underlying:decode}). If the transaction
+is a bulletin transaction, the decoding will succeed and return the string that
+was encoded in it (otherwise, the transaction is ignored in
+Line~\ref{alg.decode-underlying:catch}). Once decoded into a string, the string
+is deserialized into an dictionary containing the instruction information. This
+information is checked for relevance in Line~\ref{alg.decode-underlying:check}.
+In particular, if the instruction is a `write' instruction, we ensure that its
+\sid matches the \sid of the rollerblade in question. As `checkpoint' instructions
+are not tied to any particular rollerblade, they are always considered relevant.
+
+\import{./}{algorithms/alg-decode-underlying}
+
 The simulation only runs
 on-demand when the user of $\RB[j]$ issues a \emph{read} instruction to the machine
 $\Z[j][i]$. The user can indicate that the read instruction pertains to a particular
@@ -78,7 +112,7 @@ round $\simulationRound$, and the \emph{read} instruction is conveyed to the sna
 of $\Z[j][i]$ immediate after round $\simulationRound$ has been executed.
 
 The entry point for $\RB[j]$'s reading from a simulated machine
-is illustrated in Algorithm~\ref{alg.read-write}.
+is illustrated in Algorithm~\ref{alg.read-from}.
 The \readFromMachine function takes the \sid, the overlay protocol $\Pi$ to run,
 the identity $i$ of the simulated machine to read from,
 and the array of underlying ledger protocol instances $\Y[j]$
@@ -96,6 +130,8 @@ the \readFromMachine function invokes the \simulate function to obtain an instan
 of the $\Z[j][i]$ machine executed up to round \simulationRound (inclusive).
 Lastly, the \readFromMachine function invokes the \lread function of the simulated
 machine $\Z[j][i]$ right after the \simulationRound execution has completed.
+
+\import{./}{algorithms/alg-read-from}
 
 The core simulation is implemented in the function \simulate illustrated in
 Algorithm~\ref{alg.simulate}, which takes parameters with the same semantics as
@@ -123,6 +159,8 @@ entry is the string of the message to be delivered.
 Since rounds begin at $0$, the entry $\outboxes[0]$ is the
 empty outbox (ensured in its initialization in
 Line~\ref{alg.simulate:outboxes-init}).
+
+\import{./}{algorithms/alg-simulate}
 
 To conduct the simulation, the \simulate function initially calls
 \prepareSimulationInputs (Line~\ref{alg.simulate:recursion}),
@@ -201,28 +239,94 @@ $\Z[j][i]$ throughout its execution as well as the machine instance $\Z[j][i]$ i
 The machine instance can be used for example to call \emph{read} on it.
 
 The last piece of the puzzle is the \prepareSimulationInputs function which is
-called by \simulate. This function receives as input the ledger $\Ledger[j][i]$ and
+called by \simulate and illustrated in Algorithm~\ref{alg.prepare-simulation-inputs}. This function receives as input the ledger $\Ledger[j][i]$ and
 returns the \writeboxes and \inboxes to be used by \simulate to simulate the machine $\Z[j][i]$. It will be important for
 our security results that the output of \prepareSimulationInputs is deterministic
 and depends only on the ledger $\Ledger[j][i]$ and not on any of the other ledgers $\Ledger[j][i'], i' \neq i$.
 
+\import{./}{algorithms/alg-prepare-simulation-inputs}
+
 In particular, the function \prepareSimulationInputs receives as parameters the \sid of the \rollerblade, the
-overlay protocol $\Pi$, the underlying index $i$, the ledger $\Ledger[j][i]$, all the underlying ledger protocol instances $\Y[j]$,
+overlay protocol $\Pi$, the underlying index $i$, the ledger $\Ledger[j][i]$, all the underlying ledger protocol clients $\Y[j]$,
 the simulation round \simulationRound, and the round \realityRound during which the ledger $\Ledger[j][i]$ was read.
 The method begins by initializing \inboxes and \writeboxes. For every round $r = 0 \ldots \simulationRound$ we set
-$\inboxes[r]$ and $\writeboxes[r]$ to be empty lists initially (Line~\ref{alg.prepare-simulation-inputs:init}). The entries $\inboxes[0]$ and $\writeboxes[0]$ will remain empty
+$\inboxes[r]$ and $\writeboxes[r]$ to be empty lists initially (Line~\ref{alg.prepare-simulation-inputs:init}).
+The entries $\inboxes[0]$ and $\writeboxes[0]$ will remain empty
 since the simulation begins at round $1$ with an empty \inbox and \writebox.
 
 The rest of the indices in $\inboxes$
-and $\writeboxes$ we fill in by reading the relevant rollerblade transactions within $\Ledger[j][i]$. Initially, the relevant transactions are extracted from the ledger $\Ledger[j][i]$ into a sequence of instructions $L$ by invoking $\decodeUnderlying$ (Line~\ref{alg.prepare-simulation-inptus:decode-underlying}). The sequence $L$ contains pairs $(r, \instruction)$ of instructions, each accompanied by the round with which the relevant instruction was recorded on the ledger $\Ledger[j][i]$. This is where we will use the temporal nature of the underlying ledger $\Ledger[j][i]$: The round $r$ recorded on-ledger for the instruction $\instruction$ is the round of the simulation of $\Z[j][i]$ in which we will utilize this instruction.
+and $\writeboxes$ we fill in by reading the relevant rollerblade transactions within $\Ledger[j][i]$.
+Initially, the relevant transactions are extracted from the ledger $\Ledger[j][i]$ into a sequence
+of instructions $L$ by invoking $\decodeUnderlying$ (Line~\ref{alg.prepare-simulation-inputs:decode-underlying}).
+The sequence $L$ contains pairs $(r, \instruction)$ of instructions, each accompanied by the round with which
+the relevant instruction was recorded on the ledger $\Ledger[j][i]$. This is where we will use the temporal
+nature of the underlying ledger $\Ledger[j][i]$: The round $r$ recorded on-ledger for the instruction
+$\instruction$ is the round of the simulation of $\Z[j][i]$ during which we will utilize this instruction.
 
-The instructions in $L$ are processed sequentially by the \emph{for} loop in Line~\ref{alg.prepare-simulation-inputs:for}. As we are only interested in the data necessary to simulate up to round $\simulationRound$, we can conclude this loop early if we see a transaction recorded with round $r \geq \simulationRound$ (Line~\ref{alg.prepare-simulation-inputs:early-exit}). The easy case is when the instruction type is a `write'. In that case, we extend the writebox $\writeboxes[r]$ for round $r$ by appending the data $\instruction.\data$ to be written to it (Line~\ref{alg.prepare-simulation-inputs:write}).
+The instructions in $L$ are processed sequentially by the \emph{for} loop in Line~\ref{alg.prepare-simulation-inputs:for}.
+As we are only interested in the data necessary to simulate up to round $\simulationRound$, we can conclude this loop
+early if we see a transaction recorded with round $r \geq \simulationRound$ (Line~\ref{alg.prepare-simulation-inputs:early-exit}).
+The easy case is when the instruction type is a `write'. In that case, we extend the writebox $\writeboxes[r]$
+for round $r$ by appending the data $\instruction.\data$ to be written to it (Line~\ref{alg.prepare-simulation-inputs:write}).
 
-The more complicated case pertains to instruction type `checkpoint'. This is a checkpoint from underlying ledger $i'$ to underlying ledger $i$, i.e., concerns a certificate of ledger $i'$ that was recorded onto ledger $i$. This certificate's data $\instruction.\data.\certificate$ is fully recorded within $\Ledger[j][i]$ and does not require reading from $\Y[j][i']$. The function $\untranscribe$ of $\Y[j][i']$ is used to untranscribe this certificate into a ledger $\ImaginaryLedger[j][i']$ (Line~\ref{alg.prepare-simulation-inputs:untranscribe}), but the return value of this untranscribe function does not at all depend on the local state of $\Y[j][i']$, but only on the parameter $\instruction.\data.\certificate$ passed to it. This ``imaginary ledger'' $\ImaginaryLedger[j][i']$ extracted from untranscribing is the ledger with index $i'$ extracted based on the data included within $i$. It is possible that $\ImaginaryLedger[j][i'] \neq \Y[j][i'].\lread()$ (especially if ledger $i'$ is unsafe).
+The more complicated case pertains to instruction type `checkpoint'. This is a checkpoint from underlying
+ledger $i'$ to underlying ledger $i$, i.e., concerns a certificate of ledger $i'$ that was recorded onto
+ledger $i$. This certificate's data $\instruction.\data.\certificate$ is fully recorded within $\Ledger[j][i]$
+and does not require reading from $\Y[j][i']$. The function $\untranscribe$ of $\Y[j][i']$ is used to untranscribe
+this certificate into a ledger $\ImaginaryLedger[j][i']$ (Line~\ref{alg.prepare-simulation-inputs:untranscribe}),
+but the return value of this untranscribe function does not at all depend on the local state of $\Y[j][i']$,
+but only on the parameter $\instruction.\data.\certificate$ passed to it. This ``imaginary ledger'',
+$\ImaginaryLedger[j][i']$ extracted from untranscribing, is the ledger with index $i'$ extracted
+based on the data included within $\Ledger[j][i]$. It is possible that
+$\ImaginaryLedger[j][i'] \neq \Y[j][i'].\lread()$ (especially if ledger $i'$ is unsafe).
 
-This ledger $\ImaginaryLedger[j][i']$, obtained by untranscribing, is then passed into a \emph{new} \simulate invocation for machine $\Z[j][i']$ (Line~\ref{alg.prepare-simulation-inputs:recursion}). This simulation is performed based on ledger $\ImaginaryLedger[j][i']$ and not on $\Y[j][i'].\lread()$, and so may differ from the result of invoking \simulate using $\Ledger[j][i'] = \Y[j][i'].\lread()$. The \simulate function is executed up to simulation round $r - u_i - v_{i'} - 1$ (the reason for this arithmetic will become apparent in the security proof). The \emph{outboxes} returned from this simulation of ledger $i'$ are then collected and translated into inboxes for consumption by the simulation of ledger $i$ (Line~\ref{alg.prepare-simulation-inputs:outboxes-to-input})
+This ledger $\ImaginaryLedger[j][i']$, obtained by untranscribing, is then passed into a
+\emph{new} \simulate invocation for machine $\Z[j][i']$ (Line~\ref{alg.prepare-simulation-inputs:recursion}).
+Here, note that \simulate and \prepareSimulationInputs are mutually recursive functions.
+This recursive simulation is performed based on ledger $\ImaginaryLedger[j][i']$ and not
+on $\Y[j][i'].\lread()$. The \simulate function is executed up to simulation round
+$r - u_i - v_{i'} - 1$. The reason for this arithmetic will become apparent in the security proof,
+but, for now, suffice to say that, during round $r$, the simulation $\Z[j][i]$ will see received messages
+originating from $i'$ emitted during rounds up to $r - u_i - v_{i'} - 1$,
+and messages emitted during later rounds will be received later.
+% TODO: state that we have per ledger liveness
+% TODO(dionyziz): Typeset "outboxes" and other variables consistently
+The \emph{outboxes} returned from this simulation of ledger $i'$, within the confines of $\simulate$
+executed upon ledger $i$, are then collected into the \outboxes variable, which contains one outbox
+per round. These outboxes correspond to messages sent by $i'$ to $i$ on the simulated network.
+Every message received by $i$
+and originating from $i'$ is collected into the array \netins in
+Line~\ref{alg.prepare-simulation-inputs:outboxes-to-inbox} by invoking the function \outboxesToInbox.
+This \netins contains \emph{all} the messages sent from $i'$ to $i$ throughout the execution
+of $i'$ up to round $r - u_i - v_{i'} - 1$. Note that, if $i'$ is a safe ledger, then in every
+two iterations of the loop of Line~\ref{alg.prepare-simulation-inputs:for},
+the values of the variable \netins will be prefixes of one another.
+As \netins grows, some of the messages within it have already been received
+by $\Z[j][i]$ during previous rounds, whereas some messages are new and have not
+been processed yet. We wish to capture those messages that have appeared anew.
+Towards this purpose, we maintain a count $\consumedLengths[i']$ of incoming messages originating from $i'$
+that have already been processed by $\Z[j][i]$ during previous rounds.
+The newly arriving messages that still need to be processed are $\netins[\consumedLengths[i']{:}]$.
+All of these newly arriving messages are placed in $\inboxes[r]$ and, as such,
+are scheduled to be received by the simulation of $\Z[j][i]$ for round $r + 1$.
+The variable $\consumedLengths[i']$ is then updated (Line~\ref{alg.prepare-simulation-inputs:consumed-lengths})
+to record the count of messages that have already been processed by $i'$ in
+previous rounds, so that the messages are not processed again in the future.
 
-This
+\import{./}{algorithms/alg-outboxes-to-inbox}
+
+Lastly, let us describe the \outboxesToInbox function, which translates the outboxes
+of party $i'$ to an inbox for party $i$. The function is called by \prepareSimulationInputs
+and is illustrated in Algorithm~\ref{alg.outboxes-to-inbox}. The function takes an
+\outboxes argument containing one outbox per round, as well as the sending party index
+$i'$ and the receiving party index $i$. The function returns an inbox for party $i$.
+To do this, the function loops through each \outbox in \outboxes, and iterates over each
+\netin within the \outbox. For each such \netout, the function checks that $i$ is the
+recipient of the message (Line~\ref{alg.outboxes-to-inbox:recipient}) and ignores the
+message if not. Otherwise, the message is translated from a \netout to a \netin
+by setting its \emph{from} field to be the sender $i'$ and is
+appended to the inbox (Line~\ref{alg.outboxes-to-inbox:append}).
+This completes the construction.
 
 % \subsection{A Majority Vote}\label{sec:construction-naive}
 %
@@ -365,14 +469,6 @@ This
 %
 % \subsection{Compatibility}\label{sec:compatibility}
 %
-
-\import{./}{algorithms/alg-relay}
-\import{./}{algorithms/alg-decode-underlying}
-\import{./}{algorithms/alg-outboxes-to-inbox}
-\import{./}{algorithms/alg-prepare-simulation-inputs}
-\import{./}{algorithms/alg-simulate}
-\import{./}{algorithms/alg-read-write}
-
 %
 % \section{New material 2023-04-19}
 %

@@ -1,0 +1,14 @@
+\begin{algorithm}[H]
+  \caption{\label{alg.read-from}
+    The \emph{readFromMachine} function
+    made available to the external user by a \rollerblade party.
+  }
+  \begin{algorithmic}[1]
+    \Function{\readFromMachine}{$\sid, \Pi, i, \Y[j], \simulationRound, \realityRound$}
+      \Let{\Ledger[j][i]}{\Y[j][i].\lread()}
+      \Let{Z}{\simulate(\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound){.}Z}
+      \State\Return{$Z.\lread()$}
+    \EndFunction
+    \vskip2pt
+  \end{algorithmic}
+\end{algorithm}
