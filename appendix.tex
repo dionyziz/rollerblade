@@ -1,0 +1,109 @@
+\section{Bitcoin is Timely}
+
+We now prove that Bitcoin is timely. We work in the Bitcoin Backbone model~\cite{backbone}
+in the synchronous setting.
+
+First, we have to make a couple of small changes to the Bitcoin Backbone construction to turn it
+into a Temporal Ledger, as the original Bitcoin Backbone construction is a ledger protocol only.
+Our Temporal Bitcoin Backbone construction is illustrated in Figure~\ref{fig.temporal-backbone}.
+It is clear that the Temporal Bitcoin Backbone construction retains the properties of Common Prefix,
+Chain Quality and Chain Growth proven in the original Bitcoin Backbone paper~\cite{backbone}.
+The reason is that the only change we make is to add a round number to the block format, and
+the validity predicate of an honestly produced block is unaffected by the new validation rules.
+Therefore the temporal ledger reported by the Bitcoin Backbone protocol is safe and live.
+
+\begin{figure}
+  % TODO(dionyziz): Typeset this
+
+  The Temporal Bitcoin Backbone protocol is the same as the Bitcoin Backbone protocol, except
+  for the following changes:
+
+  \begin{enumerate}
+    \item The block format is changed to include a round number and looks like this:
+
+    \[
+      B = (s, \textsf{ctr}, x, r)
+    \]
+
+    where $s$ is the hash of the previous block, \textsf{ctr} is the nonce, $x$ is the
+    payload of transactions, and $r$ is a round number.
+
+    \item The genesis block is augmented with the round $0$.
+    \item The honest parties mine blocks that contain the current round number.
+    \item Whenever a chain is received by an honest party, we add the following rules to
+          its validation process:
+
+          \begin{enumerate}
+            \item Ensure that the rounds recorded on the received chain are monotonically
+                  increasing.
+            \item Ensure that the round recorded on the tip is less than the current round.
+          \end{enumerate}
+    \item When the ledger is \textsf{read}, the reported transactions are read from the
+          stable part of the chain $\chain[{:}{-k}]$. Each transaction is reported with the
+          round of the block in which it is included.
+  \end{enumerate}
+  \caption{Temporal Bitcoin Backbone construction.}
+  \label{fig.temporal-backbone}
+\end{figure}
+
+For the notation definitions ($k, \ell, \tau, \mu$)
+in the following theorem, please refer to the original Bitcoin
+Backbone paper.
+
+\begin{theorem}[Bitcoin Timeliness]
+  A typical execution of the Temporal Bitcoin Backbone protocol is timely
+  % TODO(dionyziz): See if we can make this bound tighter to $k + \ell + 3$
+  with timeliness $v = \max(s, \frac{2k + \ell + 1}{\tau})$.
+\end{theorem}
+\begin{proof}
+  Requirements (1) and (2) of timeliness are satisfied due to the new chain validity rules.
+  We will prove (3).
+
+  Let $P$ be any honest party and $r_1 \leq r_2 \in \mathbb{N}$ be any rounds, and consider
+  the ledgers $L^P_{r_1}, L^P_{r_2}$ reported by $P$ at rounds $r_1, r_2$ respectively.
+  Suppose, towards a contradiction, that $L^P_{r_2}[|L^P_{r_1}|{:}]$ contains a transaction
+  $\tx$ with recorded round $r < r_1 - v$.
+
+  % TODO(dionyziz): figure
+  Let $\chain^P_{r_1}, \chain^P_{r_2}$ be the chains adopted by $P$ at rounds $r_1, r_2$ respectively.
+  Due to Common Prefix, $\chain^P_{r_2}$ will extend a block in $\chain^P_{r_1}[{-k-1}{:}]$.
+  The transaction $\tx$ is contained in some block $B$ of $\chain^P_{r_2}[{|\chain^P_{r_1}[{:}{-k}]|}{:}]$.
+
+  Let $B^*$ be the most recent
+  honestly generated block in $\chain^P_{r_1}[{:}{-k}][-\ell{:}]$
+  (or let $B^*$ be the genesis block if $|\chain^P_{r_1}| < \ell + k$).
+  This block will exist by
+  Chain Quality because we are looking at a chain chunk of length at least $\ell$ and
+  $\mu\ell \geq 1$.
+  Block $B^*$ is honestly generated, so let $r^*$ be the round
+  during which $B^*$ was generated, noting that the round recorded in $B^*$ is $r^*$.
+  Let $P^*$ be the party who mined $B^*$ at round $r^*$ (or $P^* = P, r^* = 0$ if $B^*$ is
+  the genesis block).
+
+  The block $B$ extends a chain that contains $B^*$, so $r > r^*$,
+  therefore $r^* < r_1 - v - 1$.
+
+  Let $\chain^{P^*}_{r^*}$ be the chain that $B^*$ extends (this will be the empty chain if
+  $B^*$ is the genesis block). If $B^*$ is not genesis, then $\chain^{P^*}_{r^*}$ is the chain
+  that $P^*$ adopts in round $r^*$. We observe
+
+  \[
+     |\chain^P_{r_1}| - |\chain^P_{r^*}| \leq
+     |\chain^P_{r_1}| - |\chain^{P^*}_{r^*}| + k \leq % TODO(dionyziz): Check for off-by-one errors
+     2k + \ell + 1\,. % TODO(dionyziz): Check for off-by-one errors
+  \]
+
+  The first inequality stems from the Common Prefix property with parameter $k$ applied
+  between parties $P$ and $P^*$ at round $r^*$. For the second inequality, observe that
+  $\chain^P_{r_1}$ is the chain adopted by $P$ at round $r_1$, whereas $\chain^{P^*}_{r^*}$ is
+  the parent chain of $B^*$ and those are spaced at most $2k + \ell + 1$ blocks apart by the definition
+  of $B^*$.
+
+  On the other hand, because $r_1 - r^* \geq s$ we can apply Chain Growth with parameters
+  $s, \tau$ to obtain
+  $|\chain^P_{r_1}| - |\chain^P_{r^*}| \geq \tau(r_1 - r^*) > \tau (v + 1) \geq
+  \tau (\frac{2k + \ell + 1}{\tau} + 1) = 2k + \ell + 1 + \tau \geq 2k + \ell + 1$,
+  which is a contradiction.
+
+  \qed
+\end{proof}
