@@ -34,7 +34,7 @@ Therefore the temporal ledger reported by the Bitcoin Backbone protocol is safe 
           its validation process:
 
           \begin{enumerate}
-            \item Ensure that the rounds recorded on the received chain are monotonically
+            \item Ensure that the rounds recorded on the received chain are strictly
                   increasing.
             \item Ensure that the round recorded on the tip is less than the current round.
           \end{enumerate}
@@ -46,32 +46,34 @@ Therefore the temporal ledger reported by the Bitcoin Backbone protocol is safe 
   \label{fig.temporal-backbone}
 \end{figure}
 
+Let $\chain^P_r$ be the chain adopted by an honest party $P$ at the
+beginning of round $r$ (as returned by the function \emph{maxvalid}).
 For the notation definitions ($k, \ell, \tau, \mu$)
 in the following theorem, please refer to the original Bitcoin
 Backbone paper.
 
 \begin{theorem}[Bitcoin Timeliness]
   A typical execution of the Temporal Bitcoin Backbone protocol is timely
-  % TODO(dionyziz): See if we can make this bound tighter to $k + \ell + 3$
-  with timeliness $v = \max(s, \frac{2k + \ell + 1}{\tau})$.
+  with timeliness $v = \max(s, \frac{k + \ell}{\tau})$.
 \end{theorem}
 \begin{proof}
   Requirements (1) and (2) of timeliness are satisfied due to the new chain validity rules.
   We will prove (3).
 
   Let $P$ be any honest party and $r_1 \leq r_2 \in \mathbb{N}$ be any rounds, and consider
-  the ledgers $L^P_{r_1}, L^P_{r_2}$ reported by $P$ at rounds $r_1, r_2$ respectively.
+  the ledgers $L^P_{r_1}, L^P_{r_2}$ reported by $P$ at the end of rounds $r_1, r_2$ respectively.
   Suppose, towards a contradiction, that $L^P_{r_2}[|L^P_{r_1}|{:}]$ contains a transaction
   $\tx$ with recorded round $r < r_1 - v$.
 
   % TODO(dionyziz): figure
-  Let $\chain^P_{r_1}, \chain^P_{r_2}$ be the chains adopted by $P$ at rounds $r_1, r_2$ respectively.
-  Due to Common Prefix, $\chain^P_{r_2}$ will extend a block in $\chain^P_{r_1}[{-k-1}{:}]$.
-  The transaction $\tx$ is contained in some block $B$ of $\chain^P_{r_2}[{|\chain^P_{r_1}[{:}{-k}]|}{:}]$.
+  Let $\chain_1, \chain_2$ be the chains of $P$ after the conclusion of rounds $r_1$
+  and $r_2$ respectively.
+  Due to Common Prefix, $\chain_2$ will extend a block in $\chain_1[{-k-2}{:}]$.
+  The transaction $\tx$ is contained in some block $B$ of $\chain_2[{|\chain_1[{:}{-k-1}]|}{:}]$.
 
   Let $B^*$ be the most recent
-  honestly generated block in $\chain^P_{r_1}[{:}{-k}][-\ell{:}]$
-  (or let $B^*$ be the genesis block if $|\chain^P_{r_1}| < \ell + k$).
+  honestly generated block in $\chain_1[{:}{-k-1}][-\ell{:}]$
+  (or let $B^*$ be the genesis block if $|\chain_1| < \ell + k + 1$).
   This block will exist by
   Chain Quality because we are looking at a chain chunk of length at least $\ell$ and
   $\mu\ell \geq 1$.
@@ -85,24 +87,35 @@ Backbone paper.
 
   Let $\chain^{P^*}_{r^*}$ be the chain that $B^*$ extends (this will be the empty chain if
   $B^*$ is the genesis block). If $B^*$ is not genesis, then $\chain^{P^*}_{r^*}$ is the chain
-  that $P^*$ adopts in round $r^*$. We observe
+  that $P^*$ adopts in round $r^*$. Let $\chain^P_{r^* + 1}$ be the chain that $P$ adopts
+  at the beginning of round $r^* + 1$. We observe
 
   \[
-     |\chain^P_{r_1}| - |\chain^P_{r^*}| \leq
-     |\chain^P_{r_1}| - |\chain^{P^*}_{r^*}| + k \leq % TODO(dionyziz): Check for off-by-one errors
-     2k + \ell + 1\,. % TODO(dionyziz): Check for off-by-one errors
+     |\chain_1| - |\chain^P_{r^* + 1}| \leq
+     |\chain_1| - |\chain^{P^*}_{r^*}| - 1 \leq
+     k + \ell\,.
   \]
 
-  The first inequality stems from the Common Prefix property with parameter $k$ applied
-  between parties $P$ and $P^*$ at round $r^*$. For the second inequality, observe that
-  $\chain^P_{r_1}$ is the chain adopted by $P$ at round $r_1$, whereas $\chain^{P^*}_{r^*}$ is
-  the parent chain of $B^*$ and those are spaced at most $2k + \ell + 1$ blocks apart by the definition
+  The first inequality stems from the fact that, at the end of round
+  $r^*$, the honest party $P^*$ will broadcast the newly mined block $B^*$
+  and this block will be received by $P$ at the beginning of round $r^* + 1$.
+  Due to the longest chain rule, the party $P$ at the beginning of round $r^* + 1$ will
+  adopt a chain of the same or larger length than
+  $|\chain^{P^*}_{r^*}| + |B^*| = |\chain^{P^*}_{r^*}| + 1$,
+  hence
+  $|\chain^P_{r^* + 1}| \geq |\chain^{P^*}_{r^*}| + 1$.
+  For the second inequality, observe that
+  $\chain_1$ is the chain of $P$ after the conclusion
+  of round $r_1$, whereas $\chain^{P^*}_{r^*}$ is
+  the parent chain of $B^*$ and those are spaced at most $k + \ell + 1$ blocks apart by the definition
   of $B^*$.
 
-  On the other hand, because $r_1 - r^* \geq s$ we can apply Chain Growth with parameters
+  On the other hand, because $r_1 - (r^* + 1) > v \geq s$ we can apply Chain Growth
+  between rounds $r^* + 1$ and $r_1$
+  with parameters
   $s, \tau$ to obtain
-  $|\chain^P_{r_1}| - |\chain^P_{r^*}| \geq \tau(r_1 - r^*) > \tau (v + 1) \geq
-  \tau (\frac{2k + \ell + 1}{\tau} + 1) = 2k + \ell + 1 + \tau \geq 2k + \ell + 1$,
+  $|\chain_1| - |\chain^P_{r^*}| \geq \tau(r_1 - r^* - 1) > \tau v \geq
+  \tau (\frac{k + \ell}{\tau}) \geq k + \ell$,
   which is a contradiction.
 
   \qed
