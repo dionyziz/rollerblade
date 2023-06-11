@@ -26,7 +26,8 @@
       \CommentLine{Oracles passed to the overlay protocol}
       \Let{\net}{(\textsf{send}, \textsf{receive})}
 
-      \Let{\Z[j][i]}{\new \Pi^\net(j, n)}\label{alg.simulate:construct}
+      \Let{\Delta}{\max \{u_i\}_{i \in [n]}}\Comment{Calculate effective network delay that $\Pi$ needs to tolerate}
+      \Let{\Z[j][i]}{\new \Pi^\net(\Delta, j, n)}\label{alg.simulate:construct}
       \State{$\Z[j][i].\textsf{execute}()$}\Comment{Execute the machine for round $0$ without any inputs}
       \For{$r \gets 1 \text{ to } \simulationRound$}\label{alg.simulate:for}
         \Let{\sf roundReceives}{[\,]}

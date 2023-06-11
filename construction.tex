@@ -12,6 +12,9 @@ ledger protocols,
 $\Y[j][1], \Y[j][2],\allowbreak\ldots,\allowbreak \Y[j][i],\allowbreak \ldots,\allowbreak \Y[j][n]$.
 Each $\Y[][i]$ of these underlying protocols promises (but may not deliver on that promise)
 to be safe, live with liveness $u_i$, and timely with timeliness $v_i$.
+Note the technical difference between $\Y[][i]$, denoting the $i^\text{th}$ underlying protocol (an ITM),
+and $\Y[j][i]$, denoting an instance of the $i^\text{th}$ underlying protocol running on the
+$j^\text{th}$ client (an ITI).
 
 Each $\RB[j]$ \emph{simulates} within its implementation $n$ different instances
 of the overlay protocol $\Pi$,

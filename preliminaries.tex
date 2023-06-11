@@ -16,6 +16,8 @@ same location (but $Y$ may have more elements beyond $|X|$).
 We write $X[i] = \bot$ for $i \geq |X|$ to indicate that the sequence
 has been exhausted.
 We use $[n]$ to denote the set $\{1, \ldots, n\}$.
+We use $X \distreq Y$ to denote that the two random variables $X$ and $Y$
+are equal in distribution.
 
 \noindent
 \textbf{Distributed Protocols.}
@@ -26,18 +28,18 @@ protocols.
 A distributed protocol $\Pi$ is an interactive Turing machine (ITM).
 To simplify the exposition, we treat this ITM
 as an object-oriented class $\Pi$ and the respective \emph{party}
-(a particular ITM \emph{instance}) as an object (class instance).
+(an Interactive Turing Machine Instance, or ITI) as an object (class instance).
 
 \begin{definition}[Distributed Protocol]
   A \emph{distributed protocol} is an ITM which exposes the follow methods:
 
   \begin{itemize}
-    \item $\construct^\net()$:
+    \item $\construct^\net(\Delta)$:
           This method called when the protocol is \emph{instantiated} into a
-          \emph{party}. We denote this using the notation $\new \Pi^\net()$,
+          \emph{party}. We denote this using the notation $\new\,\Pi^\net(\Delta)$,
           which returns a party that can be interacted with.
           It is also given oracle access to a network functionality
-          $\net$.
+          $\net$ and the network delay $\Delta \in \mathbb{N}$ to expect.
     \item $\lwrite(\data)$:
           Takes user input by accepting some \emph{data} string.
     \item $\lread()$:
@@ -66,7 +68,8 @@ All adversarial parties are controlled by one colluding adversary $\mathcal{A}$.
 % TODO: Write out the environment?
 \begin{definition}[Permissioned Distributed Protocol]
   A distributed protocol is \emph{permissioned} if its \emph{construct}
-  method accepts its own identity $j \in \mathbb{N}$
+  method accepts, in addition to the network delay $\Delta$,
+  its own identity $j \in \mathbb{N}$
   and the number $n \in \mathbb{N}$ of parties it will coordinate with.
 \end{definition}
 

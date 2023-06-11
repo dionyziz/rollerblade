@@ -1,39 +1,34 @@
 \begin{algorithm}
-  \caption{\label{alg.relay} The \emph{Relayer} party.
+  \caption{\label{alg.relay} The \emph{Relayer} party's \emph{relay} function,
+  executed on every round with the $\Y[*][1], \ldots, \Y[*][n]$ underlying
+  protocol instances as argument.
   This can be executed by any helpful but untrusted party.
   At least one honest relayer must be running.
-  A \rollerblade client can run the relayer themselves if they so wish.}
+  Any \rollerblade client can run the relayer themselves if they so wish,
+  indicated by the superscript $*$ on the notation $\Y[*][i]$,
+  illustrating that this can take any value among the $m$ rollerblades.}
   \begin{algorithmic}[1]
-    \Party{\sf Relayer}
-      % TODO(dionyziz): Typeset this
-      \State{$\Y$}\Comment{Array $\Y[][1], \ldots, \Y[][n]$ of underlying ledger protocol clients}
+    \Function{\sf relay}{$\Y[*]$}\Comment{Executed on every round}
+      \For{$i \gets 1 \text{ to } n$}\Comment{Source}
+        \Let{\tau}{\Y[*][i].\transcribe()}\Comment{Checkpoint}
 
-      \Function{\sf construct}{$Y$}\Comment{Ran before round $1$}
-        \Let{\this.Y}{Y}
-      \EndFunction
-
-      \Function{\sf execute}{$\,$}\Comment{Executed on every round}
-        \For{$i \gets 1 \text{ to } n$}\Comment{Source}
-          \Let{\tau}{\this.\Y[][i].\transcribe()}\Comment{Checkpoint}
-
-          \For{$i' \gets 1 \text{ to } n$}\Comment{Target}
-            \If{$i = i'$}
-              \Continue
-            \EndIf
-            % TODO(dionyziz): typeset this
-            \Let{\instruction}{\{
-              \type{:} \text{`checkpoint'},
-              \data{:} \{
-                \textsf{from}{:} i,
-                \textsf{certificate}{:} \tau
-              \}
-            \}}
-            \Let{\textsf{encoded}}{\Y[][i'].\encode(\serialize(\instruction))}
-            \State{$\Y[][i'].\lwrite(\textsf{encoded})$}
-          \EndFor
+        \For{$i' \gets 1 \text{ to } n$}\Comment{Target}
+          \If{$i = i'$}
+            \Continue
+          \EndIf
+          % TODO(dionyziz): typeset this
+          \Let{\instruction}{\{
+            \type{:} \text{`checkpoint'},
+            \data{:} \{
+              \textsf{from}{:} i,
+              \textsf{certificate}{:} \tau
+            \}
+          \}}
+          \Let{\textsf{encoded}}{\Y[*][i'].\encode(\serialize(\instruction))}
+          \State{$\Y[*][i'].\lwrite(\textsf{encoded})$}
         \EndFor
-      \EndFunction
-    \EndParty
+      \EndFor
+    \EndFunction
     \vskip2pt
   \end{algorithmic}
 \end{algorithm}

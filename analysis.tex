@@ -62,25 +62,62 @@ contiguous honest participation is also known in the literature as
 %
 % TODO: define underlying, overlay, good, VIEW...
 
+Even though we will not do the analysis in the full Universal Composability (UC) framework, and
+we treat executions as stand-alone, we do adopt some of the notation of the UC framework.
+Let $\LCExec[\Lambda][\Pi][({\Y[][1]}, \cdots, {\Y[][n]})][\mathcal{A}][\mathcal{Z}][n][\mathcal{H}]$
+denote the transcript of an execution of the \rollerblade protocol with overlay protocol $\Pi$,
+underlying protocols $\Y[][1], \ldots, \Y[][n]$, adversary $\mathcal{A}$, environment $\mathcal{Z}$,
+number of parties $n$, indices of honest parties $\mathcal{H}$.
+Following the notation of the UC framework
+
+\begin{definition}[Lateness]
+\end{definition}
+
+\begin{definition}[Exec]
+\end{definition}
+
+\begin{definition}[View]
+\end{definition}
+
+% TODO: Define the Ledger Composition problem and decompose it from the Rollerblade construction
+
+\begin{definition}[Ledger Composability Faithfulness]
+  A Ledger Composition protocol $\Lambda$ is \emph{faithful}
+  for a set of overlay protocols $\mathcal{P}$ and a set of
+  underlying protocols $\mathcal{Y}$ if:
+  for any overlay protocol $\Pi \in \mathcal{P}$
+  if for any number of overlay parties $n \in \mathbb{N}$,
+  and any $n$ underlying protocols $\Y[][1], \ldots, \Y[][n] \in \mathcal{Y}$
+  % TODO: allow "good" to be parametrized
+  for all PPT adversaries $\mathcal{A}$ and all PPT environments $\mathcal{Z}$,
+  % TODO: There is no need for the polynomiality constraint on A and Z,
+  % but the reduction maintains polynomiality
+  there is a PPT simulator $\mathcal{S}$ and there is a
+  PPT environment $\mathcal{Z}'$ such that following holds:
+
+  \begin{enumerate}
+    \item $\LCView(\mathcal{E}) \distreq \PEView(\mathcal{E}')$
+    \item $\LCExtern(\mathcal{E}) \latedistr{\Delta} \PEExtern(\mathcal{E}')$
+  \end{enumerate}
+
+  where execution $\mathcal{E}$ is sampled from
+  $\LCExec[\Lambda][\Pi][({\Y[][1]}, \cdots, {\Y[][n]})][n][\mathcal{H}][\mathcal{A}][\mathcal{Z}]$
+  conditioned on the requirement that $\forall i \in \mathcal{H}: Y[][i] \text{ is \emph{good}}$
+  and execution $\mathcal{E}'$ is sampled from
+  $\PEExec[\Pi][\mathcal{S}][\mathcal{Z}'][n][\mathcal{H}]$.
+\end{definition}
+
 % TODO: Define the relationship between Z and Z';
 %       we are hoping that Z' will have exactly the same writes as Z
 %       (perhaps more due to adversarial writes) for each party
 %       and that those will appear in "close enough" times (maybe up to $u$ away
 %       from the original)
 \begin{conjecture}[Simulation]\label{conj:simulation}
-  Consider any overlay protocol $\Pi$, any number of overlay parties $n \in \mathbb{N}$,
-  indices $\mathcal{H} \subseteq [n]$ of honest parties,
-  and any $n$ overlay protocols $\Y[][1], \ldots, \Y[][n]$
-  % TODO: can we speak of "goodness" outside of executions?
-  such that $\forall i \in \mathcal{H}: \Y[][i] \text{ is good}$.
-  % TODO: There is no need for the polynomiality constraint on A and Z,
-  % but the reduction maintains polynomiality
-  For all PPT adversaries $\mathcal{A}$ and all PPT $\mathcal{Z}$ environments,
-  there is a PPT simulator $\mathcal{S}$ and there is a PPT environment $\mathcal{Z}'$ such that:
-
-  $\RBView[\Pi][({\Y[][1]}, \cdots, {\Y[][n]})][\mathcal{A}][\mathcal{Z}][n][\mathcal{H}]
-   =
-   \PEView[\Pi][\mathcal{S}][\mathcal{Z}'][n][\mathcal{H}]$
+  The \rollerblade construction $\Lambda$ is \emph{faithful} for
+  overlay protocols $\mathcal{P}$ that are \rollerblade-overlay,
+  underlying protocols $\mathcal{Y}$ that are \rollerblade-underlying,
+  of which good protocols are \rollerblade-good
+  with lateness $\Delta = \max\{u_i\}_{i \in [n]}$. % TODO: how is this \Delta a function of n?
 \end{conjecture}
 
 \begin{conjecture}[Cross-party]\label{conj:cross-party}
