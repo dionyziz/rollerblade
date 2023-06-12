@@ -1,5 +1,123 @@
 \section{Analysis}
 
+% \begin{definition}[Determinism]
+%       Let $\Pi^\Sigma$ be a State Machine Replication protocol that makes
+%       oracle use of a signature protocol $\Sigma = (\textsf{Gen}, \textsf{Sig}, \textsf{Ver})$.
+%       The protocol $\Pi$ is called \emph{soft deterministic} if,
+%       when executed as an interactive turing machine $\Pi^\Sigma(i)$ initialized for party
+%       with index $i$, the machine does not make use of any local randomness.
+% \end{definition}
+%
+% TODO: define underlying, overlay, good, VIEW...
+
+\begin{definition}[Lateness]
+\end{definition}
+
+\begin{definition}[Exec]
+\end{definition}
+
+\begin{definition}[View]
+\end{definition}
+
+% TODO: Move this to definitions? Expand this intuitive explanation,
+% and give it a title
+% Potential generalization: Use a different H_Z and H_Y that indicate
+% which Ys are "good" and which Zs are supposed to be "honest", and
+% make H_Z a function of H_Y, to be defined by the DPCP.
+% This would allow having a different number of Zs and Ys,
+% and each of the Zs could depend on different, and potentially multiple, Ys;
+% and each Y could help multiple Zs.
+
+A Distributed Protocol Composition Protocol (DPCP) is a protocol that
+runs an \emph{overlay} distributed protocol $\Pi$ on top of a set of
+$n$ \emph{underlying} distributed protocols $\Y[][1], \ldots, \Y[][i], \ldots, \Y[][n]$.
+The protocol $\Pi$ is generally designed
+to work in the \emph{party setting} with a network (such as an authenticated channels network)
+connecting its instances directly.
+The DPCP executes
+$\Pi$ in the \emph{emulated setting} by utilizing the underlying
+$\Y[][i]$ protocols to help with the emulation and communication between the
+overlay protocol instances.
+Multiple instances $\Lambda_1, \ldots, \Lambda_j, \ldots, \Lambda_m$
+of DPCP are executed.
+Each $j^\text{th}$ DPCP instance promises to emulate the execution of multiple
+instances of $\Pi$ ($\Z[j][1], \ldots, \Z[j][i], \ldots \Z[j][n]$).
+These emulated $\Z$ instances should behave similarly to instances of $\Pi$
+running in a stand-alone setting.
+
+\begin{definition}[Distributed Protocol Composition Protocol]
+  A Distributed Protocol Composition Protocol (DPCP) family
+  is a family of interactive machines
+  $\Lambda_{\Pi,(\Y[][1], \ldots, \Y[][n])}$ providing the following
+  functionalities:
+
+  \begin{enumerate}
+    \item \textbf{construct}$(\sid, j)$.
+    \item \textbf{writeToMachine}$(i, \data)$.
+    \item \textbf{emulateMachine}$(i, r)$. % <-- Z
+  \end{enumerate}
+\end{definition}
+
+The DPCP is constructed by calling \emph{construct} with parameters the session identifier $\sid$
+and the DPCP instance identity $j \in \mathbb{N}$. Each DPCP instance provides a \emph{writeToMachine}
+functionality that allows writing data to the $i^\text{th}$ emulated machine.
+It also provides an \emph{emulateMachine} functionality that promises to emulate the execution of
+the $i^\text{th}$ instance of $\Pi$ up to round $r$, and return the transcript of this emulation
+and the instance of this emulation.
+
+Even though we will not do the analysis in the full Universal Composability (UC) framework, and
+we treat executions as stand-alone, we do adopt some of the notation of the UC framework.
+Let $\LCExec(\Lambda, \Pi, ({\Y[][1]}, \cdots, {\Y[][n]}), \mathcal{A}, \mathcal{Z}, \mathcal{H})$
+denote the transcript of an execution of the DPCP protocol $\Lambda$ parametrized with overlay protocol $\Pi$,
+and underlying protocols $\Y[][1], \ldots, \Y[][n]$, adversary $\mathcal{A}$, environment $\mathcal{Z}$,
+indices of honest parties $\mathcal{H}$.
+Following the notation of the UC framework, we define the notion of an \emph{execution}
+and a \emph{view}... % TODO(tzinas/dionyziz)... define these.
+
+We are now ready to define the notion of \emph{faithfulness} of a
+Distributed Protocol Composition Protocol (DPCP), which captures the
+correspondence between the party setting execution and the emulated setting
+execution of $\Pi$. Roughly, a DPCP is called \emph{faithful} is these
+two settings are identical in the eyes of the honest parties.
+This faithfulness may be conditioned to work only on certain classes
+of overlay protocols $\Pi$ and underlying protocols $\Y$, and may
+require that a certain subset $\mathcal{H}$ of these $\Y$s are well-behaved.
+This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
+
+% TODO: Mention that the validator and other protocol settings for \Y[][i]
+% are hard-coded into \Y[][i]
+\begin{definition}[Distributed Protocol Composition Faithfulness]
+  A DPCP family
+  $\Lambda_{\Pi,(\Y[][1], \ldots, \Y[][n])}$
+  is \emph{faithful}
+  for a family of overlay protocols $\mathcal{P}$ and a family of
+  underlying protocols $\mathcal{Y}$ and a family of efficiently computable
+  predicates $\mathcal{Q} = \{Q_Y\}_{Y \in \mathcal{Y}}$ of
+  underlying protocol execution \emph{goodness}
+  and a delay $\Delta(\cdot) \in \mathbb{N}$ if:
+  for any overlay protocol $\Pi \in \mathcal{P}$
+  and for any number of overlay parties $n \in \mathbb{N}$,
+  and any $n$ underlying protocols $\Y[][1], \ldots, \Y[][n] \in \mathcal{Y}$
+  % TODO: allow "good" to be parametrized
+  for all PPT adversaries $\mathcal{A}$ and all PPT environments $\mathcal{Z}$,
+  % TODO: There is no need for the polynomiality constraint on A and Z,
+  % but the reduction maintains polynomiality
+  there is a PPT simulator $\mathcal{S}$ and there is a
+  PPT environment $\mathcal{Z}'$ such that following holds:
+
+  \begin{enumerate}
+    \item $\LCView(\mathcal{E}) \distreq \PEView(\mathcal{E}')$
+    \item $\LCExtern(\mathcal{E}) \latedistr{\Delta((\Y[][1], \ldots, \Y[][n]))} \PEExtern(\mathcal{E}')$
+  \end{enumerate}
+
+  where execution $\mathcal{E}$ is sampled from
+  $\LCExec(\Lambda, \Pi, ({\Y[][1]}, \cdots, {\Y[][n]}), \mathcal{H}, \mathcal{A}, \mathcal{Z})$
+  and execution $\mathcal{E}'$ is sampled from
+  $\PEExec(\Pi, \mathcal{S}, \mathcal{Z}', n, \mathcal{H}, \Delta((\Y[][1], \ldots, \Y[][n])))$,
+  where the sampling of $\mathcal{E}$ is conditioned on the requirement that for all $i \in \mathcal{H}$
+  the execution of $\Y[][i]$ satifies goodness $Q_{\Y[][i]}$ within $\mathcal{E}$.
+\end{definition}
+
 \begin{lemma}[Past Perfect]
   Consider a temporal ledger protocol $\Y$
   constrained to report ledgers in which each transaction appears at most once.
@@ -51,61 +169,6 @@
 The above property, which follows from safety, liveness, timeliness and
 contiguous honest participation is also known in the literature as
 \emph{persistence}~\cite{backbone}.
-
-% \begin{definition}[Determinism]
-%       Let $\Pi^\Sigma$ be a State Machine Replication protocol that makes
-%       oracle use of a signature protocol $\Sigma = (\textsf{Gen}, \textsf{Sig}, \textsf{Ver})$.
-%       The protocol $\Pi$ is called \emph{soft deterministic} if,
-%       when executed as an interactive turing machine $\Pi^\Sigma(i)$ initialized for party
-%       with index $i$, the machine does not make use of any local randomness.
-% \end{definition}
-%
-% TODO: define underlying, overlay, good, VIEW...
-
-Even though we will not do the analysis in the full Universal Composability (UC) framework, and
-we treat executions as stand-alone, we do adopt some of the notation of the UC framework.
-Let $\LCExec[\Lambda][\Pi][({\Y[][1]}, \cdots, {\Y[][n]})][\mathcal{A}][\mathcal{Z}][n][\mathcal{H}]$
-denote the transcript of an execution of the \rollerblade protocol with overlay protocol $\Pi$,
-underlying protocols $\Y[][1], \ldots, \Y[][n]$, adversary $\mathcal{A}$, environment $\mathcal{Z}$,
-number of parties $n$, indices of honest parties $\mathcal{H}$.
-Following the notation of the UC framework
-
-\begin{definition}[Lateness]
-\end{definition}
-
-\begin{definition}[Exec]
-\end{definition}
-
-\begin{definition}[View]
-\end{definition}
-
-% TODO: Define the Ledger Composition problem and decompose it from the Rollerblade construction
-
-\begin{definition}[Ledger Composability Faithfulness]
-  A Ledger Composition protocol $\Lambda$ is \emph{faithful}
-  for a set of overlay protocols $\mathcal{P}$ and a set of
-  underlying protocols $\mathcal{Y}$ if:
-  for any overlay protocol $\Pi \in \mathcal{P}$
-  if for any number of overlay parties $n \in \mathbb{N}$,
-  and any $n$ underlying protocols $\Y[][1], \ldots, \Y[][n] \in \mathcal{Y}$
-  % TODO: allow "good" to be parametrized
-  for all PPT adversaries $\mathcal{A}$ and all PPT environments $\mathcal{Z}$,
-  % TODO: There is no need for the polynomiality constraint on A and Z,
-  % but the reduction maintains polynomiality
-  there is a PPT simulator $\mathcal{S}$ and there is a
-  PPT environment $\mathcal{Z}'$ such that following holds:
-
-  \begin{enumerate}
-    \item $\LCView(\mathcal{E}) \distreq \PEView(\mathcal{E}')$
-    \item $\LCExtern(\mathcal{E}) \latedistr{\Delta} \PEExtern(\mathcal{E}')$
-  \end{enumerate}
-
-  where execution $\mathcal{E}$ is sampled from
-  $\LCExec[\Lambda][\Pi][({\Y[][1]}, \cdots, {\Y[][n]})][n][\mathcal{H}][\mathcal{A}][\mathcal{Z}]$
-  conditioned on the requirement that $\forall i \in \mathcal{H}: Y[][i] \text{ is \emph{good}}$
-  and execution $\mathcal{E}'$ is sampled from
-  $\PEExec[\Pi][\mathcal{S}][\mathcal{Z}'][n][\mathcal{H}]$.
-\end{definition}
 
 % TODO: Define the relationship between Z and Z';
 %       we are hoping that Z' will have exactly the same writes as Z

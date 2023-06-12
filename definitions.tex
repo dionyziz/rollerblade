@@ -45,7 +45,7 @@ $k^\text{th}$ round/transaction pair is $\Ledger[j][i][r][k]$).
 
 We now describe the requirements of our underlying and overlay protocols.
 
-\subsection{Underlying Requirements}
+\subsection{Rollerblade Underlying Requirements}
 
 Firstly, in order to record data on our underlying ledgers, we require that any arbitrary string
 can be written to them. This is called a \emph{bulletin}.
@@ -120,8 +120,9 @@ of an event.
   \]
 \end{definition}
 
-\begin{definition}[Underlying Protocol]
-  An \emph{underlying protocol} is a
+\begin{definition}[\rollerblade-Suitable Underlying Protocol]
+  A \emph{distributed protocol} is called a \emph{\rollerblade-Suitable
+  Underlying Protocol} if it is a
   (potentially permissionless)
   distributed temporal ledger protocol
   which is a bulletin board and a
@@ -162,7 +163,7 @@ overlay permissioned distributed protocol
 working over authenticated channels.
 
 % TODO: write out the execution environment...
-\begin{definition}[Overlay Protocol]
-  An \emph{overlay protocol} is any deterministic
-  permissioned distributed protocol.
+\begin{definition}[\rollerblade-Suitable Overlay Protocol]
+  A distributed protocol is called \emph{\rollerblade-Suitable Overlay Protocol}
+  if it is deterministic and permissioned.
 \end{definition}
