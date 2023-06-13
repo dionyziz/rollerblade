@@ -89,16 +89,15 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
 % are hard-coded into \Y[][i]
 \begin{definition}[Distributed Protocol Composition Faithfulness]
   A DPCP $\Lambda$
-  is $(\Pi, n, \ell, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta)$-\emph{faithful}
+  is $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta)$-\emph{faithful}
   for an overlay protocol $\Pi$,
   a number of overlay parties $n \in \mathbb{N}$,
-  a sequence of $\ell \in \mathbb{N}$
-  underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$,
+  a sequence of underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$,
   a belief system $\mathcal{B}$,
   honesty correspondence $\mathcal{H}: \mathcal{B} \longrightarrow 2^{[n]}$,
-  and a delay $\Delta(\cdot) \in \mathbb{N}$ if:
+  and delay $\Delta \in \mathbb{N}$ if:
 
-  For all beliefs $B \in \mathcal{B}$
+  For all beliefs $B \in \mathcal{B}$,
   for all PPT adversaries $\mathcal{A}$ and all PPT environments $\mathcal{Z}$,
   % TODO: There is no need for the polynomiality constraint on A and Z,
   % but the reduction maintains polynomiality
@@ -107,16 +106,19 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
 
   \begin{enumerate}
     \item $\LCView(\mathcal{E}) \distreq \PEView(\mathcal{E}')$
-    \item $\LCExtern(\mathcal{E}) \latedistr{\Delta((\Y[][1], \ldots, \Y[][n]))} \PEExtern(\mathcal{E}')$
+    \item $\LCExtern(\mathcal{E}) \latedistr{\Delta} \PEExtern(\mathcal{E}')$
   \end{enumerate}
 
   where execution $\mathcal{E}$ is sampled from
   % TODO: Do not use "EXEC", as this is inconsistent with the UC framework
-  $\LCExec(\Lambda, \Pi, ({\Y[][1]}, \cdots, {\Y[][n]}), \mathcal{H}, \mathcal{A}, \mathcal{Z})$
+  $\LCExec(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
   % TODO: B should only depend on the collective execution of \Y, not anything else
   conditioned on the belief $B(\mathcal{E})$,
   and execution $\mathcal{E}'$ is sampled from
-  $\PEExec(\Pi, \mathcal{S}, \mathcal{Z}', n, \mathcal{H}(B), \Delta((\Y[][1], \ldots, \Y[][n])))$.
+
+  \[
+  \PEExec(\Pi, \mathcal{S}, \mathcal{Z}', n, \mathcal{H}(B), \Delta)\,.
+  \]
 \end{definition}
 
 % Remark: Differences from a UC-style proof
@@ -173,18 +175,40 @@ The above property, which follows from safety, liveness, timeliness and
 contiguous honest participation is also known in the literature as
 \emph{persistence}~\cite{backbone}.
 
+% TODO: define rollerblade belief system and honesty correspondence
+\begin{definition}[Rollerblade Belief System]
+  Given a sequence of \rollerblade-underlying-respecting
+  protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$,
+  define for each $i \in [\ell]$ the following predicate on
+  a collective execution $\mathcal{E}$ of $\mathcal{Y}$:
+
+  \[
+    \text{good}_i(\mathcal{E}) = \text{``} \Y[][i] \text{ is safe, live$(u_i)$, and timely$(v_i)$ in $\mathcal{E}$''}
+  \]
+
+  Then, the \rollerblade belief system $\mathcal{B}$ of $\mathcal{Y}$
+  is the powerset of the set
+
+  \[
+    \{ \text{good}_i: \Y[][i] \in \mathcal{Y} \}
+  \]
+\end{definition}
+
 % TODO: Define the relationship between Z and Z';
 %       we are hoping that Z' will have exactly the same writes as Z
 %       (perhaps more due to adversarial writes) for each party
 %       and that those will appear in "close enough" times (maybe up to $u$ away
 %       from the original)
-\begin{conjecture}[Simulation]\label{conj:simulation}
+\begin{conjecture}[Rollerblade Simulation]\label{conj:simulation}
   For all protocols $\Pi$ that are \rollerblade-overlay-respecting,
-  and any $\ell$-sequence of protocols $(\Y[][1], \ldots, \Y[][\ell])$
+  and any sequence of protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$
   that are \rollerblade-underlying-respecting,
-  the \rollerblade construction $\Lambda$ is \emph{faithful}.
-  of which good protocols are \rollerblade-good
-  with lateness $\Delta = \max\{u_i\}_{i \in [n]}$. % TODO: how is this \Delta a function of n?
+  for the \rollerblade-belief-system $\mathcal{B}$ of $\mathcal{Y}$
+  and respective honesty correspondence $\mathcal{H}$,
+  the \rollerblade construction $\Lambda$ of Section~\ref{sec:construction} is
+  $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta)$-\emph{faithful}.
+  where $n = |\mathcal{Y}|$, $\Delta = \max\{u_i\}_{i \in [n]}$,
+  and $u_i$ is the promised liveness of $\Y[][i]$.
 \end{conjecture}
 
 \begin{conjecture}[Cross-party]\label{conj:cross-party}
