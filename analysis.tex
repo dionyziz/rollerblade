@@ -74,6 +74,7 @@ indices of honest parties $\mathcal{H}$.
 Following the notation of the UC framework, we define the notion of an \emph{execution}
 and a \emph{view}... % TODO(tzinas/dionyziz)... define these.
 
+% TODO: Define belief system and honesty correspondence
 We are now ready to define the notion of \emph{faithfulness} of a
 Distributed Protocol Composition Protocol (DPCP), which captures the
 correspondence between the party setting execution and the emulated setting
@@ -87,18 +88,17 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
 % TODO: Mention that the validator and other protocol settings for \Y[][i]
 % are hard-coded into \Y[][i]
 \begin{definition}[Distributed Protocol Composition Faithfulness]
-  A DPCP family
-  $\Lambda_{\Pi,(\Y[][1], \ldots, \Y[][n])}$
-  is \emph{faithful}
-  for a family of overlay protocols $\mathcal{P}$ and a family of
-  underlying protocols $\mathcal{Y}$ and a family of efficiently computable
-  predicates $\mathcal{Q} = \{Q_Y\}_{Y \in \mathcal{Y}}$ of
-  underlying protocol execution \emph{goodness}
+  A DPCP $\Lambda$
+  is $(\Pi, n, \ell, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta)$-\emph{faithful}
+  for an overlay protocol $\Pi$,
+  a number of overlay parties $n \in \mathbb{N}$,
+  a sequence of $\ell \in \mathbb{N}$
+  underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$,
+  a belief system $\mathcal{B}$,
+  honesty correspondence $\mathcal{H}: \mathcal{B} \longrightarrow 2^{[n]}$,
   and a delay $\Delta(\cdot) \in \mathbb{N}$ if:
-  for any overlay protocol $\Pi \in \mathcal{P}$
-  and for any number of overlay parties $n \in \mathbb{N}$,
-  and any $n$ underlying protocols $\Y[][1], \ldots, \Y[][n] \in \mathcal{Y}$
-  % TODO: allow "good" to be parametrized
+
+  For all beliefs $B \in \mathcal{B}$
   for all PPT adversaries $\mathcal{A}$ and all PPT environments $\mathcal{Z}$,
   % TODO: There is no need for the polynomiality constraint on A and Z,
   % but the reduction maintains polynomiality
@@ -111,12 +111,15 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
   \end{enumerate}
 
   where execution $\mathcal{E}$ is sampled from
+  % TODO: Do not use "EXEC", as this is inconsistent with the UC framework
   $\LCExec(\Lambda, \Pi, ({\Y[][1]}, \cdots, {\Y[][n]}), \mathcal{H}, \mathcal{A}, \mathcal{Z})$
+  % TODO: B should only depend on the collective execution of \Y, not anything else
+  conditioned on the belief $B(\mathcal{E})$,
   and execution $\mathcal{E}'$ is sampled from
-  $\PEExec(\Pi, \mathcal{S}, \mathcal{Z}', n, \mathcal{H}, \Delta((\Y[][1], \ldots, \Y[][n])))$,
-  where the sampling of $\mathcal{E}$ is conditioned on the requirement that for all $i \in \mathcal{H}$
-  the execution of $\Y[][i]$ satifies goodness $Q_{\Y[][i]}$ within $\mathcal{E}$.
+  $\PEExec(\Pi, \mathcal{S}, \mathcal{Z}', n, \mathcal{H}(B), \Delta((\Y[][1], \ldots, \Y[][n])))$.
 \end{definition}
+
+% Remark: Differences from a UC-style proof
 
 \begin{lemma}[Past Perfect]
   Consider a temporal ledger protocol $\Y$
@@ -176,9 +179,10 @@ contiguous honest participation is also known in the literature as
 %       and that those will appear in "close enough" times (maybe up to $u$ away
 %       from the original)
 \begin{conjecture}[Simulation]\label{conj:simulation}
-  The \rollerblade construction $\Lambda$ is \emph{faithful} for
-  overlay protocols $\mathcal{P}$ that are \rollerblade-overlay,
-  underlying protocols $\mathcal{Y}$ that are \rollerblade-underlying,
+  For all protocols $\Pi$ that are \rollerblade-overlay-respecting,
+  and any $\ell$-sequence of protocols $(\Y[][1], \ldots, \Y[][\ell])$
+  that are \rollerblade-underlying-respecting,
+  the \rollerblade construction $\Lambda$ is \emph{faithful}.
   of which good protocols are \rollerblade-good
   with lateness $\Delta = \max\{u_i\}_{i \in [n]}$. % TODO: how is this \Delta a function of n?
 \end{conjecture}
