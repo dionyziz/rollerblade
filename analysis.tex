@@ -55,7 +55,7 @@ running in a stand-alone setting.
   functionalities:
 
   \begin{enumerate}
-    \item \textbf{construct}$(\sid)$.
+    \item \textbf{construct}$(\sid, (\Y[j][1] \ldots \Y[j][n]))$.
     \item \textbf{writeToMachine}$(i, \data)$.
     \item \textbf{emulateMachine}$(i, r)$. % <-- Z
   \end{enumerate}
@@ -240,8 +240,19 @@ contiguous honest participation is also known in the literature as
   and its $\Y[j][1], \ldots, \Y[j][n]$.
   The environment $\mathcal{Z}'$ chooses the number of rounds in
   $\mathcal{E}'$ to be the same as the number of rounds in $\mathcal{E}^*$.
-  For every round $r$ of the execution $\mathcal{E}^*$,
-  and for every $i \in [n]$, the simulator obtains $\Y[j][i][r]$
+
+  To simulate round $r$ of the execution $\mathcal{E}'$,
+  for every $i \in [n]$, the simulator obtains a copy of the
+  configuration $M$ of $\RB[j]$ from $\mathcal{E}^*$ at the end of the execution.
+  The simulator then calls $\prepareSimulationInputs(i, \simulationRound, \realityRound)$ on $M$
+  \emph{in vitro}, where \simulationRound is the round $r$ and \realityRound is the
+  last round of execution $\mathcal{E}^*$, to obtain the pair $(\writeboxes, \inboxes)$.
+  At the beginning of round $r$ of the execution $\mathcal{E}'$, the simulator calls
+  $\write(\data)$ on party $i$ for every $\data \in \writeboxes[r - 1]$.
+  When the environment $\mathcal{Z}'$ activates party $i$ during round $r$,
+  if party $i$ invokes the network receive method $\receive()$, then $\mathcal{Z}'$ will
+  provide $\inboxes[r - 1]$.
+
   (the simulator can do this by obtaining a copy of the ITI
   configuration for the $i^\text{th}$ distributed ledger client $\Y[j][i]$
   of party $j$ at the end of round $r$ and executing $\lread$ on
