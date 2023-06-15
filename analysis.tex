@@ -1,5 +1,8 @@
 \section{Analysis}
 
+To aid the analysis, we assume that the ITIs contain all the previous transcript
+of their execution (a history of machine configurations).
+
 % \begin{definition}[Determinism]
 %       Let $\Pi^\Sigma$ be a State Machine Replication protocol that makes
 %       oracle use of a signature protocol $\Sigma = (\textsf{Gen}, \textsf{Sig}, \textsf{Ver})$.
@@ -46,24 +49,25 @@ These emulated $\Z$ instances should behave similarly to instances of $\Pi$
 running in a stand-alone setting.
 
 \begin{definition}[Compositor]
-  A \emph{compositor} with overlay $\Pi$ and underlying $\Y[][1], \ldots, \Y[][n]$,
+  A \emph{compositor} $\Lambda$ with overlay $\Pi$ and underlying $\Y[][1], \ldots, \Y[][n]$,
   is a family of interactive machines
   $\Lambda_{\Pi,(\Y[][1], \ldots, \Y[][n])}$ providing the following
   functionalities:
 
   \begin{enumerate}
-    \item \textbf{construct}$(\sid, j)$.
+    \item \textbf{construct}$(\sid)$.
     \item \textbf{writeToMachine}$(i, \data)$.
     \item \textbf{emulateMachine}$(i, r)$. % <-- Z
   \end{enumerate}
 \end{definition}
 
-The DPCP is constructed by calling \emph{construct} with parameters the session identifier $\sid$
-and the DPCP instance identity $j \in \mathbb{N}$. Each DPCP instance provides a \emph{writeToMachine}
+The compositor is constructed by calling \emph{construct} with parameter the session identifier $\sid$.
+Note that compositors are permissionless, as they don't know their instance identity $j \in \mathbb{N}$.
+Each compositor instance provides a \emph{writeToMachine}
 functionality that allows writing data to the $i^\text{th}$ emulated machine.
 It also provides an \emph{emulateMachine} functionality that promises to emulate the execution of
-the $i^\text{th}$ instance of $\Pi$ up to round $r$, and return the transcript of this emulation
-and the instance of this emulation.
+the $i^\text{th}$ instance of $\Pi$ up to round $r$, and return the instance of this emulation
+at round $r$ (and note that this contains the full transcript of the emulation).
 
 Even though we will not do the analysis in the full Universal Composability (UC) framework, and
 we treat executions as stand-alone, we do adopt some of the notation of the UC framework.
@@ -73,12 +77,16 @@ and underlying protocols $\Y[][1], \ldots, \Y[][n]$, adversary $\mathcal{A}$, en
 indices of honest parties $\mathcal{H}$.
 Following the notation of the UC framework, we define the notion of an \emph{execution}
 and a \emph{view}... % TODO(tzinas/dionyziz)... define these.
+% Define how the environment Z and the environment Z' functions step by step
+% e.g., the environment Z is given $m$ compositor parties to spin up
+% and both environments must orchestrate the execution in a lockstep manner
 
 % TODO: Define belief system and honesty correspondence
+% TODO: Define a belief-respecting environment
 We are now ready to define the notion of \emph{faithfulness} of a
-Distributed Protocol Composition Protocol (DPCP), which captures the
+compositor, which captures the
 correspondence between the party setting execution and the emulated setting
-execution of $\Pi$. Roughly, a DPCP is called \emph{faithful} is these
+execution of $\Pi$. Roughly, a compositor is called \emph{faithful} is these
 two settings are identical in the eyes of the honest parties.
 This faithfulness may be conditioned to work only on certain classes
 of overlay protocols $\Pi$ and underlying protocols $\Y$, and may
@@ -88,7 +96,7 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
 % TODO: Mention that the validator and other protocol settings for \Y[][i]
 % are hard-coded into \Y[][i]
 \begin{definition}[Compositor Faithfulness]
-  A Compositor $\Lambda$
+  A compositor $\Lambda$
   is $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta)$-\emph{faithful}
   for an overlay protocol $\Pi$,
   a number of overlay parties $n \in \mathbb{N}$,
@@ -98,22 +106,25 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
   and delay $\Delta \in \mathbb{N}$ if:
 
   For all beliefs $B \in \mathcal{B}$,
-  for all PPT adversaries $\mathcal{A}$ and all PPT environments $\mathcal{Z}$,
+  for all PPT adversaries $\mathcal{A}$ and all
+  $B$-respecting PPT environments $\mathcal{Z}$,
+  for all number of compositor parties $m \in \mathbb{N}$,
+  for all compositor party indices $j \in [m]$,
   % TODO: There is no need for the polynomiality constraint on A and Z,
   % but the reduction maintains polynomiality
   there is a PPT simulator $\mathcal{S}$ and there is a
-  PPT environment $\mathcal{Z}'$ such that following holds:
+  PPT environment $\mathcal{Z}'$ such that
+  the following holds:
 
   \begin{enumerate}
-    \item $\LCView(\mathcal{E}) \distreq \PEView(\mathcal{E}')$
-    \item $\LCExtern(\mathcal{E}) \latedistr{\Delta} \PEExtern(\mathcal{E}')$
+    \item $\LCView_j(\mathcal{E}) \distreq \PEView(\mathcal{E}')$
+    \item $\LCExtern_j(\mathcal{E}) \latedistr{\Delta} \PEExtern(\mathcal{E}')$
   \end{enumerate}
 
   where execution $\mathcal{E}$ is sampled from
   % TODO: Do not use "EXEC", as this is inconsistent with the UC framework
-  $\LCExec(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
+  $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
   % TODO: B should only depend on the collective execution of \Y, not anything else
-  conditioned on the belief $B(\mathcal{E})$,
   and execution $\mathcal{E}'$ is sampled from
 
   \[
@@ -198,21 +209,23 @@ contiguous honest participation is also known in the literature as
 %       and that those will appear in "close enough" times (maybe up to $u$ away
 %       from the original)
 \begin{conjecture}[Rollerblade Simulation]\label{conj:simulation}
-  For all protocols $\Pi$ that are \rollerblade-overlay-respecting,
-  and any sequence of protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$
-  that are \rollerblade-underlying-respecting,
+  For all \rollerblade-overlay-respecting protocols $\Pi$
+  and any sequence of \rollerblade-underlying-respecting
+  protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$
   for the \rollerblade-belief-system $\mathcal{B}$ of $\mathcal{Y}$
   and honesty correspondence $\mathcal{H}$,
-  the \rollerblade construction $\Lambda$ of Section~\ref{sec:construction} is
+  the compositor \rollerblade of Section~\ref{sec:construction} is
   $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta)$-\emph{faithful},
-  where $n = |\mathcal{Y}|$, $\Delta = \max\{u_i\}_{i \in [n]}$,
+  where $n = \ell$, $\Delta = \max\{u_i\}_{i \in [n]}$,
   and $u_i$ is the promised liveness of $\Y[][i]$.
 \end{conjecture}
 \begin{proof}[Sketch]
   Let $\Pi$, $\mathcal{Y}$, $\mathcal{B}$, $\mathcal{H}$,
   and $\Delta$ be as in the statement.
-  Let the adversary $\mathcal{A}$, the environment $\mathcal{Z}$,
-  and the belief $B \in \mathcal{B}$ be arbitrary.
+  Let the adversary $\mathcal{A}$, the belief $B \in \mathcal{B}$,
+  and the environment $\mathcal{Z}$, the number of compositor parties $m$,
+  and the index of the compositor $j$ of interest be arbitrary
+  as in the statement.
 
   We will prove faithfulness by
   construction of the simulator $S$ and environment $\mathcal{Z}'$.
@@ -221,20 +234,30 @@ contiguous honest participation is also known in the literature as
   Initially, $S$ samples an execution
   $\mathcal{E}^*$ in the emulation setting from
   % TODO: is the number of validators in \Y[][1] hard-coded into it?
-  $\LCExec(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$,
-  conditioned on $B$.
+  $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$.
   % TODO: Describe how the simulator works
+  The simulator looks at compositor party $j$ of $\mathcal{E}^*$
+  and its $\Y[j][1], \ldots, \Y[j][n]$.
+  The environment $\mathcal{Z}'$ chooses the number of rounds in
+  $\mathcal{E}'$ to be the same as the number of rounds in $\mathcal{E}^*$.
+  For every round $r$ of the execution $\mathcal{E}^*$,
+  and for every $i \in [n]$, the simulator obtains $\Y[j][i][r]$
+  (the simulator can do this by obtaining a copy of the ITI
+  configuration for the $i^\text{th}$ distributed ledger client $\Y[j][i]$
+  of party $j$ at the end of round $r$ and executing $\lread$ on
+  it \emph{in vitro}).
+
   {\color{red} Describe how the simulator works...}
 
   We note that $S$ uses the adversary $\mathcal{A}$ and the
   environment $\mathcal{Z}$ in this simulation, so $\mathcal{E}$
   and $\mathcal{E}^*$ are identically distributed.
-  For (1) it suffices to show that
-  $\LCView(\mathcal{E}^*) = \PEView(\mathcal{E}')$
+  For (1) it suffices to show that for all $j$,
+  $\LCView_j(\mathcal{E}^*) = \PEView(\mathcal{E}')$
   (i.e., we will show the these two random variables are equal,
   not just equal by distribution),
-  and similarly for (2) it suffices to show that
-  $\LCExtern(\mathcal{E}^*) \late{\Delta} \PEExtern(\mathcal{E}')$
+  and similarly for (2) it suffices to show that for all $j$,
+  $\LCExtern_j(\mathcal{E}^*) \late{\Delta} \PEExtern(\mathcal{E}')$
   (i.e., we will show that the externalities of $\mathcal{E}'$ are $\Delta$-late
   with respect to $\mathcal{E}^*$, not just distributionally $\Delta$-late).
 
@@ -243,16 +266,17 @@ contiguous honest participation is also known in the literature as
   that the views of all \emph{honest} parties in the two executions are identical. Let
   $i$ be an arbitrary party in $H$.
 
-  {\color{red} Finish the proof claim...}
+  Since $\mathcal{Z}$ is $B$-respecting, therefore $B(\mathcal{E}^*)$ holds.
+  {\color{red} Finish the claim proof...}
 
   \noindent
   \textbf{Claim 2: $\LCExtern(\mathcal{E}^*) \late{\Delta} \PEExtern(\mathcal{E}')$.}
 
-  {\color{red} Finish the proof claim...}
+  {\color{red} Finish the claim proof...}
 \end{proof}
 
 \begin{conjecture}[Cross-party]\label{conj:cross-party}
-  Consider an \rollerblade execution with $n \in \mathbb{N}$ underlying
+  Consider a \rollerblade execution $\mathcal{E}$ with $n \in \mathbb{N}$ underlying
   and $m \in \mathbb{N}$ overlay parties.
   For all rounds $r$, all overlay parties $\RB[j], \RB[j']$,
   and all underlying $i \in \mathbb{N}$:
