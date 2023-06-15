@@ -28,25 +28,25 @@
 % and each of the Zs could depend on different, and potentially multiple, Ys;
 % and each Y could help multiple Zs.
 
-A Distributed Protocol Composition Protocol (DPCP) is a protocol that
+A \emph{compositor} is a protocol that
 runs an \emph{overlay} distributed protocol $\Pi$ on top of a set of
 $n$ \emph{underlying} distributed protocols $\Y[][1], \ldots, \Y[][i], \ldots, \Y[][n]$.
 The protocol $\Pi$ is generally designed
 to work in the \emph{party setting} with a network (such as an authenticated channels network)
 connecting its instances directly.
-The DPCP executes
+The compositor executes
 $\Pi$ in the \emph{emulated setting} by utilizing the underlying
 $\Y[][i]$ protocols to help with the emulation and communication between the
 overlay protocol instances.
 Multiple instances $\Lambda_1, \ldots, \Lambda_j, \ldots, \Lambda_m$
-of DPCP are executed.
-Each $j^\text{th}$ DPCP instance promises to emulate the execution of multiple
+of the compositor are executed.
+Each $j^\text{th}$ compositor instance promises to emulate the execution of multiple
 instances of $\Pi$ ($\Z[j][1], \ldots, \Z[j][i], \ldots \Z[j][n]$).
 These emulated $\Z$ instances should behave similarly to instances of $\Pi$
 running in a stand-alone setting.
 
-\begin{definition}[Distributed Protocol Composition Protocol]
-  A Distributed Protocol Composition Protocol (DPCP) family
+\begin{definition}[Compositor]
+  A \emph{compositor} with overlay $\Pi$ and underlying $\Y[][1], \ldots, \Y[][n]$,
   is a family of interactive machines
   $\Lambda_{\Pi,(\Y[][1], \ldots, \Y[][n])}$ providing the following
   functionalities:
@@ -87,8 +87,8 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
 
 % TODO: Mention that the validator and other protocol settings for \Y[][i]
 % are hard-coded into \Y[][i]
-\begin{definition}[Distributed Protocol Composition Faithfulness]
-  A DPCP $\Lambda$
+\begin{definition}[Compositor Faithfulness]
+  A Compositor $\Lambda$
   is $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta)$-\emph{faithful}
   for an overlay protocol $\Pi$,
   a number of overlay parties $n \in \mathbb{N}$,
