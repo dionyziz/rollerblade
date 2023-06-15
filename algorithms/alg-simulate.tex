@@ -12,15 +12,15 @@
     \Function{\sf simulate}{$\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
       \Let{(\writeboxes, \inboxes)}{\prepareSimulationInputs(\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound)}\label{alg.simulate:recursion}
 
-      \Let{\sf outboxes}{[[\,]]}\label{alg.simulate:outboxes-init}
+      \Let{\outboxes}{[[\,]]}\label{alg.simulate:outboxes-init}
       \Let{\inboxThisRound}{[\,]}
       \Let{\outboxThisRound}{[\,]}
 
-      \Function{\sf send}{recp, m}\label{alg.simulate:send}
+      \Function{\send}{recp, m}\label{alg.simulate:send}
         \State{$\outboxThisRound.\append(\{\textsf{to}{:} \textsf{recp}, \textsf{msg}{:}m\})$}
       \EndFunction
 
-      \Function{\sf receive}{\,}\label{alg.simulate:receive}
+      \Function{\recv}{\,}\label{alg.simulate:receive}
         \State\Return{\inboxThisRound}
       \EndFunction
 

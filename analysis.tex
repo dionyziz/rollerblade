@@ -230,7 +230,9 @@ contiguous honest participation is also known in the literature as
   We will prove faithfulness by
   construction of the simulator $S$ and environment $\mathcal{Z}'$.
 
-  The simulator $S$ and environment $\mathcal{Z}'$ work as follows.
+  % TODO: consider removing the environment $\mathcal{Z}'$
+  The simulator $S$ and environment $\mathcal{Z}'$ work in tandem
+  as follows.
   Initially, $S$ samples an execution
   $\mathcal{E}^*$ in the emulation setting from
   % TODO: is the number of validators in \Y[][1] hard-coded into it?
@@ -241,24 +243,20 @@ contiguous honest participation is also known in the literature as
   The environment $\mathcal{Z}'$ chooses the number of rounds in
   $\mathcal{E}'$ to be the same as the number of rounds in $\mathcal{E}^*$.
 
-  To simulate round $r$ of the execution $\mathcal{E}'$,
-  for every $i \in [n]$, the simulator obtains a copy of the
-  configuration $M$ of $\RB[j]$ from $\mathcal{E}^*$ at the end of the execution.
-  The simulator then calls $\prepareSimulationInputs(i, \simulationRound, \realityRound)$ on $M$
-  \emph{in vitro}, where \simulationRound is the round $r$ and \realityRound is the
-  last round of execution $\mathcal{E}^*$, to obtain the pair $(\writeboxes, \inboxes)$.
-  At the beginning of round $r$ of the execution $\mathcal{E}'$, the simulator calls
-  $\write(\data)$ on party $i$ for every $\data \in \writeboxes[r - 1]$.
-  When the environment $\mathcal{Z}'$ activates party $i$ during round $r$,
-  if party $i$ invokes the network receive method $\receive()$, then $\mathcal{Z}'$ will
-  provide $\inboxes[r - 1]$.
-
-  (the simulator can do this by obtaining a copy of the ITI
-  configuration for the $i^\text{th}$ distributed ledger client $\Y[j][i]$
-  of party $j$ at the end of round $r$ and executing $\lread$ on
-  it \emph{in vitro}).
-
-  {\color{red} Describe how the simulator works...}
+  The simulator initially obtains, for every $i \in [n]$,
+  a copy of the configuration $M_i$ of the ITI $\RB[j]$ from $\mathcal{E}^*$ at the end of
+  $\mathcal{E}^*$.
+  The simulator calls $\prepareSimulationInputs(i, \simulationRound, \realityRound)$ on $M_i$
+  \emph{in vitro}, where \simulationRound is the last round of execution $\mathcal{E}'$
+  and \realityRound is the last round of execution $\mathcal{E}^*$, to obtain the pair
+  $(\writeboxes^i, \inboxes^i)$
+  (the simulator can make this call to $\prepareSimulationInputs$ without affecting the execution).
+  At the beginning of round $r$ of $\mathcal{E}'$, the simulator calls
+  $\lwrite(\data)$ on party $i$
+  for every $\data \in \writeboxes^i[r - 1]$.
+  When $\mathcal{Z}'$ activates party $i$ during round $r$,
+  if party $i$ invokes the network receive method $\recv()$, then $\mathcal{Z}'$
+  provides $\inboxes^i[r - 1]$.
 
   We note that $S$ uses the adversary $\mathcal{A}$ and the
   environment $\mathcal{Z}$ in this simulation, so $\mathcal{E}$
