@@ -119,7 +119,7 @@ of $\Z[j][i]$ immediate after round $\simulationRound$ has been executed.
 
 The entry point for $\RB[j]$'s reading from a simulated machine
 is illustrated in Algorithm~\ref{alg.read-from}.
-The \readFromMachine function takes the \sid, the overlay protocol $\Pi$ to run,
+The \emulateMachine function takes the \sid, the overlay protocol $\Pi$ to run,
 the identity $i$ of the simulated machine to read from,
 and the array of underlying ledger protocol instances $\Y[j]$
 (corresponding to the full node parties maintained by $\RB[j]$),
@@ -128,20 +128,20 @@ is passed in the \simulationRound parameter, and \realityRound denotes the
 current round of the external clock of $\RB[j]$. During our analysis, we will
 see that, while \simulationRound and \realityRound pass at the same rate,
 the user of $\RB[j]$ must wait for some \realityRound rounds for the simulation
-to ``settle'' before he can invoke \readFromMachine with the respective \simulationRound.
-The \readFromMachine machine function simulates the execution of the machine
+to ``settle'' before he can invoke \emulateMachine with the respective \simulationRound.
+The \emulateMachine machine function simulates the execution of the machine
 $\Z[j][i]$ using the data obtained by \emph{reading} the ledger $\Ledger[j][i]$
 reported by $\Y[j][i]$ at round \realityRound. Upon reading the ledger,
-the \readFromMachine function invokes the \simulate function to obtain an instance
+the \emulateMachine function invokes the \simulate function to obtain an instance
 of the $\Z[j][i]$ machine executed up to round \simulationRound (inclusive).
-Lastly, the \readFromMachine function invokes the \lread function of the simulated
+Lastly, the \emulateMachine function invokes the \lread function of the simulated
 machine $\Z[j][i]$ right after the \simulationRound execution has completed.
 
 \import{./}{algorithms/alg-read-from}
 
 The core simulation is implemented in the function \simulate illustrated in
 Algorithm~\ref{alg.simulate}, which takes parameters with the same semantics as
-the \readFromMachine function parameters. The job of the \simulate function
+the \emulateMachine function parameters. The job of the \simulate function
 is to simulate the execution of machine $\Z[j][i]$ up to, and including, round
 $\simulationRound$. This is all done within the mind of machine $\RB[j]$,
 with no external communication at all. Upon completing the simulation,

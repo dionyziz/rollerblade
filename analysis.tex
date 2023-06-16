@@ -205,8 +205,8 @@ contiguous honest participation is also known in the literature as
 
 \begin{conjecture}[Rollerblade Cross-party]\label{conj:cross-party}
   Consider a \rollerblade execution $\mathcal{E}$ with $n \in \mathbb{N}$ underlying
-  and $m \in \mathbb{N}$ overlay parties.
-  For all rounds $r$, all overlay parties $\RB[j], \RB[j']$,
+  and $m \in \mathbb{N}$ compositor parties.
+  For all rounds $r$, all compositor parties $\RB[j], \RB[j']$,
   and all underlying $i \in \mathbb{N}$ such that $\text{good}_i(\mathcal{E})$,
 
   \[
@@ -215,10 +215,30 @@ contiguous honest participation is also known in the literature as
 
   where $\Sim[j][r]$ indicates the result of calling
   \emulateMachine of $\RB[j]$ with inputs
-  $(i, r - v_i, r)$ at the end of round $r$.
+  $(i, r - v_i - 1, r)$ at the end of round $r$.
 \end{conjecture}
 \begin{proof}[Sketch]
-  The function \emulateMachine calls \simulate
+  The function \emulateMachine calls \simulate with overlay party index $i$,
+  ledger $\Ledger[j][i][r]$, simulation round $r - v_i - 1$, and current round $r$. It
+  suffices to show that all transactions with recorded round
+  $< r - v_i$ are the same in $\Ledger[j][i][r]$ and $\Ledger[j'][i][r]$.
+  That is because the return value of \simulate only depends on transactions with
+  recorded round $< r - v_i$.
+
+  Towards a contradiction, suppose that all transactions with recorded round
+  $< r - v_i$ are not the same in $\Ledger[j][i][r]$ and $\Ledger[j'][i][r]$.
+  Because $\Ledger[][i]$ is \emph{good}, $\Ledger[j][i][r]$ and $\Ledger[j'][i][r]$
+  are consistent. Therefore, without loss of generality, there exists a
+  transaction $(r^*, \tx) \in \Ledger[j][i][r]$ with $r^* < r - v_i$
+  such that $(r^*, \tx) \not\in \Ledger[j'][i][r]$.
+
+  Due to liveness, ledger $\Ledger[j'][i]$ must grow. Therefore, because of
+  safety, transaction $(r^*, \tx')$ must be included in $\Ledger[j'][i][r']$
+  (where $r' > r$), at position $|\Ledger[j'][i][r]|$ or later.
+  % TODO: this applies only if there are honest transactions every round.
+  However, this contradicts timeliness because there exists a transaction
+  in $\Ledger[j'][i][r'][|\Ledger[j'][i][r]|{:}]$ with recorded round $r^* < r - v_i < r' - v_i$.\qed
+
 \end{proof}
 
 % TODO: Define the relationship between Z and Z';

@@ -7,7 +7,7 @@
       \Let{v}{\max_{\Y[j][i] \in \Y[j]}{\{\Y[j][i].v\}}}
       \Let{\simulationRound}{\realityRound - v - 1}
       \For{$i \gets 1 \gets |\Y[j]|$}
-        \Let{L}{\readFromMachine(\sid, \Pi, i, \Y[j], \simulationRound, \realityRound)}
+        \Let{L}{\emulateMachine(\sid, \Pi, i, \Y[j], \simulationRound, \realityRound)}
         \State{$\overline{L}$.\append($L$)}
       \EndFor
       \State{\Return{$\majorityVote(\overline{L})$}}
