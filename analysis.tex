@@ -203,7 +203,7 @@ contiguous honest participation is also known in the literature as
   $\mathcal{B}$ of $\mathcal{Y}$} is the domain of $\mathcal{H}$.
 \end{definition}
 
-\begin{conjecture}[Rollerblade Cross-party]\label{conj:cross-party}
+\begin{lemma}[Rollerblade Cross-party]\label{conj:cross-party}
   Consider a \rollerblade execution $\mathcal{E}$ with $n \in \mathbb{N}$ underlying
   and $m \in \mathbb{N}$ compositor parties.
   For all rounds $r$, all compositor parties $\RB[j], \RB[j']$,
@@ -216,7 +216,7 @@ contiguous honest participation is also known in the literature as
   where $\Sim[j][r]$ indicates the result of calling
   \emulateMachine of $\RB[j]$ with inputs
   $(i, r - v_i - 1, r)$ at the end of round $r$.
-\end{conjecture}
+\end{lemma}
 \begin{proof}[Sketch]
   The function \emulateMachine calls \simulate with overlay party index $i$,
   ledger $\Ledger[j][i][r]$, simulation round $r - v_i - 1$, and current round $r$. It
@@ -227,7 +227,8 @@ contiguous honest participation is also known in the literature as
 
   Towards a contradiction, suppose that all transactions with recorded round
   $< r - v_i$ are not the same in $\Ledger[j][i][r]$ and $\Ledger[j'][i][r]$.
-  Because $\Ledger[][i]$ is \emph{good}, $\Ledger[j][i][r]$ and $\Ledger[j'][i][r]$
+  Because $\Ledger[][i]$ is \emph{good}, it is safe, live($u_i$), and timely($v_i$).
+  By safety, $\Ledger[j][i][r]$ and $\Ledger[j'][i][r]$
   are consistent. Therefore, without loss of generality, there exists a
   transaction $(r^*, \tx) \in \Ledger[j][i][r]$ with $r^* < r - v_i$
   such that $(r^*, \tx) \not\in \Ledger[j'][i][r]$.
@@ -236,9 +237,13 @@ contiguous honest participation is also known in the literature as
   safety, transaction $(r^*, \tx')$ must be included in $\Ledger[j'][i][r']$
   (where $r' > r$), at position $|\Ledger[j'][i][r]|$ or later.
   % TODO: this applies only if there are honest transactions every round.
+  % TODO: calculate r' wrt u_i
   However, this contradicts timeliness because there exists a transaction
-  in $\Ledger[j'][i][r'][|\Ledger[j'][i][r]|{:}]$ with recorded round $r^* < r - v_i < r' - v_i$.\qed
-
+  in $\Ledger[j'][i][r'][|\Ledger[j'][i][r]|{:}]$ with recorded round
+  % TODO: This is correct, but maybe we can save one round here?
+  % since the result is that r^* < r' - v_i - 1. Maybe the construction
+  % can be modified to accommodate for this.
+  $r^* < r - v_i < r' - v_i$.\qed
 \end{proof}
 
 % TODO: Define the relationship between Z and Z';
