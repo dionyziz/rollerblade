@@ -203,6 +203,24 @@ contiguous honest participation is also known in the literature as
   $\mathcal{B}$ of $\mathcal{Y}$} is the domain of $\mathcal{H}$.
 \end{definition}
 
+\begin{conjecture}[Rollerblade Cross-party]\label{conj:cross-party}
+  Consider a \rollerblade execution $\mathcal{E}$ with $n \in \mathbb{N}$ underlying
+  and $m \in \mathbb{N}$ overlay parties.
+  For all rounds $r$, all overlay parties $\RB[j], \RB[j']$,
+  and all underlying $i \in \mathbb{N}$ such that $\text{good}_i(\mathcal{E})$,
+
+  \[
+    \Sim[j][r] = \Sim[j'][r]\,,
+  \]
+
+  where $\Sim[j][r]$ indicates the result of calling
+  \emulateMachine of $\RB[j]$ with inputs
+  $(i, r - v_i, r)$ at the end of round $r$.
+\end{conjecture}
+\begin{proof}[Sketch]
+  The function \emulateMachine calls \simulate
+\end{proof}
+
 % TODO: Define the relationship between Z and Z';
 %       we are hoping that Z' will have exactly the same writes as Z
 %       (perhaps more due to adversarial writes) for each party
@@ -283,17 +301,6 @@ contiguous honest participation is also known in the literature as
 
   {\color{red} Finish the claim proof...}
 \end{proof}
-
-\begin{conjecture}[Cross-party]\label{conj:cross-party}
-  Consider a \rollerblade execution $\mathcal{E}$ with $n \in \mathbb{N}$ underlying
-  and $m \in \mathbb{N}$ overlay parties.
-  For all rounds $r$, all overlay parties $\RB[j], \RB[j']$,
-  and all underlying $i \in \mathbb{N}$:
-
-  \[
-    \Sim[j][r](i, r - v_i, r) = \Sim[j][r](i, r - v_i, r)
-  \]
-\end{conjecture}
 
 % TODO: Consider the case of "written communication", or "transferable origin" constructions
 % \begin{definition}[Authenticated Communication Protocol]
