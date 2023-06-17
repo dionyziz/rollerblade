@@ -10,7 +10,7 @@
   }
   \begin{algorithmic}[1]
     \Function{\prepareSimulationInputs}{$\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
-      \If{$\simulationRound \geq \realityRound - v_i$}
+      \If{$\simulationRound > \realityRound - v_i$}
         \State\Return{$\bot$} \Comment{Simulation round is too far in the future}
       \EndIf
 
