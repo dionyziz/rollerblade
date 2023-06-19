@@ -13,15 +13,6 @@ of their execution (a history of machine configurations).
 %
 % TODO: define underlying, overlay, good, VIEW...
 
-\begin{definition}[Lateness]
-\end{definition}
-
-\begin{definition}[Exec]
-\end{definition}
-
-\begin{definition}[View]
-\end{definition}
-
 % TODO: Move this to definitions? Expand this intuitive explanation,
 % and give it a title
 % Potential generalization: Use a different H_Z and H_Y that indicate
@@ -37,11 +28,11 @@ $n$ \emph{underlying} distributed protocols $\Y[][1], \ldots, \Y[][i], \ldots, \
 The protocol $\Pi$ is generally designed
 to work in the \emph{party setting} with a network (such as an authenticated channels network)
 connecting its instances directly.
-The compositor executes
+The compositor $\Lambda$ executes
 $\Pi$ in the \emph{emulated setting} by utilizing the underlying
 $\Y[][i]$ protocols to help with the emulation and communication between the
 overlay protocol instances.
-Multiple instances $\Lambda_1, \ldots, \Lambda_j, \ldots, \Lambda_m$
+Multiple instances $\LLambda[1], \ldots, \LLambda[j], \ldots, \LLambda[m]$
 of the compositor are executed.
 Each $j^\text{th}$ compositor instance promises to emulate the execution of multiple
 instances of $\Pi$ ($\Z[j][1], \ldots, \Z[j][i], \ldots \Z[j][n]$).
@@ -49,9 +40,9 @@ These emulated $\Z$ instances should behave similarly to instances of $\Pi$
 running in a stand-alone setting.
 
 \begin{definition}[Compositor]
-  A \emph{compositor} $\Lambda$ with overlay $\Pi$ and underlying $\Y[][1], \ldots, \Y[][n]$,
+  A \emph{compositor} $\Lambda$ with overlay $\Pi$ and underlying $\mathcal{Y} = \Y[][1], \ldots, \Y[][n]$,
   is a family of interactive machines
-  $\Lambda_{\Pi,(\Y[][1], \ldots, \Y[][n])}$ providing the following
+  $\Lambda_{\Pi,\mathcal{Y}}$ providing the following
   functionalities:
 
   \begin{enumerate}
@@ -68,15 +59,84 @@ functionality that allows writing data to the $i^\text{th}$ emulated machine.
 It also provides an \emph{emulateMachine} functionality that promises to emulate the execution of
 the $i^\text{th}$ instance of $\Pi$ up to round $r$, and return the instance of this emulation
 at round $r$ (and note that this contains the full transcript of the emulation).
+Observe that \emph{emulateMachine} can be invoked at a later round $r' > r$.
+Note here the difference between $\mathcal{Y} = \Y[][1], \ldots, \Y[][n]$ (denoting \emph{underlying protocols}
+in the form of ITMs) and
+$(\Y[j][1], \ldots, \Y[j][n])$ (denoting \emph{underlying protocol instances}
+in the form of ITIs). The compositor is parametrized with the former, and
+the latter are passed as parameters to the \emph{construct} functionality.
 
 Even though we will not do the analysis in the full Universal Composability (UC) framework, and
 we treat executions as stand-alone, we do adopt some of the notation of the UC framework.
-Let $\LCExec(\Lambda, \Pi, ({\Y[][1]}, \cdots, {\Y[][n]}), \mathcal{A}, \mathcal{Z}, \mathcal{H})$
-denote the transcript of an execution of the DPCP protocol $\Lambda$ parametrized with overlay protocol $\Pi$,
-and underlying protocols $\Y[][1], \ldots, \Y[][n]$, adversary $\mathcal{A}$, environment $\mathcal{Z}$,
-indices of honest parties $\mathcal{H}$.
+Let $\LCExec(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
+denote the transcript of an execution of the compositor protocol $\Lambda$ parametrized with overlay protocol $\Pi$,
+and underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][n])$, adversary $\mathcal{A}$, and environment $\mathcal{Z}$.
 Following the notation of the UC framework, we define the notion of an \emph{execution}
-and a \emph{view}... % TODO(tzinas/dionyziz)... define these.
+and a \emph{view}.
+
+\noindent
+\textbf{The Emulation Setting.}
+In particular, in the emulated setting execution, denoted by $\LCExec_{m,n}(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$,
+the environment $\mathcal{Z}$ is constrained by the control program
+to initially
+spawn a number $n \times \ell$ (where $n$ is a parameter of the execution,
+and $\ell = |\mathcal{Y}|$)
+underlying protocol instances
+
+\begin{align*}
+\Y[1][1], \Y[1][2], &\ldots, \Y[1][\ell],\\
+\Y[2][1], \Y[2][2], &\ldots, \Y[1][\ell],\\
+                    &\vdots              \\
+\Y[m][1], \Y[m][2], &\ldots, \Y[m][\ell]\,,
+\end{align*}
+
+where $\Y[j][i]$ denotes the $j^\text{th}$ instance of
+the protocol $\Y[][i]$. The environment facilitates the communication
+between the underlying protocol instances $\Y[j][i]$ and $\Y[j'][i]$
+for all $j, j'$, whereas protocols $\Y[j][i]$ and $\Y[j'][i']$
+with $i \neq i'$ are not allowed to directly communicate.
+Next, the environment is constrained to spawn
+a number $m$ of compositor clients
+$\LLambda[1], \ldots, \LLambda[m]$ (where $m \in \mathbb{N}$
+is a parameter of the execution), allowing
+the environment to choose the $\sid$ parameter,
+and passing the tuple $(\Y[j][1], \ldots, \Y[j][\ell])$ of ITIs
+to $\LLambda[j]$'s \emph{construct} functionality
+(in UC language, each of these $\Y[j][i]$ is constrained to be used
+as a \emph{subroutine} solely by $\LLambda[j]$).
+The execution proceeds in rounds $r = 1, \ldots, R$
+for a polynomial number $R$ of rounds (where the polynomial
+is taken with respect to the security parameter). For every
+round $r$, the environment is constrained to first call
+the \emph{execute} function of each $\Y[j][i]$ for every
+$j, i \in \mathbb{N}$. Next, the environment must call
+the \emph{execute} function of each $\LLambda[j]$ sequentially.
+Finally, the environment is constrained to call the
+adversary $\mathcal{Z}$ (a rushing adversary).
+At any time, the environment may choose to provide inputs
+to any of the $\LLambda[j]$ parties by invoking their \emph{writeToMachine}
+functionality with inputs of its choice.
+
+\noindent
+\textbf{The Party Setting.}
+In the party setting execution, denoted by $\PEExec_n(\Pi, \mathcal{A}, \mathcal{Z}, n, H, \Delta)$,
+the environment $\mathcal{Z}$ is constrained by the control program
+to spawn $n$ parties $\Pi[1], \ldots, \Pi[n]$ (where $n \in \mathbb{N}$
+is a parameter of the execution).
+The adversary $\mathcal{A}$ is allowed to corrupt parties
+indexed by $[n] \setminus H$ at the beginning of the execution
+(a static corruption model).
+The execution proceeds in rounds
+$r = 1, \ldots, R$, where $R$, again, is a polynomial of the security
+parameter.
+
+\begin{definition}[View]
+\end{definition}
+
+\begin{definition}[Lateness]
+\end{definition}
+
+% TODO(tzinas/dionyziz)... define these.
 % Define how the environment Z and the environment Z' functions step by step
 % e.g., the environment Z is given $m$ compositor parties to spin up
 % and both environments must orchestrate the execution in a lockstep manner
@@ -117,8 +177,8 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
   the following holds:
 
   \begin{enumerate}
-    \item $\LCView_j(\mathcal{E}) \distreq \PEView(\mathcal{E}')$
-    \item $\LCExtern_j(\mathcal{E}) \latedistr{\Delta} \PEExtern(\mathcal{E}')$
+    \item $\LCView_{j,\mathcal{H}(B)}(\mathcal{E}) \distreq \PEView_{\mathcal{H}(B)}(\mathcal{E}')$
+    \item $\LCExtern_{j,\mathcal{H}(B)}(\mathcal{E}) \latedistr{\Delta} \PEExtern_{\mathcal{H}(B)}(\mathcal{E}')$
   \end{enumerate}
 
   where execution $\mathcal{E}$ is sampled from
@@ -137,10 +197,10 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
 \begin{lemma}[Past Perfect]\label{lem:past-perfect}
   Consider a temporal ledger protocol $\Y$'s
   execution $\Exec$ with duration $R$ rounds in which $\Y$ is
-  safe, live with liveness $u$, timely with timeliness $v$.
+  safe, live with liveness $u$, and timely with timeliness $v$.
   If for some honest party $P_1$ and some round $r_1$ it holds that
   $(r^*, \tx) \in \Ledger[P_1][][r_1]$, then
-  for all honest parties $P_2$ and for all rounds $r^* + v < r_2$
+  for all honest parties $P_2$ and for all rounds $r_2 > r^* + v$
   it holds that
   $(r^*, \tx) \in \Ledger[P_2][][r_2]$,
   % TODO:
@@ -163,16 +223,16 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
 \end{lemma}
 \begin{proof}
   Consider an execution as in the statement and suppose, towards a contradiction,
-  that $(r^*, \tx) = \Ledger[P_1][][r_1][k]$ for some $k \in \mathbb{N}$
-  with $r^* + v < r_2$, but
-  $(r^*, \tx) \not\in \Ledger[P_2][][r_2]$.
+  that $(r^*, \tx) = \Ledger[P_1][][r_1][k]$ for some $k \in \mathbb{N}$,
+  but $(r^*, \tx) \not\in \Ledger[P_2][][r_2]$
+  with $r^* + v < r_2$.
   From safety,
-  $\Ledger[P_2][][r_2] \preceq \Ledger[P_1][][r_1]$ and
+  $\Ledger[P_2][][r_2] \prec \Ledger[P_1][][r_1]$ and
   $|\Ledger[P_2][][r_2]| \leq k < |\Ledger[P_1][][r_1]|$.
   Due to liveness, $(r', \tx') = \Ledger[P_2][][r_3 + u][k']$,
   for some $r', k' \in \mathbb{N}$.
   As $\tx'$ is new, it is not in $\Ledger[P_1][][r_1]$.
-  Due to safety, $k' \geq |\Ledger[P_1][][r_1]|$.
+  Due to safety, $k' \geq |\Ledger[P_1][][r_1]| > k$.
   Due to safety, $\Ledger[P_2][][r_3 + u][k] = (r^*, \tx)$.
   Therefore
   $(r^*, \tx) \in \Ledger[P_2][][r_3 + u][|\Ledger[P_2][][r_2]|{:}]$.
@@ -201,35 +261,41 @@ contiguous honest participation is also known in the literature as
 \end{definition}
 
 \begin{lemma}[Rollerblade Cross-party]\label{le:cross-party}
-  Consider a \rollerblade execution $\mathcal{E}$
+  Consider a \rollerblade execution $\mathcal{E}$ with duration $R$ rounds
   with $n \in \mathbb{N}$ underlying
   and $m \in \mathbb{N}$ compositor parties.
-  For all rounds $r$, all compositor parties $\RB[j], \RB[j']$,
-  and all underlying $i \in \mathbb{N}$ such that $\text{good}_i(\mathcal{E})$,
+  For
+  all underlying indexes $i \in [n]$ such that $\text{good}_i(\mathcal{E})$,
+  all rounds $1 \leq r < R - \max(v_i, u_i)$,
+  and
+  all compositor party indexes $j, j' \in [m]$
 
   \[
     \Sim[j][r] = \Sim[j'][r]\,,
   \]
 
-  where $\Sim[j][r]$ indicates the result of calling
-  \emulateMachine of $\RB[j]$ with inputs
-  $(i, r - \max(v_i, u_i), r)$ at the end of round $r$.
+  where $\Sim[j][r]$ (resp. $\Sim[j'][r]$) indicates the result of calling
+  \emulateMachine of $\RB[j]$ (resp. $\RB[j']$) with inputs
+  $(i, r, r + v_i)$
+  at the end of round $r + v_i$.
 \end{lemma}
-\begin{proof}[Sketch]
+\begin{proof}
   The function \emulateMachine of party $j$ (resp. party $j'$)
   calls the deterministic function \simulate with overlay party index $i$,
-  ledger $\Ledger[j][i][r]$ (resp. ledger $\Ledger[j'][i][r]$), simulation round
-  $r - v_i$, and current round $r$. The function \simulate runs its main
+  ledger $\Ledger[j][i][r + v_i]$ (resp. ledger $\Ledger[j'][i][r + v_i]$), simulation round
+  $r$, and current round $r + v_i$. The function \simulate runs its main
   \emph{for} loop (Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for})
-  up to $r - v_i$ (inclusive), which consumes data from $\writeboxes[r - v_i - 1]$
-  and $\inboxes[r - v_i - 1]$ and earlier. These are produced by the function
-  \prepareSimulationInputs by looking at transactions recorded in $\Ledger[j][i][r]$
-  (resp. $\Ledger[j'][i][r]$) with recorded round $< r - v_i$.
+  up to $r$ (inclusive), which consumes data from $\writeboxes[r - 1]$
+  and $\inboxes[r - 1]$ and earlier. These are produced by the function
+  \prepareSimulationInputs by looking at transactions recorded in $\Ledger[j][i][r + v_i]$
+  (resp. $\Ledger[j'][i][r + v_i]$) with recorded round $< r$.
   Because $\Ledger[][i]$ is \emph{good} in $\mathcal{E}$, it is safe, live($u_i$), and timely($v_i$).
   It suffices to show that all transactions with recorded round
-  $< r - v_i$ are the same in $\Ledger[j][i][r]$ and $\Ledger[j'][i][r]$.
+  $< r$ are the same in $\Ledger[j][i][r + v_i]$ and $\Ledger[j'][i][r + v_i]$.
   This holds because of Lemma~\ref{lem:past-perfect} invoked with parties $\Y[j][i]$ and $\Y[j'][i]$,
-  rounds $r_1 = r_2 = r$, and $r^* \leq r - v_i - 1$.\qed
+  rounds $r_1 = r_2 = r + v_i$, $r_3 = r + v_i + 1$ and $r^* < r$.
+  During round $r_3$, the new honest transaction is due to any honest
+  relayer.\qed
 \end{proof}
 
 % TODO: Define the relationship between Z and Z';

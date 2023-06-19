@@ -166,6 +166,8 @@ Since rounds begin at $0$, the entry $\outboxes[0]$ is the
 empty outbox (ensured in its initialization in
 Line~\ref{alg.simulate:outboxes-init}).
 
+% TODO: within a round $r$, the function $\Y[j][i].execute()$ is called *at the beginning* of $\RB[j].execute()$
+% so that the Cross-Party proof can go through
 \import{./}{algorithms/alg-simulate}
 
 To conduct the simulation, the \simulate function initially calls
