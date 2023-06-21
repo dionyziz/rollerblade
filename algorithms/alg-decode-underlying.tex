@@ -7,11 +7,11 @@
     It is used by the \prepareSimulationInputs function.
   }
   \begin{algorithmic}[1]
-    \Function{\decodeUnderlying}{$\decode, \sid, L$}
+    \Function{\decodeUnderlying}{$i, L$}
       \Let{\textsf{ret}}{[\,]}\label{alg.decode-underlying:init}
       \For{$(r, \tx) \in L$}\label{alg.decode-underlying:loop}
         \Try
-          \Let{s}{\decode(\tx)}\Comment{Bulletin board decoding}\label{alg.decode-underlying:decode}
+          \Let{s}{\this.\Y[j][i].\decode(\tx)}\Comment{Bulletin board decoding}\label{alg.decode-underlying:decode}
           \Let{\instruction}{\deserialize(s)}\label{alg.decode-underlying:deserialize}
         \Catch
           \Continue \Comment{Not a bulletin transaction, or invalid serialization}\label{alg.decode-underlying:catch}

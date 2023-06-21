@@ -9,8 +9,8 @@
     as reported by overlay party $i$.
   }
   \begin{algorithmic}[1]
-    \Function{\sf simulate}{$\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
-      \Let{(\writeboxes, \inboxes)}{\prepareSimulationInputs(\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound)}\label{alg.simulate:recursion}
+    \Function{\simulate}{$i, \Ledger[j][i], \simulationRound$}
+      \Let{(\writeboxes, \inboxes)}{\this.\prepareSimulationInputs(i, \Ledger[j][i], \simulationRound)}\label{alg.simulate:recursion}
 
       \Let{\outboxes}{[[\,]]}\label{alg.simulate:outboxes-init}
       \Let{\inboxThisRound}{[\,]}
@@ -27,7 +27,6 @@
       \CommentLine{Oracles passed to the overlay protocol}
       \Let{\net}{(\textsf{send}, \textsf{receive})}
 
-      \Let{\Delta}{\max \{u_i\}_{i \in [n]}}\Comment{Calculate effective network delay that $\Pi$ needs to tolerate}
       \Let{\Z[j][i]}{\new \Pi^\net(\Delta, j, n)}\label{alg.simulate:construct}
       \State{$\Z[j][i].\textsf{execute}()$}\Comment{Execute the machine for round $0$ without any inputs}
       \For{$r \gets 1 \text{ to } \simulationRound$}\label{alg.simulate:for}

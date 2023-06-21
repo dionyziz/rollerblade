@@ -4,12 +4,11 @@
     made available to the external user by a \rollerblade party.
   }
   \begin{algorithmic}[1]
-    \Function{\writeToMachine}{$\sid, i, \data, \Y[j]$}
-      \Let{\instruction}{\{\sid{:} \sid, \type{:} \text{`write'}, \data{:} \data\}}
+    \Function{\writeToMachine}{$i, \data$}
+      \Let{\instruction}{\{\sid{:} \this.\sid, \type{:} \text{`write'}, \data{:} \data\}}
       \Let{s}{\serialize(\instruction)}
-      \Let{\tx}{\Y[j][i].\encode(s)}
-      \State{$\Y[j][i].\lwrite(\tx)$}
-
+      \Let{\tx}{\this.\Y[j][i].\encode(s)}
+      \State{$\this.\Y[j][i].\lwrite(\tx)$}
     \EndFunction
     \vskip2pt
   \end{algorithmic}

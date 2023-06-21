@@ -1,0 +1,31 @@
+\begin{algorithm}
+  \caption{\label{alg.rollerblade}
+    The \rollerblade compositor.
+  }
+  \begin{algorithmic}[1]
+    \Protocol{\rollerblade}
+      % TODO(dionyziz): typeset this, fix the spacing after function names
+      \State{\textbf{public function} \emulateMachine($i, \simulationRound$)}
+      \State{\textbf{public function} \writeToMachine($i, \data$)}
+
+      \State{\textbf{function} \prepareSimulationInputs($i, \Ledger[j][i], \simulationRound$)}
+      \State{\textbf{function} \simulate($i, \Ledger[j][i], \simulationRound$)}
+      \State{\textbf{function} \outboxesToInbox($\outboxes, i', i$)}
+      \State{\textbf{function} \relay()}
+      \State{\textbf{function} \decodeUnderlying($i, L$)}
+
+      \Function{\sf construct}{$\Y[j]$}
+        \Let{\this.\Y[j]}{\Y[j]}
+        \Let{\this.n}{|\Y[j]|}\Comment{Number of overlay parties}
+        \Let{\this.\Delta}{\max \{\this.\Y[j][i].u\}_{i \in [n]}}\Comment{Effective network delay $\Pi$ must tolerate}
+        \Let{\this.\now}{0}\Comment{Current round number}
+      \EndFunction
+
+      \Function{\sf execute}{\,}
+        \Let{\this.\now}{\this.\now + 1}
+        \State{$\this.\relay()$}
+      \EndFunction
+    \EndProtocol
+    \vskip2pt
+  \end{algorithmic}
+\end{algorithm}

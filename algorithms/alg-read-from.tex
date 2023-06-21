@@ -4,9 +4,9 @@
     made available to the external user by a \rollerblade party.
   }
   \begin{algorithmic}[1]
-    \Function{\emulateMachine}{$\sid, \Pi, i, \Y[j], \simulationRound, \realityRound$}
-      \Let{\Ledger[j][i]}{\Y[j][i].\lread()}
-      \Let{Z}{\simulate(\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound).Z}
+    \Function{\emulateMachine}{$i, \simulationRound$}
+      \Let{\Ledger[j][i]}{\this.\Y[j][i].\lread()}
+      \Let{Z}{\this.\simulate(i, \Ledger[j][i], \simulationRound).Z}
       \State\Return{$Z$}
     \EndFunction
     \vskip2pt

@@ -1,16 +1,21 @@
+% TODO: Set
+% .\Delta =
+%     \Let{\Delta}{\max \{\this.\Y[j][i].u\}_{i \in [n]}}\Comment{Effective network delay that $\Pi$ needs to tolerate}
+% and .n = |\this.\Y[j]|
+% \Let{n}{|\Y[j]|}\Comment{Number of overlay parties}
 \begin{algorithm}
   \caption{\label{alg.prepare-simulation-inputs}
     The \emph{prepare simulation inputs} function ran by \rollerblade party $j$
     to prepare the necessary inputs for the simulation of overlay party
     $i$ at round $\simulationRound$ based on the underlying ledger $\Ledger[j][i]$.
-    The inputs consist of \emph{writes} (user inputs)
+    The function returns the inputs, which consist of \emph{writes} (user inputs)
     and \emph{inboxes} (network inputs produced as network output when recursively
     simulating all other parties $\Y[j][i']$)
     arranged by round.
   }
   \begin{algorithmic}[1]
-    \Function{\prepareSimulationInputs}{$\sid, \Pi, i, \Ledger[j][i], \Y[j], \simulationRound, \realityRound$}
-      \If{$\simulationRound > \realityRound - v_i$}
+    \Function{\prepareSimulationInputs}{$i, \Ledger[j][i], \simulationRound$}
+      \If{$\simulationRound > \this.\now - v_i$}
         \State\Return{$\bot$} \Comment{Simulation round is too far in the future}
       \EndIf
 
@@ -23,8 +28,6 @@
         \State{\writeboxes.\append([\,])}
       \EndFor
 
-      \Let{n}{|\Y[j]|}\Comment{Number of overlay parties}
-
       % TODO(dionyziz): Typeset \CommentLine and \Comment to both use the same \emph{} style
       \CommentLine{How many messages each other overlay party $i'$ has ``sent'' us}
       \Let{\sf \consumedLengths}{[\,]}
@@ -33,7 +36,7 @@
         \State{\consumedLengths.\append(0)}
       \EndFor
 
-      \Let{L}{\decodeUnderlying(\sid, \Y[j][i]\textsf{.decode}, \Ledger[j][i])}\label{alg.prepare-simulation-inputs:decode-underlying}
+      \Let{L}{\this.\decodeUnderlying(i, \Ledger[j][i])}\label{alg.prepare-simulation-inputs:decode-underlying}
       \For{$(r, \instruction) \in L$}\label{alg.prepare-simulation-inputs:for}
         % TODO: Mention that timeliness (time marches forward)
         \If{$r \geq \simulationRound$}\label{alg.prepare-simulation-inputs:early-exit}
@@ -47,9 +50,9 @@
         \EndIf
         \If{$\instruction\textsf{.type} = \text{`checkpoint'}$}
           \Let{i'}{\instruction\textsf{.from}}
-          \Let{\ImaginaryLedger[j][i']}{\Y[j][i']\textsf{.untranscribe}(\instruction\textsf{.data.certificate})}\label{alg.prepare-simulation-inputs:untranscribe}
-          \Let{\outboxes}{\textsf{simulate}(\Pi, i', \ImaginaryLedger[j][i'], \Y[j], r - u_i - v_{i'} - 1, r - u_i)\textsf{.outboxes}}\label{alg.prepare-simulation-inputs:recursion}
-          \Let{\textsf{netins}}{\outboxesToInbox(\outboxes, i', i)}\label{alg.prepare-simulation-inputs:outboxes-to-inbox}
+          \Let{\ImaginaryLedger[j][i']}{\this.\Y[j][i']\textsf{.untranscribe}(\instruction\textsf{.data.certificate})}\label{alg.prepare-simulation-inputs:untranscribe}
+          \Let{\outboxes}{\this.\textsf{simulate}(i', \ImaginaryLedger[j][i'], r - u_i - v_{i'} - 1)\textsf{.outboxes}}\label{alg.prepare-simulation-inputs:recursion}
+          \Let{\textsf{netins}}{\this.\outboxesToInbox(\outboxes, i', i)}\label{alg.prepare-simulation-inputs:outboxes-to-inbox}
           \Let{\unprocessedNetins}{\textsf{netins}[\consumedLengths[i']{:}]}
 
           \For{$\netin \in \unprocessedNetins$}\label{alg.prepare-simulation-inputs:for-netin}

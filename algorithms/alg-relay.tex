@@ -1,18 +1,13 @@
 \begin{algorithm}
-  \caption{\label{alg.relay} The \emph{Relayer} party's \emph{relay} function,
-  executed on every round with the $\Y[*][1], \ldots, \Y[*][n]$ underlying
-  protocol instances as argument.
-  This can be executed by any helpful but untrusted party.
-  At least one honest relayer must be running.
-  Any \rollerblade client can run the relayer themselves if they so wish,
-  indicated by the superscript $*$ on the notation $\Y[*][i]$,
-  illustrating that this can take any value among the $m$ rollerblades.}
+  \caption{\label{alg.relay} The \rollerblade \emph{relay} function,
+  executed on every round over the $\Y[j][1], \ldots, \Y[j][n]$ underlying
+  protocol instances.}
   \begin{algorithmic}[1]
-    \Function{\sf relay}{$\Y[*]$}\Comment{Executed on every round}
-      \For{$i \gets 1 \text{ to } n$}\Comment{Source}
-        \Let{\tau}{\Y[*][i].\transcribe()}\Comment{Checkpoint}
+    \Function{\relay}{\,}\Comment{Executed on every round}
+      \For{$i \gets 1 \text{ to } \this.n$}\Comment{Source}
+        \Let{\tau}{\this.\Y[j][i].\transcribe()}\Comment{Checkpoint}
 
-        \For{$i' \gets 1 \text{ to } n$}\Comment{Target}
+        \For{$i' \gets 1 \text{ to } \this.n$}\Comment{Target}
           \If{$i = i'$}
             \Continue
           \EndIf
@@ -24,8 +19,8 @@
               \textsf{certificate}{:} \tau
             \}
           \}}
-          \Let{\textsf{encoded}}{\Y[*][i'].\encode(\serialize(\instruction))}
-          \State{$\Y[*][i'].\lwrite(\textsf{encoded})$}
+          \Let{\textsf{encoded}}{\this.\Y[j][i'].\encode(\serialize(\instruction))}
+          \State{$\this.\Y[j][i'].\lwrite(\textsf{encoded})$}
         \EndFor
       \EndFor
     \EndFunction
