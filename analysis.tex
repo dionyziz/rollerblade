@@ -75,7 +75,7 @@ Following the notation of the UC framework, we define the notion of an \emph{exe
 and a \emph{view}.
 
 \noindent
-\textbf{The Emulation Setting.}
+\textbf{The Emulated Setting.}
 In particular, in the emulated setting execution, denoted by $\LCExec_{m,n}(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$,
 the environment $\mathcal{Z}$ is constrained by the control program
 to initially
@@ -121,16 +121,76 @@ functionality with inputs of its choice.
 \textbf{The Party Setting.}
 In the party setting execution, denoted by $\PEExec_n(\Pi, \mathcal{A}, \mathcal{Z}, n, H, \Delta)$,
 the environment $\mathcal{Z}$ is constrained by the control program
-to spawn $n$ parties $\Pi[1], \ldots, \Pi[n]$ (where $n \in \mathbb{N}$
-is a parameter of the execution).
+to spawn $n$ parties $\PPi[1], \ldots, \PPi[n]$ (where $n \in \mathbb{N}$
+is a parameter of the execution). Note here that $\Pi$ is a protocol (an ITM),
+whereas each $\PPi[i]$ is an instance (an ITI).
 The adversary $\mathcal{A}$ is allowed to corrupt parties
 indexed by $[n] \setminus H$ at the beginning of the execution
-(a static corruption model).
+(a static corruption model). This is done by the adversary sending a message
+to the environment requesting to corrupt the desired party. The environment
+grants this corruption wish as long as it respects the requirement that the
+corruption falls within $[n] \setminus H$.
 The execution proceeds in rounds
 $r = 1, \ldots, R$, where $R$, again, is a polynomial of the security
-parameter.
+parameter. At every round, the environment is constrained to first
+call the \emph{execute} function of each $\PPi[i]$ for every
+honest party, in order. Next, the environment must call
+the adversary (again, a rushing adversary). The environment
+is constrained to deliver messages between honest parties
+in an authenticated manner, and to deliver messages within $\Delta$
+delay.
 
-\begin{definition}[View]
+We define the following views for the two execution settings.
+
+\begin{definition}[Honest View in the Party Setting]
+  Consider a party setting execution $\mathcal{E}'$ sampled from
+  $\PEExec_n(\Pi, \mathcal{A}, \mathcal{Z}, n, H, \Delta)$.
+  The \emph{party setting view of honest parties} $\PEView_H(\mathcal{E}')$
+  is the $|H|\times R$ matrix of the following transcripts of honest parties:
+
+  \[
+  \begin{bmatrix}
+    \PPi[H_1]_1 &\ldots& \PPi[H_1]_R\\
+         \vdots &\ddots& \vdots     \\
+    \PPi[H_{|H|}]_1 &\ldots& \PPi[H_{|H|}]_R
+  \end{bmatrix}\,,
+  \]
+
+  where $\PPi[H_i]_r$ denotes the transcript of party $\PPi[H_i]$
+  (the party with index $H_i$, the $i^\text{th}$ honest party)
+  obtained at round $r$.
+\end{definition}
+
+Note that, in the above definition, the transcripts concerned pertain to the
+set $H$ of guaranteed honest party indices only, even though the adversary may choose
+to leave some of the other parties uncorrupted, too. The transcript of
+those other parties are not included in $\PEView_H(\mathcal{E}')$.
+
+Note also that, in each row of the above definition, the transcripts
+are taken for a particular party $H_i$ at increasing rounds, and therefore
+we will have that $\PPi[H_i]_r \preceq \PPi[H_i]_{r+1}$ and, so, the transcripts
+recorded in each row will be growing in an append-only fashion.
+
+\begin{definition}[Honest View in the Emulated Setting]
+  Consider an emulated setting execution $\mathcal{E}$ with duration $R$ rounds
+  sampled from $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$.
+  The \emph{emulated setting view of honest parties} $\LCView_{j,H}(\mathcal{E})$
+  is the $|H| \times R$ matrix of the following values:
+
+  % TODO(dionyziz & tzinas): When are these \emph{in vitro} executions commenced? They cannot be taken at the same "real round" as
+  % given by the "simulated round" argument.
+  \[
+  \begin{bmatrix}
+    \LLambda[j].\emulateMachine(H_1, 1) & \ldots & \LLambda[j].\emulateMachine(H_1, R)\\
+                                 \vdots & \ddots & \vdots \\
+    \LLambda[j].\emulateMachine(H_{|H|}, 1) & \ldots & \LLambda[j].\emulateMachine(H_{|H|}, R)
+  \end{bmatrix}\,,
+  \]
+
+  where $\LLambda[j].\emulateMachine(H_i, r)$ denotes the return value of invoking
+  the $\emulateMachine$ functionality of the $j^\text{th}$ compositor party $\LLambda[j]$
+  with parameters the index $H_i$ of the $i^\text{th}$ overlay machine (among those
+  included in $H$) and round $r$.
 \end{definition}
 
 \begin{definition}[Lateness]
