@@ -14,10 +14,11 @@
       \State{\textbf{function} \relay()}
       \State{\textbf{function} \decodeUnderlying($i, L$)}
 
-      \Function{\sf construct}{$\Y[j]$}
+      \Function{\sf construct}{$\Y[j], \Pi$}
         \Let{\this.\Y[j]}{\Y[j]}
+        \Let{\this.\Pi}{\Pi}
         \Let{\this.n}{|\Y[j]|}\Comment{Number of overlay parties}
-        \Let{\this.\Delta}{\max \{\this.\Y[j][i].u\}_{i \in [n]}}\Comment{Effective network delay $\Pi$ must tolerate}
+        \Let{\this.\Delta_u}{\max \{\this.\Y[j][i].u\}_{i \in [n]}}\Comment{Effective network delay $\Pi$ must tolerate}
         \Let{\this.\now}{0}\Comment{Current round number}
       \EndFunction
 
