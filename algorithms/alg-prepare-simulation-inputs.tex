@@ -15,7 +15,7 @@
   }
   \begin{algorithmic}[1]
     \Function{\prepareSimulationInputs}{$i, \Ledger[j][i], \simulationRound$}
-      \If{$\simulationRound > \this.\now - v_i$}
+      \If{$\simulationRound > \this.\now - v_i$}\label{alg.prepare-simulation-inputs:reality-lag}
         \State\Return{$\bot$} \Comment{Simulation round is too far in the future}
       \EndIf
 
