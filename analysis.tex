@@ -46,25 +46,25 @@ running in a stand-alone setting.
   functionalities:
 
   \begin{enumerate}
-    \item \textbf{construct}$(\sid, (\Y[j][1] \ldots \Y[j][n]))$.
-    \item \textbf{writeToMachine}$(i, \data)$.
-    \item \textbf{emulateMachine}$(i, r)$. % <-- Z
+    \item \construct$(\sid, (\Y[j][1] \ldots \Y[j][n]))$.
+    \item \writeToMachine$(i, \data)$.
+    \item \emulateMachine$(i, r)$. % <-- Z
   \end{enumerate}
 \end{definition}
 
-The compositor is constructed by calling \emph{construct} with parameter the session identifier $\sid$.
+The compositor is constructed by calling \emph{\construct} with parameter the session identifier $\sid$.
 Note that compositors are permissionless, as they don't know their instance identity $j \in \mathbb{N}$.
-Each compositor instance provides a \emph{writeToMachine}
+Each compositor instance provides a \emph{\writeToMachine}
 functionality that allows writing data to the $i^\text{th}$ emulated machine.
-It also provides an \emph{emulateMachine} functionality that promises to emulate the execution of
+It also provides an \emph{\emulateMachine} functionality that promises to emulate the execution of
 the $i^\text{th}$ instance of $\Pi$ up to round $r$, and return the instance of this emulation
 at round $r$ (and note that this contains the full transcript of the emulation).
-Observe that \emph{emulateMachine} can be invoked at a later round $r' > r$.
+Observe that \emph{\emulateMachine} can be invoked at a later round $r' > r$.
 Note here the difference between $\mathcal{Y} = \Y[][1], \ldots, \Y[][n]$ (denoting \emph{underlying protocols}
 in the form of ITMs) and
 $(\Y[j][1], \ldots, \Y[j][n])$ (denoting \emph{underlying protocol instances}
 in the form of ITIs). The compositor is parametrized with the former, and
-the latter are passed as parameters to the \emph{construct} functionality.
+the latter are passed as parameters to the \emph{\construct} functionality.
 
 Even though we will not do the analysis in the full Universal Composability (UC) framework, and
 we treat executions as stand-alone, we do adopt some of the notation of the UC framework.
