@@ -395,7 +395,7 @@ contiguous honest participation is also known in the literature as
   Let the adversary $\mathcal{A}$, the belief $B \in \mathcal{B}$,
   and the environment $\mathcal{Z}$, the number of compositor parties $m$,
   and the index of the compositor $j$ of interest be arbitrary
-  as in the statement.
+  as in the statement, and set $H = \mathcal{H}(B)$.
 
   We will prove faithfulness by
   construction of the simulator $S$ and environment $\mathcal{Z}'$.
@@ -407,11 +407,12 @@ contiguous honest participation is also known in the literature as
   $\mathcal{E}^*$ in the emulation setting from
   % TODO: is the number of validators in \Y[][1] hard-coded into it?
   $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$.
+  Let $R$ be the duration of $\mathcal{E}^*$ in rounds.
   % TODO: Describe how the simulator works
   The simulator looks at compositor party $j$ of $\mathcal{E}^*$
   and its $\Y[j][1], \ldots, \Y[j][n]$.
-  The environment $\mathcal{Z}'$ chooses the number of rounds in
-  $\mathcal{E}'$ to be the same as the number of rounds in $\mathcal{E}^*$.
+  The environment $\mathcal{Z}'$ chooses the duration, in rounds, of
+  $\mathcal{E}'$ to be $R - \Delta_v - 1$.
 
   The simulator initially obtains, for every $i \in [n]$,
   a copy of the configuration $M_i$ of the ITI $\RB[j]$ from $\mathcal{E}^*$ at the end of
@@ -432,7 +433,7 @@ contiguous honest participation is also known in the literature as
   environment $\mathcal{Z}$ in this simulation, so $\mathcal{E}$
   and $\mathcal{E}^*$ are identically distributed.
   For (1) it suffices to show that for all $j$,
-  $\LCView_j(\mathcal{E}^*) = \PEView(\mathcal{E}')$
+  $\LCView_{j,H,\Delta_v}(\mathcal{E}^*) = \PEView_H(\mathcal{E}')$
   (i.e., we will show the these two random variables are equal,
   not just equal by distribution),
   and similarly for (2) it suffices to show that for all $j$,
