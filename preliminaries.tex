@@ -76,11 +76,19 @@ All adversarial parties are controlled by one colluding adversary $\mathcal{A}$.
 \noindent
 \textbf{Executions.}
 Because $\Pi$ can be randomized, we are interested in particular
-\emph{executions} $\Exec$ of protocols. An execution captures
+\emph{executions} $\mathcal{E}$ of protocols. An execution captures
 everything that happened between the honest parties running the
 protocol and the adversary, including the local state of each
 party and the network messages that were exchanged. The execution
 concludes after a finite amount of time.
+
+When multiple protocols are executed together in a collective execution
+$\mathcal{E}$, we can take a snapshot of an instance of a machine within
+the execution during some round. After we have taken that snapshot, we
+can continue running the instance \emph{outside} the execution by, for
+example, invoking some of its functions, without affecting the execution
+which has already concluded. We call this process an \emph{in vitro}
+invocation (cf. Canetti's \emph{in vitro} and \emph{in vivo}~\cite{uc}).
 
 % TODO: Consider moving time above the "distributed protocol" definition,
 % since the concept of "round" is used within that definition.
