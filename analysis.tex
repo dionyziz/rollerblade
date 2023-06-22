@@ -171,26 +171,44 @@ are taken for a particular party $H_i$ at increasing rounds, and therefore
 we will have that $\PPi[H_i]_r \preceq \PPi[H_i]_{r+1}$ and, so, the transcripts
 recorded in each row will be growing in an append-only fashion.
 
+\begin{definition}[Emulation Consistency]
+  An execution $\mathcal{E}$ with duration $R$ rounds sampled from
+  $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
+  is \emph{$(j,H,\Delta_v)$-\emph{consistent}} if
+  for all $i \in H$, for all $r \geq 1$,
+  for all $r + \Delta_v < r' < R$,
+  it holds that
+  $\LLambda[j].\emulateMachine(i, r)$ executed \emph{in vitro} after round $r'$
+  is equal to
+  $\LLambda[j].\emulateMachine(i, r)$ executed \emph{in vitro} after round $r' + 1$.
+\end{definition}
+
 \begin{definition}[Honest View in the Emulated Setting]
   Consider an emulated setting execution $\mathcal{E}$ with duration $R$ rounds
   sampled from $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$.
-  The \emph{emulated setting view of honest parties} $\LCView_{j,H}(\mathcal{E})$
+  If the execution $\mathcal{E}$ is $(j,H,\Delta_v)$-consistent, then
+  the \emph{emulated setting view of honest parties} $\LCView_{j,H,\Delta_v}(\mathcal{E})$,
+  % TODO: change "reality lag" to be a generic "time distortion" function,
+  % for now f(r) = r + \Delta_v, but this could be more generic
+  parametrized by an index $j$, a set of indices $H$, and a \emph{reality lag} $\Delta_v \in \mathbb{N}$,
   is the $|H| \times R$ matrix of the following values:
 
-  % TODO(dionyziz & tzinas): When are these \emph{in vitro} executions commenced? They cannot be taken at the same "real round" as
-  % given by the "simulated round" argument.
   \[
   \begin{bmatrix}
-    \LLambda[j].\emulateMachine(H_1, 1) & \ldots & \LLambda[j].\emulateMachine(H_1, R)\\
+    \LLambda[j].\emulateMachine(H_1, 1) & \ldots & \LLambda[j].\emulateMachine(H_1, R - \Delta_v - 1)\\
                                  \vdots & \ddots & \vdots \\
-    \LLambda[j].\emulateMachine(H_{|H|}, 1) & \ldots & \LLambda[j].\emulateMachine(H_{|H|}, R)
+    \LLambda[j].\emulateMachine(H_{|H|}, 1) & \ldots & \LLambda[j].\emulateMachine(H_{|H|}, R - \Delta_v - 1)
   \end{bmatrix}\,,
   \]
 
-  where $\LLambda[j].\emulateMachine(H_i, r)$ denotes the return value of invoking
+  where $\LLambda[j].\emulateMachine(H_i, r)$ denotes the return value of invoking,
+  \emph{in vitro} after round $r + \Delta_v + 1$,
   the $\emulateMachine$ functionality of the $j^\text{th}$ compositor party $\LLambda[j]$
   with parameters the index $H_i$ of the $i^\text{th}$ overlay machine (among those
   included in $H$) and round $r$.
+
+  On the other hand, if the execution $\mathcal{E}$ is \emph{not} $(j,H,\Delta_v)$-consistent, then
+  we let $\LCView_{j,H,\Delta_v}(\mathcal{E}) = \bot$.
 \end{definition}
 
 \begin{definition}[Lateness]
@@ -246,10 +264,7 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
   $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
   % TODO: B should only depend on the collective execution of \Y, not anything else
   and execution $\mathcal{E}'$ is sampled from
-
-  \[
-  \PEExec(\Pi, \mathcal{S}, \mathcal{Z}', n, \mathcal{H}(B), \Delta)\,.
-  \]
+  $\PEExec(\Pi, \mathcal{S}, \mathcal{Z}', n, \mathcal{H}(B), \Delta)$.
 \end{definition}
 
 % Remark: Differences from a UC-style proof
