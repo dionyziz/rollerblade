@@ -174,13 +174,18 @@ recorded in each row will be growing in an append-only fashion.
 \begin{definition}[Emulation Consistency]
   An execution $\mathcal{E}$ with duration $R$ rounds sampled from
   $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
-  is \emph{$(j,H,\Delta_v)$-\emph{consistent}} if
+  is \emph{$(j,H,\Delta_v,\Delta_u)$-\emph{consistent}},
+  for a compositor index $j \in [m]$,
+  a set of overlay machine indices $H \subseteq [n]$,
+  reality lag $\Delta_v$,
+  delay $\Delta_u$,
+  if
   for all $i \in H$, for all $r \geq 1$,
-  for all $r + \Delta_v < r' < R$,
+  for all $r + \Delta_v < r' < R - \Delta_u$,
   it holds that
-  $\LLambda[j].\emulateMachine(i, r)$ executed \emph{in vitro} after round $r'$
+  $\LLambda[j].\emulateMachine(i, r)$ executed \emph{in vitro} at the end of round $r'$
   is equal to
-  $\LLambda[j].\emulateMachine(i, r)$ executed \emph{in vitro} after round $r' + 1$.
+  $\LLambda[j].\emulateMachine(i, r)$ executed \emph{in vitro} at the end of round $r' + 1$.
 \end{definition}
 
 \begin{definition}[Honest View in the Emulated Setting]
@@ -202,7 +207,7 @@ recorded in each row will be growing in an append-only fashion.
   \]
 
   where $\LLambda[j].\emulateMachine(H_i, r)$ denotes the return value of invoking,
-  \emph{in vitro} after round $r + \Delta_v + 1$,
+  \emph{in vitro} at the end of round $r + \Delta_v + 1$,
   the $\emulateMachine$ functionality of the $j^\text{th}$ compositor party $\LLambda[j]$
   with parameters the index $H_i$ of the $i^\text{th}$ overlay machine (among those
   included in $H$) and round $r$.
@@ -258,7 +263,7 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
 
   \begin{enumerate}
     \item $\LCView_{j,\mathcal{H}(B),\Delta_v}(\mathcal{E}) \distreq \PEView_{\mathcal{H}(B)}(\mathcal{E}')$
-    \item $\LCExtern_{j,\mathcal{H}(B)}(\mathcal{E}) \latedistr{\Delta} \PEExtern_{\mathcal{H}(B)}(\mathcal{E}')$
+    \item $\LCExtern_{j,\mathcal{H}(B)}(\mathcal{E}) \latedistr{\Delta_u} \PEExtern_{\mathcal{H}(B)}(\mathcal{E}')$
   \end{enumerate}
 
   where execution $\mathcal{E}$ is sampled from
@@ -266,7 +271,8 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
   $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
   % TODO: B should only depend on the collective execution of \Y, not anything else
   and execution $\mathcal{E}'$ is sampled from
-  $\PEExec(\Pi, \mathcal{S}, \mathcal{Z}', n, \mathcal{H}(B), \Delta)$.
+  $\PEExec(\Pi, \mathcal{S}, \mathcal{Z}', n, \mathcal{H}(B), \Delta)$,
+  and $\Delta = \Delta_v + \Delta_u$.
 \end{definition}
 
 % Remark: Differences from a UC-style proof
@@ -379,17 +385,19 @@ contiguous honest participation is also known in the literature as
   Consider a \rollerblade $\Lambda$ execution $\mathcal{E}$ with duration $R$ rounds
   sampled from $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
   with overlay protocols $\mathcal{Y}$, adversary $\mathcal{A}$ and environment $\mathcal{Z}$,
-  and let $\Delta_v = \max\{v_i\}_{i \in [n]}$, where $v_i$ denotes the timeliness
+  and let $\Delta_v = \max\{v_i\}_{i \in [n]}$,
+          $\Delta_u = \max\{u_i\}_{i \in [n]}$,
+  where $v_i$ denotes the timeliness
   promised by ledger protocol $\Y[i]$.
   Let $H \subseteq [n]$ be the subset of good underlying ledger protocol indices among $\mathcal{Y}$
   in $\mathcal{E}$.
-  Then the execution is $(j, H, \Delta_v)$-consistent for all $j \in [m]$.
+  Then the execution is $(j, H, \Delta_v, \Delta_u)$-consistent for all $j \in [m]$.
 \end{lemma}
 \begin{proof}
-  Let $i \in H$, $r \geq 1$, $r + \Delta_v < r' < R$ be arbitrary.
-  When $\emulateMachine$ is invoked after round $r'$ (or $r' + 1$ respectively),
+  Let $i \in H$, $r \geq 1$, $r + \Delta_v < r' < R - \Delta_u$ be arbitrary.
+  When $\emulateMachine$ is invoked at the end of round $r'$ (resp. $r' + 1$),
   the value $\this.\now$
-  is $r'$, so the check $\simulationRound > \this.\now - v_i$ of Algorithm~\ref{alg.prepare-simulation-inputs}
+  is $r'$ (resp. $r' + 1$), so the check $\simulationRound > \this.\now - v_i$ of Algorithm~\ref{alg.prepare-simulation-inputs}
   Line~\ref{alg.prepare-simulation-inputs:reality-lag} is false, and the emulation
   succeeds. This is the only stateful check in this function.
   The result of the function $\prepareSimulationInputs$ only depends on the transactions of
@@ -397,8 +405,6 @@ contiguous honest participation is also known in the literature as
   Therefore it suffices to show that the transactions in
   $\Ledger[j][i][r']$ with recorded rounds up to $\simulationRound$ are the same
   as the transactions in $\Ledger[j][i][r' + 1]$ with recorded rounds up to $\simulationRound$.
-  % TODO: Check if past-perfect can be invoked here, in particular see how liveness affects
-  % the invocation of the Lemma.
   This follows from Lemma~\ref{lem:past-perfect}.\qed
 \end{proof}
 

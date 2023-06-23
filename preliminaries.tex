@@ -210,12 +210,12 @@ immensely useful for composability, but is a natural property that all well-desi
 blockchain systems have:
 
 \begin{definition}[Timely]\label{def:timely}
-  An execution $\Exec$ of a ledger protocol $\Pi$ is \emph{timely} with parameter $v \in \mathbb{N}$
+  An execution $\Exec$ of a temporal ledger protocol $\Pi$ is \emph{timely} with parameter $v \in \mathbb{N}$
   if for all honest parties $P$ and rounds $r_1 \leq r_2$ it holds that:
 
   \begin{enumerate}
     \item The rounds recorded in $\Ledger[P][][r_1]$ are non-decreasing.\label{def:timely-increasing}
-    \item The round of $\Ledger[P][][r_1][-1]$ is at most $r_1$.\label{def:timely-past}
+    \item The round recorded at $\Ledger[P][][r_1][-1]$ is at most $r_1$.\label{def:timely-past}
     \item The rounds recorded in $\Ledger[P][][r_2][|\Ledger[P][][r_1]|{:}]$ are at least $r_1 - v$.\label{def:timely-chunk}
   \end{enumerate}
 \end{definition}
