@@ -217,8 +217,42 @@ recorded in each row will be growing in an append-only fashion.
   we let $\LCView_{j,H,\Delta_v}(\mathcal{E}) = \bot$.
 \end{definition}
 
-\begin{definition}[Externalities of an Execution]
-  Consider an Honest View $V$ (in the Party Setting or in the Emulated Setting)
+\begin{definition}[Party Setting Externalities]
+  Consider a party setting view $V$ of honest parties and size $|H| \times R$.
+  The \emph{party setting externalities} $\PEExtern(V)$ is the $|H| \times R$ matrix:
+  \[
+  \begin{bmatrix}
+    \W[H_1][1] &\ldots& \W[H_1][R]\\
+         \vdots &\ddots& \vdots     \\
+    \W[H_{|H|}][1] &\ldots& \W[H_{|H|}][R]
+  \end{bmatrix}\,,
+  \]
+
+  where $\W[H_i][r]$ denotes the writebox of messages received by an honest party
+  with index $H_i$ during round $r$. This writebox of messages can be extracted from
+  the transcript $\PPi[H_i]_r$ found in $V$.
+\end{definition}
+
+\begin{definition}[Emulated Setting Externalities]
+  Consider an emulated setting execution $\mathcal{E}$ with duration $R$ rounds
+  sampled from $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$.
+  The \emph{emulated setting externalities} $\LCExtern_{j,H}(\mathcal{E})$, parametrized by
+  by an index $j$ and a set of indices $H$ is the $|H| \times R$ matrix:
+
+  \[
+  \begin{bmatrix}
+    \W[H_1][1] &\ldots& \W[H_1][R]\\
+         \vdots &\ddots& \vdots     \\
+    \W[H_{|H|}][1] &\ldots& \W[H_{|H|}][R]
+  \end{bmatrix}\,,
+  \]
+
+  where $\W[H_i][r]$ denotes the writebox of messages written to
+  the overlay machine with index $H_i$
+  using method \writeToMachine of compositor client $\LLambda[j]$
+  during round $r$.
+
+  This writebox of messages can be extracted from execution $\mathcal{E}$.
 \end{definition}
 
 \begin{definition}[Lateness]
@@ -268,7 +302,7 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
 
   \begin{enumerate}
     \item $\LCView_{j,\mathcal{H}(B),\Delta_v}(\mathcal{E}) \distreq \PEView_{\mathcal{H}(B)}(\mathcal{E}')$
-    \item $\LCExtern_{j,\mathcal{H}(B)}(\mathcal{E}) \latedistr{\Delta_u} \PEExtern_{\mathcal{H}(B)}(\mathcal{E}')$
+    \item $\LCExtern_{j,\mathcal{H}(B)}(\mathcal{E}) \latedistr{\Delta_u} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$
   \end{enumerate}
 
   where execution $\mathcal{E}$ is sampled from
