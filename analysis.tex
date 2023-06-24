@@ -235,33 +235,42 @@ recorded in each row will be growing in an append-only fashion.
 
 \begin{definition}[Emulated Setting Externalities]
   Consider an emulated setting execution $\mathcal{E}$ with duration $R$ rounds
-  sampled from $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$.
-  The \emph{emulated setting externalities} $\LCExtern_{j,H}(\mathcal{E})$, parametrized by
-  by an index $j$ and a set of indices $H$ is the $|H| \times R$ matrix:
+  sampled from $\LCExec_m(\Lambda,\allowbreak \mathcal{Y},\allowbreak \mathcal{A},\allowbreak \mathcal{Z})$.
+  Consider the transcript of compositor client $\LLambda[j]$ in $\mathcal{E}$.
+  Within that transcript, observe the \emph{writeToMachine} calls made by
+  $\mathcal{Z}$ on $\LLambda[j]$ during some fixed round $1 \leq r \leq R$.
+  Among those, consider the calls to \emph{writeToMachine} that were
+  invoked with first argument some fixed machine index $1 \leq i \leq m$.
+  These \emph{writeToMachine} calls were invoked, in order, as
+  $\writeToMachine(i, \data_1), \ldots, \writeToMachine(i, \data_k)$
+  all during round $r$.
+  Let $\W[i][r] = (\data_1,\allowbreak\ldots,\allowbreak\data_k)$ denote the sequence containing
+  all the \emph{data} parameter values of those calls.
+  The \emph{emulated setting externalities} $\LCExtern_{j,H}(\mathcal{E})$, parametrized
+  by an index $j$ and a set of indices $H$, is the $|H| \times R$ matrix:
 
   \[
   \begin{bmatrix}
     \W[H_1][1] &\ldots& \W[H_1][R]\\
          \vdots &\ddots& \vdots     \\
     \W[H_{|H|}][1] &\ldots& \W[H_{|H|}][R]
-  \end{bmatrix}\,,
+  \end{bmatrix}\,.
   \]
-
-  where $\W[H_i][r]$ denotes the writebox of messages written to
-  the overlay machine with index $H_i$
-  using method \writeToMachine of compositor client $\LLambda[j]$
-  during round $r$.
-
-  This writebox of messages can be extracted from execution $\mathcal{E}$.
 \end{definition}
 
-\begin{definition}[Lateness]
-\end{definition}
+\begin{definition}[Externality Similarity]
+  Consider the party setting externalities $\PEExtern(V)$ and the emulated setting
+  externalities $\LCExtern_{j,H}(\mathcal{E})$ for some party setting view $V$
+  of honest parties, and some emulated setting execution $\mathcal{E}$.
+  We say that the two externalities are \emph{similar with lateness parameter}
+  $\Delta_u \in \mathbb{N}$, written
+  $\PEExtern(V) \late{\Delta_u} \LCExtern_{j,H}(\mathcal{E})$, if
+  the following holds.
 
-% TODO(tzinas/dionyziz)... define these.
-% Define how the environment Z and the environment Z' functions step by step
-% e.g., the environment Z is given $m$ compositor parties to spin up
-% and both environments must orchestrate the execution in a lockstep manner
+  For any message $m$ located at position $(i, r)$ of $\LCExtern_{j,H}(\mathcal{E})$,
+  there exists a round $r \leq r' \leq r + \Delta_u$ such that
+  the message $m$ appears at position $(i, r')$ of $\PEExtern(V)$.
+\end{definition}
 
 % TODO: Define belief system and honesty correspondence
 % TODO: Define a belief-respecting environment
