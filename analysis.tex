@@ -143,7 +143,8 @@ delay.
 We define the following views for the two execution settings.
 
 \begin{definition}[Honest View in the Party Setting]
-  Consider a party setting execution $\mathcal{E}'$ sampled from
+  Consider a party setting execution $\mathcal{E}'$ of duration $R$ rounds
+  sampled from
   $\PEExec_n(\Pi, \mathcal{A}, \mathcal{Z}, n, H, \Delta)$.
   The \emph{party setting view of honest parties} $\PEView_H(\mathcal{E}')$
   is the $|H|\times R$ matrix of the following transcripts of honest parties:
@@ -158,7 +159,7 @@ We define the following views for the two execution settings.
 
   where $\PPi[H_i]_r$ denotes the transcript of party $\PPi[H_i]$
   (the party with index $H_i$, the $i^\text{th}$ honest party)
-  obtained at round $r$.
+  obtained at the end of round $r$.
 \end{definition}
 
 Note that, in the above definition, the transcripts concerned pertain to the
@@ -174,11 +175,11 @@ recorded in each row will be growing in an append-only fashion.
 \begin{definition}[Emulation Consistency]
   An execution $\mathcal{E}$ with duration $R$ rounds sampled from
   $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
-  is \emph{$(j,H,\Delta_v,\Delta_u)$-\emph{consistent}},
+  is \emph{$(j,H,\Delta_u,\Delta_v)$-\emph{consistent}},
   for a compositor index $j \in [m]$,
   a set of overlay machine indices $H \subseteq [n]$,
+  lateness $\Delta_u$,
   reality lag $\Delta_v$,
-  delay $\Delta_u$,
   if
   for all $i \in H$, for all $r \geq 1$,
   for all $r + \Delta_v < r' < R - \Delta_u$,
@@ -191,7 +192,7 @@ recorded in each row will be growing in an append-only fashion.
 \begin{definition}[Honest View in the Emulated Setting]
   Consider an emulated setting execution $\mathcal{E}$ with duration $R$ rounds
   sampled from $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$.
-  If the execution $\mathcal{E}$ is $(j,H,\Delta_v)$-consistent, then
+  If the execution $\mathcal{E}$ is $(j,H,\Delta_v,\Delta_u)$-consistent, then
   the \emph{emulated setting view of honest parties} $\LCView_{j,H,\Delta_v}(\mathcal{E})$,
   % TODO: change "reality lag" to be a generic "time distortion" function,
   % for now f(r) = r + \Delta_v, but this could be more generic
@@ -214,6 +215,10 @@ recorded in each row will be growing in an append-only fashion.
 
   On the other hand, if the execution $\mathcal{E}$ is \emph{not} $(j,H,\Delta_v)$-consistent, then
   we let $\LCView_{j,H,\Delta_v}(\mathcal{E}) = \bot$.
+\end{definition}
+
+\begin{definition}[Externalities of an Execution]
+  Consider an Honest View $V$ (in the Party Setting or in the Emulated Setting)
 \end{definition}
 
 \begin{definition}[Lateness]
@@ -240,13 +245,13 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
 % are hard-coded into \Y[][i]
 \begin{definition}[Compositor Faithfulness]
   A compositor $\Lambda$
-  is $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta_u, \Delta_v)$-\emph{faithful}
+  is $(\Pi,\allowbreak n,\allowbreak \mathcal{Y},\allowbreak \mathcal{B},\allowbreak \mathcal{H},\allowbreak \Delta_u,\allowbreak \Delta_v)$-\emph{faithful}
   for an overlay protocol $\Pi$,
   a number of overlay parties $n \in \mathbb{N}$,
   a sequence of underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$,
   a belief system $\mathcal{B}$,
   honesty correspondence $\mathcal{H}: \mathcal{B} \longrightarrow 2^{[n]}$,
-  delay $\Delta_u \in \mathbb{N}$,
+  lateness $\Delta_u \in \mathbb{N}$,
   and reality lag $\Delta_v \in \mathbb{N}$
   if:
 
@@ -421,7 +426,7 @@ contiguous honest participation is also known in the literature as
   for the \rollerblade-belief-system $\mathcal{B}$ of $\mathcal{Y}$
   and honesty correspondence $\mathcal{H}$,
   the compositor \rollerblade of Section~\ref{sec:construction} is
-  $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta)$-\emph{faithful},
+  $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta_u, \Delta_v)$-\emph{faithful},
   where $n = \ell$, $\Delta_u = \max\{u_i\}_{i \in [n]}$,
   $\Delta_v = \max\{v_i\}_{v \in [n]}$
   and $u_i, v_i$ are the promised liveness and timeliness of $\Y[][i]$.
@@ -443,7 +448,7 @@ contiguous honest participation is also known in the literature as
   Initially, $S$ samples an execution
   $\mathcal{E}^*$ in the emulation setting from
   % TODO: is the number of validators in \Y[][1] hard-coded into it?
-  $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$.
+  $\LCExec_m(\Lambda,\allowbreak\mathcal{Y},\allowbreak\mathcal{A},\allowbreak\mathcal{Z})$.
   Let $R$ be the duration of $\mathcal{E}^*$ in rounds.
   % TODO: Describe how the simulator works
   The simulator looks at compositor party $j$ of $\mathcal{E}^*$
@@ -474,13 +479,13 @@ contiguous honest participation is also known in the literature as
   (i.e., we will show the these two random variables are equal,
   not just equal by distribution),
   and similarly for (2) it suffices to show that for all $j$,
-  $\LCExtern_j(\mathcal{E}^*) \late{\Delta} \PEExtern(\mathcal{E}')$
-  (i.e., we will show that the externalities of $\mathcal{E}'$ are $\Delta$-late
-  with respect to $\mathcal{E}^*$, not just distributionally $\Delta$-late).
+  $\LCExtern_j(\mathcal{E}^*) \late{\Delta_u} \PEExtern(\mathcal{E}')$
+  (i.e., we will show that the externalities of $\mathcal{E}'$ are $\Delta_u$-late
+  with respect to $\mathcal{E}^*$, not just distributionally $\Delta_u$-late).
 
   \noindent
   \textbf{Claim 1: $\LCView_{j,H,\Delta_v}(\mathcal{E}^*) = \PEView_H(\mathcal{E}')$.}
-  First, we know that $\mathcal{E}^*$ is $(j, H, \Delta_v)$-consistent
+  First, we know that $\mathcal{E}^*$ is $(j, H, \Delta_u, \Delta_v)$-consistent
   from Lemma~\ref{lem:consistency}.
 
   Next, we need to show
@@ -491,7 +496,11 @@ contiguous honest participation is also known in the literature as
   {\color{red} Finish the claim proof...}
 
   \noindent
-  \textbf{Claim 2: $\LCExtern(\mathcal{E}^*) \late{\Delta} \PEExtern(\mathcal{E}')$.}
+  \textbf{Claim 2: $\LCExtern(\mathcal{E}^*) \late{\Delta_u} \PEExtern(\mathcal{E}')$.}
+
+  Sketch: We show that for all $i \in H$, each of the \emph{writeToMachine} inputs
+  provided by $\mathcal{Z}$ to $\RB[j]$'s $i^\text{th}$ machine is provided
+  at most $\Delta_u$ rounds later by $\mathcal{Z}'$ to $\Pi^i$...
 
   {\color{red} Finish the claim proof...}
 \end{proof}
