@@ -119,7 +119,7 @@ functionality with inputs of its choice.
 
 \noindent
 \textbf{The Party Setting.}
-In the party setting execution, denoted by $\PEExec_n(\Pi, \mathcal{A}, \mathcal{Z}, n, H, \Delta)$,
+In the party setting execution, denoted by $\PEExec_n(\Pi,\allowbreak \mathcal{A},\allowbreak \mathcal{Z},\allowbreak n,\allowbreak H,\allowbreak \Delta)$,
 the environment $\mathcal{Z}$ is constrained by the control program
 to spawn $n$ parties $\PPi[1], \ldots, \PPi[n]$ (where $n \in \mathbb{N}$
 is a parameter of the execution). Note here that $\Pi$ is a protocol (an ITM),
@@ -145,7 +145,7 @@ We define the following views for the two execution settings.
 \begin{definition}[Honest View in the Party Setting]
   Consider a party setting execution $\mathcal{E}'$ of duration $R$ rounds
   sampled from
-  $\PEExec_n(\Pi, \mathcal{A}, \mathcal{Z}, n, H, \Delta)$.
+  $\PEExec_n(\Pi,\allowbreak \mathcal{A},\allowbreak \mathcal{Z},\allowbreak n,\allowbreak H,\allowbreak \Delta)$.
   The \emph{party setting view of honest parties} $\PEView_H(\mathcal{E}')$
   is the $|H|\times R$ matrix of the following transcripts of honest parties:
 
@@ -259,17 +259,23 @@ recorded in each row will be growing in an append-only fashion.
 \end{definition}
 
 \begin{definition}[Externality Similarity]
-  Consider the party setting externalities $\PEExtern(V)$ and the emulated setting
-  externalities $\LCExtern_{j,H}(\mathcal{E})$ for some party setting view $V$
-  of honest parties, and some emulated setting execution $\mathcal{E}$.
-  We say that the two externalities are \emph{similar with lateness parameter}
-  $\Delta_u \in \mathbb{N}$, written
-  $\PEExtern(V) \late{\Delta_u} \LCExtern_{j,H}(\mathcal{E})$, if
-  the following holds.
+  Consider the externalities $E_1, E_2$ (in the party or emulated setting).
+  We say that $E_1$ is \emph{similar} to $E_2$ with \emph{lateness} parameter
+  $\Delta_u \in \mathbb{N}$ and \emph{earliness} parameter $\Delta_v \in \mathbb{N}$, written
+  $E_1 \laterly{\Delta_u,\Delta_v} E_2$, if
+  the following holds:
+  For any message $m$ located within the writebox at position $(i, r)$ of $E_1$
+  there exists a round $r - \Delta_v \leq r' \leq r + \Delta_u$ such that
+  the message $m$ appears within the writebox at position $(i, r')$ of $E_2$.
 
-  For any message $m$ located at position $(i, r)$ of $\LCExtern_{j,H}(\mathcal{E})$,
-  there exists a round $r \leq r' \leq r + \Delta_u$ such that
-  the message $m$ appears at position $(i, r')$ of $\PEExtern(V)$.
+  Furthermore, we say that the random variable $E_1$
+  is \emph{distributionally similar} to $E_2$
+  with \emph{lateness} parameter $\Delta_u \in \mathbb{N}$
+  and \emph{earliness} parameter $\Delta_v \in \mathbb{N}$,
+  written $E_1 \laterlydistr{\Delta_u,\Delta_v} E_2$, if
+  there is a mapping $f: \supp(E_1) \rightarrow \supp(E_2)$
+  such that for all $x \in \supp(E_1)$, $x \laterly{\Delta_u,\Delta_v} f(x)$ and
+  for all $y \in \supp(E_2)$, $\Pr[E_2 = y] = \sum_{x \in f^{-1}(y)} \Pr[E_1 = x]$.
 \end{definition}
 
 % TODO: Define belief system and honesty correspondence
@@ -311,7 +317,7 @@ This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
 
   \begin{enumerate}
     \item $\LCView_{j,\mathcal{H}(B),\Delta_v}(\mathcal{E}) \distreq \PEView_{\mathcal{H}(B)}(\mathcal{E}')$
-    \item $\LCExtern_{j,\mathcal{H}(B)}(\mathcal{E}) \latedistr{\Delta_u} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$
+    \item $\LCExtern_{j,\mathcal{H}(B)}(\mathcal{E}) \laterlydistr{\Delta_u,\Delta_v} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$
   \end{enumerate}
 
   where execution $\mathcal{E}$ is sampled from
@@ -522,9 +528,9 @@ contiguous honest participation is also known in the literature as
   (i.e., we will show the these two random variables are equal,
   not just equal by distribution),
   and similarly for (2) it suffices to show that for all $j$,
-  $\LCExtern_j(\mathcal{E}^*) \late{\Delta_u} \PEExtern(\mathcal{E}')$
-  (i.e., we will show that the externalities of $\mathcal{E}'$ are $\Delta_u$-late
-  with respect to $\mathcal{E}^*$, not just distributionally $\Delta_u$-late).
+  $\LCExtern_j(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\mathcal{E}')$
+  (i.e., we will show that the externalities of $\mathcal{E}'$ are
+  similar to $\mathcal{E}^*$, not just \emph{distributionally} similar).
 
   \noindent
   \textbf{Claim 1: $\LCView_{j,H,\Delta_v}(\mathcal{E}^*) = \PEView_H(\mathcal{E}')$.}
@@ -539,13 +545,24 @@ contiguous honest participation is also known in the literature as
   {\color{red} Finish the claim proof...}
 
   \noindent
-  \textbf{Claim 2: $\LCExtern(\mathcal{E}^*) \late{\Delta_u} \PEExtern(\mathcal{E}')$.}
+  \textbf{Claim 2: $\LCExtern(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\mathcal{E}')$.}
 
-  Sketch: We show that for all $i \in H$, each of the \emph{writeToMachine} inputs
-  provided by $\mathcal{Z}$ to $\RB[j]$'s $i^\text{th}$ machine is provided
-  at most $\Delta_u$ rounds later by $\mathcal{Z}'$ to $\Pi^i$...
-
-  {\color{red} Finish the claim proof...}
+  Let $i \in H$ and $r \in R - \Delta_v - 1$ be arbitrary, and $W^i_r$ be the writebox
+  at position $(i, r)$ of $\LCExtern(\mathcal{E}^*)$. Let $m$ be an arbitrary message
+  in $W^i_r$. Message $m$ was included in a \emph{writeToMachine} call to $\RB[j]$
+  with parameter $i$ at round $r$. By the rollerblade construction, the \emph{write}
+  function of $\Y[j][i]$ will be called by $\RB[j]$ at round $r$ with parameter a bulletin
+  transaction $\tx$ with payload $(`write', m)$. Because bulletin transactions are high entropy,
+  this transaction is fresh, namely it does not appear in $\Y[j][i][r]$.
+  Because $i$ is \emph{good}, therefore it is live with liveness $u_i$ in $\mathcal{E}^*$,
+  therefore $\tx$ will appear in $\Y[j][i][r + u_i]$ with some recorded round $r^*$.
+  Because $i$ is \emph{timely} with timeliness $v_i$ in $\mathcal{E}^*$, therefore
+  $r + 1 - \Delta_v \leq r + 1 - v_i \leq r^* \leq r + u_i \leq r + \Delta_u$.
+  Hence, $m$ will be inputted to the \emph{write} function call of $\Pi^i$
+  in $\mathcal{E}'$ at round $r^*$.
+  % TODO: Check that there are sufficient rounds before the end of the simulation
+  % for $\Pi^i$ to write this message (i.e., for the message to appear in the prepareSimulationInputs
+  % output).
 \end{proof}
 
 % TODO: Consider the case of "written communication", or "transferable origin" constructions
