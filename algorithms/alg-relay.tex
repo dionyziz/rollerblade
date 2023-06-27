@@ -15,12 +15,12 @@
           \Let{\instruction}{\{
             \type{:} \text{`checkpoint'},
             \data{:} \{
-              \textsf{from}{:} i,
+              \textsf{from}{:} i',
               \textsf{certificate}{:} \tau
             \}
           \}}
-          \Let{\textsf{encoded}}{\this.\Y[j][i'].\encode(\serialize(\instruction))}
-          \State{$\this.\Y[j][i'].\lwrite(\textsf{encoded})$}
+          \Let{\textsf{encoded}}{\this.\Y[j][i].\encode(\serialize(\instruction))}
+          \State{$\this.\Y[j][i].\lwrite(\textsf{encoded})$}
         \EndFor
       \EndFor
     \EndFunction
