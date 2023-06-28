@@ -258,12 +258,14 @@ recorded in each row will be growing in an append-only fashion.
 \end{definition}
 
 \begin{definition}[Externality Similarity]
-  Consider the externalities $E_1, E_2$ (in the party or emulated setting).
+  Consider the externalities $E_1, E_2$ (in the party or emulated setting)
+  with dimensions $n \times R_1$ and $n \times R_2$ respectively.
   We say that $E_1$ is \emph{similar} to $E_2$ with \emph{lateness} parameter
   $\Delta_u \in \mathbb{N}$ and \emph{earliness} parameter $\Delta_v \in \mathbb{N}$, written
   $E_1 \laterly{\Delta_u,\Delta_v} E_2$, if
   the following holds:
-  For any message $m$ located within the writebox at position $(i, r)$ of $E_1$
+  For any message $m$ located within the writebox at position $(i, r)$ of $E_1$,
+  with $r < R_1 - \Delta_u - \Delta_v$,
   there exists a round $r - \Delta_v \leq r' \leq r + \Delta_u$ such that
   the message $m$ appears within the writebox at position $(i, r')$ of $E_2$.
 
@@ -509,16 +511,20 @@ contiguous honest participation is also known in the literature as
   a copy of the configuration $M_i$ of the ITI $\RB[j]$ from $\mathcal{E}^*$ at the end of
   $\mathcal{E}^*$.
   The simulator calls $\prepareSimulationInputs(i, \simulationRound, \realityRound)$ on $M_i$
-  \emph{in vitro}, where \simulationRound is the last round of execution $\mathcal{E}'$
-  and \realityRound is the last round of execution $\mathcal{E}^*$, to obtain the pair
-  $(\writeboxes^i, \inboxes^i)$
-  (the simulator can make this call to $\prepareSimulationInputs$ without affecting the execution).
+  \emph{in vitro}, where $\simulationRound = R - \Delta_v - 1$
+  and $\realityRound = R$, to obtain the pair
+  $(\writeboxes^i, \inboxes^i)$, where
+  $|\writeboxes^i| = R - \Delta_v - 1$
+  and
+  $|\inboxes^i| = R - \Delta_v - 1$.
   At the beginning of round $r$ of $\mathcal{E}'$, the simulator calls
   $\lwrite(\data)$ on party $i$
   for every $\data \in \writeboxes^i[r - 1]$.
   When $\mathcal{Z}'$ activates party $i$ during round $r$,
   if party $i$ invokes the network receive method $\recv()$, then $\mathcal{Z}'$
   provides $\inboxes^i[r - 1]$.
+
+  % TODO: separate the notion of "emulation" and the notion of "simulation"
 
   We note that $S$ uses the adversary $\mathcal{A}$ and the
   environment $\mathcal{Z}$ in this simulation, so $\mathcal{E}$
@@ -547,19 +553,25 @@ contiguous honest participation is also known in the literature as
   \noindent
   \textbf{Claim 2: $\LCExtern_{j,H}(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$.}
 
-  Let $i \in H$ and $r \in R - \Delta_v - 1$ be arbitrary, and $W^i_r$ be the writebox
+  Let $i \in H$ and $r \leq R - \Delta_u - \Delta_v - 1$ be arbitrary, and $W^i_r$ be the writebox
   at position $(i, r)$ of $\LCExtern(\mathcal{E}^*)$. Let $m$ be an arbitrary message
   in $W^i_r$. Message $m$ was included in a \emph{writeToMachine} call to $\RB[j]$
   with parameter $i$ at round $r$. By the rollerblade construction, the \emph{write}
   function of $\Y[j][i]$ will be called by $\RB[j]$ at round $r$ with parameter a bulletin
-  transaction $\tx$ with payload $(`write', m)$. Because bulletin transactions are high entropy,
-  this transaction is fresh, namely it does not appear in $\Y[j][i][r]$.
-  Because $i$ is \emph{good}, therefore it is live with liveness $u_i$ in $\mathcal{E}^*$,
-  therefore $\tx$ will appear in $\Y[j][i][r + u_i]$ with some recorded round $r^*$.
-  Because $i$ is \emph{timely} with timeliness $v_i$ in $\mathcal{E}^*$, therefore
-  $r + 1 - \Delta_v \leq r + 1 - v_i \leq r^* \leq r + u_i \leq r + \Delta_u$.
+  transaction $\tx$ with payload $(\text{`write'}, m)$. Because bulletin transactions are high entropy,
+  this transaction is fresh, namely it does not appear in $\Ledger[j][i][r]$.
+  Because $i$ is \emph{good}, therefore it is live in $\mathcal{E}^*$ with liveness $u_i$,
+  therefore $\tx$ will appear in $\Ledger[j][i][r + u_i]$ with some recorded round $r^*$.
+  Note that round $r + u_i \leq R$ falls within the duration of $\mathcal{E}^*$, and
+  so the ledger $\Ledger[j][i][r + u_i]$ can be obtained by the simulator.
+  Because $i$ is \emph{timely} in $\mathcal{E}^*$ with timeliness $v_i$, therefore
+  $r + 1 - \Delta_v \leq r + 1 - v_i \leq r^* \leq r + u_i \leq r + \Delta_u \leq R - \Delta_v - 1$.
+  When the function $\prepareSimulationInputs$ is invoked at $\realityRound = R$
+  and with $\simulationRound = R - \Delta_v - 1$, the transaction will contribute
+  to the \emph{writebox} of party $i$, since $r^* \leq R - \Delta_v - 1$.
   Hence, $m$ will be inputted to the \emph{write} function call of $\Pi^i$
-  in $\mathcal{E}'$ at round $r^*$.
+  in $\mathcal{E}'$ at round $r^*$ (and note that $1 \leq r^* \leq R - \Delta_v - 1$ falls
+  within the duration of $\mathcal{E}'$).
   \qed
   % TODO: Check that there are sufficient rounds before the end of the simulation
   % for $\Pi^i$ to write this message (i.e., for the message to appear in the prepareSimulationInputs
