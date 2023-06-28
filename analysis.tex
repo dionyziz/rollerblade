@@ -175,14 +175,13 @@ recorded in each row will be growing in an append-only fashion.
 \begin{definition}[Emulation Consistency]
   An execution $\mathcal{E}$ with duration $R$ rounds sampled from
   $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
-  is \emph{$(j,H,\Delta_u,\Delta_v)$-\emph{consistent}},
+  is \emph{$(j,H,\Delta_v)$-\emph{consistent}},
   for a compositor index $j \in [m]$,
   a set of overlay machine indices $H \subseteq [n]$,
-  lateness $\Delta_u$,
-  reality lag $\Delta_v$,
+  and reality lag $\Delta_v$,
   if
   for all $i \in H$, for all $r \geq 1$,
-  for all $r + \Delta_v < r' < R - \Delta_u$,
+  for all $r + \Delta_v < r' < R$,
   it holds that
   $\LLambda[j].\emulateMachine(i, r)$ executed \emph{in vitro} at the end of round $r'$
   is equal to
@@ -192,7 +191,7 @@ recorded in each row will be growing in an append-only fashion.
 \begin{definition}[Honest View in the Emulated Setting]
   Consider an emulated setting execution $\mathcal{E}$ with duration $R$ rounds
   sampled from $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$.
-  If the execution $\mathcal{E}$ is $(j,H,\Delta_v,\Delta_u)$-consistent, then
+  If the execution $\mathcal{E}$ is $(j,H,\Delta_v)$-consistent, then
   the \emph{emulated setting view of honest parties} $\LCView_{j,H,\Delta_v}(\mathcal{E})$,
   % TODO: change "reality lag" to be a generic "time distortion" function,
   % for now f(r) = r + \Delta_v, but this could be more generic
@@ -440,27 +439,28 @@ contiguous honest participation is also known in the literature as
   sampled from $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
   with overlay protocols $\mathcal{Y}$, adversary $\mathcal{A}$ and environment $\mathcal{Z}$,
   and let $\Delta_v = \max\{v_i\}_{i \in [n]}$,
-          $\Delta_u = \max\{u_i\}_{i \in [n]}$,
-  where $u_i$ denotes the liveness
-  and $v_i$ denotes the timeliness
+  where $v_i$ denotes the timeliness
   promised by ledger protocol $\Y[i]$.
   Let $H \subseteq [n]$ be the subset of good underlying ledger protocol indices among $\mathcal{Y}$
   in $\mathcal{E}$.
-  Then the execution is $(j, H, \Delta_v, \Delta_u)$-consistent for all $j \in [m]$.
+  Then the execution is $(j, H, \Delta_v)$-consistent for all $j \in [m]$.
 \end{lemma}
 \begin{proof}
-  Let $i \in H$, $r \geq 1$, $r + \Delta_v < r' < R - \Delta_u$ be arbitrary.
+  Let $i \in H$, $r \geq 1$, $r + \Delta_v < r' < R$ be arbitrary.
   When $\emulateMachine$ is invoked at the end of round $r'$ (resp. $r' + 1$),
   the value $\this.\now$
   is $r'$ (resp. $r' + 1$), so the check $\simulationRound > \this.\now - v_i$ of Algorithm~\ref{alg.prepare-simulation-inputs}
-  Line~\ref{alg.prepare-simulation-inputs:reality-lag} is false, and the emulation
+  Line~\ref{alg.prepare-simulation-inputs:reality-lag} is \emph{false}, and the emulation
   succeeds. This is the only stateful check in this function.
   The result of the function $\prepareSimulationInputs$ only depends on the transactions of
   its $\Ledger[j][i]$ argument with recorded rounds up to $\simulationRound$.
   Therefore it suffices to show that the transactions in
   $\Ledger[j][i][r']$ with recorded rounds up to $\simulationRound$ are the same
   as the transactions in $\Ledger[j][i][r' + 1]$ with recorded rounds up to $\simulationRound$.
-  This follows from Lemma~\ref{lem:past-perfect}.\qed
+  All $\Ledger[j][i][r']$ transactions with recorded rounds up to $\simulationRound$
+  are included in $\Ledger[j][i][r' + 1]$ by \emph{stickiness}.
+  Conversely, all $\Ledger[j][i][r' + 1]$ transactions with recorded rounds up to $\simulationRound$
+  are included in $\Ledger[j][i][r']$ by \emph{timeliness}.\qed
 \end{proof}
 
 % TODO: Define the relationship between Z and Z';
@@ -534,7 +534,7 @@ contiguous honest participation is also known in the literature as
 
   \noindent
   \textbf{Claim 1: $\LCView_{j,H,\Delta_v}(\mathcal{E}^*) = \PEView_H(\mathcal{E}')$.}
-  First, we know that $\mathcal{E}^*$ is $(j, H, \Delta_u, \Delta_v)$-consistent
+  First, we know that $\mathcal{E}^*$ is $(j, H, \Delta_v)$-consistent
   from Lemma~\ref{lem:consistency}.
 
   Next, we need to show
