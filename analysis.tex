@@ -545,7 +545,7 @@ contiguous honest participation is also known in the literature as
   {\color{red} Finish the claim proof...}
 
   \noindent
-  \textbf{Claim 2: $\LCExtern(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\mathcal{E}')$.}
+  \textbf{Claim 2: $\LCExtern_{j,H}(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$.}
 
   Let $i \in H$ and $r \in R - \Delta_v - 1$ be arbitrary, and $W^i_r$ be the writebox
   at position $(i, r)$ of $\LCExtern(\mathcal{E}^*)$. Let $m$ be an arbitrary message
@@ -560,6 +560,7 @@ contiguous honest participation is also known in the literature as
   $r + 1 - \Delta_v \leq r + 1 - v_i \leq r^* \leq r + u_i \leq r + \Delta_u$.
   Hence, $m$ will be inputted to the \emph{write} function call of $\Pi^i$
   in $\mathcal{E}'$ at round $r^*$.
+  \qed
   % TODO: Check that there are sufficient rounds before the end of the simulation
   % for $\Pi^i$ to write this message (i.e., for the message to appear in the prepareSimulationInputs
   % output).
