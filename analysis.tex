@@ -328,6 +328,31 @@ recorded in each row will be growing in an append-only fashion.
   for all $y \in \supp(E_2)$, $\Pr[E_2 = y] = \sum_{x \in f^{-1}(y)} \Pr[E_1 = x]$.
 \end{definition}
 
+
+\begin{definition}[Belief]
+  A \emph{belief} $B$ is any predicate over an execution $\mathcal{E}$.
+\end{definition}
+
+For example, given an execution $\mathcal{E}$, with underlying distributed ledger
+protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$, we can define a belief
+$B$ asserting that the majority of underlying ledger protocols are secure.
+
+\begin{definition}[Belief System]
+  A \emph{belief system} $\mathcal{B}$ is a set of beliefs.
+\end{definition}
+
+\begin{definition}[Honesty Correspondence]
+  Given a belief system $\mathcal{B}$ and a number $n \in \mathbb{N}$ of overlay parties,
+  an \emph{honesty correspondence} $\mathcal{H}(B)$ is any function
+  from $\mathcal{B} \longrightarrow 2^{[n]}$.
+\end{definition}
+
+\begin{definition}[Belief-Respecting Environment]
+  An environment $\mathcal{Z}$ is \emph{belief-respecting} for a belief $B$
+  if for all executions $\mathcal{E}$ in the support of
+  a given distribution of executions, it holds that $B(\mathcal{E})$.
+\end{definition}
+
 % TODO: Mention that the validator and other protocol settings for \Y[][i]
 % are hard-coded into \Y[][i]
 \begin{definition}[Compositor Faithfulness]
@@ -440,6 +465,10 @@ contiguous honest participation is also known in the literature as
   is the inverse of $\mathcal{H}^{-1}$ and the \emph{\rollerblade belief system
   $\mathcal{B}$} is the domain of $\mathcal{H}$.
 \end{definition}
+
+For example, if $\mathcal{Y} = (\Y[][1], \Y[][2], \Y[][3])$,
+then for $B = \text{good}_1 \land \text{good}_3$, it holds that
+$B \in \mathcal{B}$ and $\mathcal{H}(B) = \{1, 3\}$.
 
 \begin{lemma}[Rollerblade Cross-party]\label{lem:cross-party}
   Consider a \rollerblade execution $\mathcal{E}$ with duration $R$ rounds
