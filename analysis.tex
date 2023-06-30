@@ -140,6 +140,55 @@ is constrained to deliver messages between honest parties
 in an authenticated manner, and to deliver messages within $\Delta$
 delay.
 
+We would like to define a notion of \emph{faithfulness} of a
+compositor, which captures the
+correspondence between the party setting execution and the emulated setting
+execution of $\Pi$. Roughly, a compositor is called \emph{faithful} is these
+two settings are identical in the eyes of the honest parties.
+This faithfulness may be conditioned to work only on certain classes
+of overlay protocols $\Pi$ and underlying protocols $\Y$, and may
+require that a certain subset $\mathcal{H}$ of these $\Y$s are well-behaved.
+
+\begin{definition}[Compositor Faithfulness (informal)]
+We say that a compositor $\Lambda$ is \emph{faithful} for an overlay protocol $\Pi$,
+a number of overlay parties $n \in \mathbb{N}$ running
+over a number of underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$
+if:
+For all number of compositor parties $m \in \mathbb{N}$,
+for every compositor index $j \in [m]$,
+for every overlay index $i \in [n]$ that ``corresponds' to ``well-behaving'' underlying $\mathcal{Y}$s
+it holds that:
+The party $\Z[j][i]$'s emulated execution ``is identical'' to \emph{some} party setting execution
+(it cannot tell if it is emulated or not).
+Within that emulated execution, the emulated instance $\Z[j][i]$
+is given the ``same'' inputs as \emph{write}(\emph{data}) by its environment
+as the compositor is given by its own environment as \emph{writeToMachine}(i, \emph{data})
+for that same $i$.
+\end{definition}
+
+The motivation for the above definition stems from the fact that, if it is known that
+$\Pi$ is secure in the party setting, these security results can be translated to the
+emulated setting. The full definition of faithfulness will state that for all adversaries
+in the emulated setting, there is a simulator in the party setting that makes the
+views of honest parties identical. Since the protocol $\Pi$ is secure in the party setting
+under that simulator, it must also be secure in the emulated setting under any adversary.
+This line of argument is not unlike Canetti's UC arguments.
+
+While the fact that the view of the honest party is the same in both the emulated and
+party setting is sufficient to argue that the \emph{write} instructions in both settings will
+be the same in the views of the honest parties, this will not be sufficient.
+The last part of the definition sketch above whereby the \emph{writeToMachine} instructions
+of the emulated setting are replicated as \emph{write} instructions in the party setting
+is a necessary ingredient to make the definition useful. Otherwise, trivial constructions
+in which \emph{writeToMachine} instructions are ignored are possible, yet we want to avoid
+such pathologies.
+
+To make the above definition precise, we must develop a number of tools. Namely,
+we must state what ``well-behaving'' underlying protocols are, and what the ``correspondence''
+between overlay parties and underlying protocols means. Furthermore, we must specify
+what the ``identical'' emulated execution means, and what the ``same'' inputs are,
+in which definitions we will be required to allow for some slack.
+
 We define the following views for the two execution settings.
 
 \begin{definition}[Honest View in the Party Setting]
@@ -278,18 +327,6 @@ recorded in each row will be growing in an append-only fashion.
   such that for all $x \in \supp(E_1)$, $x \laterly{\Delta_u,\Delta_v} f(x)$ and
   for all $y \in \supp(E_2)$, $\Pr[E_2 = y] = \sum_{x \in f^{-1}(y)} \Pr[E_1 = x]$.
 \end{definition}
-
-% TODO: Define belief system and honesty correspondence
-% TODO: Define a belief-respecting environment
-We are now ready to define the notion of \emph{faithfulness} of a
-compositor, which captures the
-correspondence between the party setting execution and the emulated setting
-execution of $\Pi$. Roughly, a compositor is called \emph{faithful} is these
-two settings are identical in the eyes of the honest parties.
-This faithfulness may be conditioned to work only on certain classes
-of overlay protocols $\Pi$ and underlying protocols $\Y$, and may
-require that a certain subset $\mathcal{H}$ of these $\Y$s are well-behaved.
-This good-behavior is captured by the notion of a \emph{goodness} predicate $Q$.
 
 % TODO: Mention that the validator and other protocol settings for \Y[][i]
 % are hard-coded into \Y[][i]
