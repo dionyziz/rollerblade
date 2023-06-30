@@ -428,11 +428,17 @@ contiguous honest participation is also known in the literature as
     \text{good}_i(\mathcal{E}) = \text{``} \Y[][i] \text{ is safe, live$(u_i)$, and timely$(v_i)$ in $\mathcal{E}$''}
   \]
 
+  Next, for any $H \subseteq [\ell]$, we define:
+
+  \[
+    \text{good}_H(\mathcal{E}) = \text{``}\forall i \in H: \text{good}_i(\mathcal{E})\text{''}
+  \]
+
   Define $\mathcal{H}^{-1}$ on the domain $2^{[n]}$ as
-  $\mathcal{H}^{-1}(H) = \bigwedge_{i \subseteq H} \text{good}_i$.
-  Then the \emph{\rollerblade honesty correspondence $\mathcal{H}$ of $\mathcal{Y}$}
+  $\mathcal{H}^{-1}(H) = \text{good}_H$.
+  Then the \emph{\rollerblade honesty correspondence $\mathcal{H}$}
   is the inverse of $\mathcal{H}^{-1}$ and the \emph{\rollerblade belief system
-  $\mathcal{B}$ of $\mathcal{Y}$} is the domain of $\mathcal{H}$.
+  $\mathcal{B}$} is the domain of $\mathcal{H}$.
 \end{definition}
 
 \begin{lemma}[Rollerblade Cross-party]\label{lem:cross-party}
