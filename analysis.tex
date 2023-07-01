@@ -634,17 +634,57 @@ Random Oracle collision), it can conclude the execution.
   (i.e., we will show that the externalities of $\mathcal{E}'$ are
   similar to $\mathcal{E}^*$, not just \emph{distributionally} similar).
 
+  Since $\mathcal{Z}$ is $B$-respecting, therefore $B(\mathcal{E}^*)$ holds.
+
+  First, we must show that the environment $\mathcal{Z}'$ respects the delay $\Delta$.
+  Namely, for all $i, i'$, for all rounds $r$ of $\mathcal{E}'$:
+
+  \begin{enumerate}
+    \item If $\PPi[i]$ sends a message to $i'$ at round $r$, then this message is delivered to $\PPi[i']$ by round $r + \Delta$, and
+    \item If $\PPi[i']$ received a message from $i$ at round $r$, then this message was sent by $\PPi[i]$ no earlier than round $r - \Delta$.
+  \end{enumerate}
+  {\color{red} TODO: prove this.}
+
   \noindent
   \textbf{Claim 1: $\LCView_{j,H,\Delta_v}(\mathcal{E}^*) = \PEView_H(\mathcal{E}')$.}
-  First, we know that $\mathcal{E}^*$ is $(j, H, \Delta_v)$-consistent
-  from Lemma~\ref{lem:consistency}.
+  Let $V^* = \LCView_{j,H,\Delta_v}(\mathcal{E}^*)$ and
+  $V' = \PEView_H(\mathcal{E}')$.
+  We know that $\mathcal{E}^*$ is $(j, H, \Delta_v)$-consistent
+  from Lemma~\ref{lem:consistency}, and so $V^*$
+  is well-defined.
+  We need to show
+  that the views of all \emph{honest} parties in the two executions are identical.
+  The two views have the same size.
+  Let
+  $i$ be an arbitrary party in $H$ and $r$ be an arbitrary round $1 \leq r \leq R - \Delta_v - 1$.
+  We will prove that $V^*_{i,r} = V'_{i,r}$ by induction on the round $r$.
 
-  Next, we need to show
-  that the views of all \emph{honest} parties in the two executions are identical. Let
-  $i$ be an arbitrary party in $H$.
+  Induction base: {\color{red} Finish the base...}
 
-  Since $\mathcal{Z}$ is $B$-respecting, therefore $B(\mathcal{E}^*)$ holds.
+  Induction step: By inductive hypothesis $V^*_{i,r - 1} = V'_{i,r - 1}$.
+
+  \noindent
+  \textbf{Subclaim 1a:} $\LLambda[j].\emulateMachine(i, r)$ ``extends''
+  $\LLambda[j].\emulateMachine(i, r - 1)$.
   {\color{red} Finish the claim proof...}
+
+  \noindent
+  \textbf{Subclaim 1b:}
+  Consider the invocation of $\LLambda[j][i].\emulateMachine(i, r)$ \emph{in vitro}
+  at the end of round $r + \Delta_v + 1$ of $\mathcal{E}^*$.
+  This function emulated the execution of $\Z[j][i]$ in simulation rounds
+  $1, \ldots, r$. Consider the inputs (writes and netins) $I^*$ provided
+  to this $\Z[j][i]$ during simulation round $r$ in particular.
+  Let $I'$ denote the inputs (writes and netints) provided to
+  $\Pi^i$ at round $r$ in $\mathcal{E}'$. Then $I^* = I'$.
+
+  {\color{red} Finish the claim proof...}
+
+  We conclude that $V^*_{i,r} = V'_{i,r}$.
+
+  {\color{red} Why does this conclude the proof of Claim 1?}
+
+  % TODO: double check the exact numbers in this proof
 
   \noindent
   \textbf{Claim 2: $\LCExtern_{j,H}(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$.}
