@@ -104,15 +104,31 @@ and passing the tuple $(\Y[j][1], \ldots, \Y[j][\ell])$ of ITIs
 to $\LLambda[j]$'s \emph{construct} functionality
 (in UC language, each of these $\Y[j][i]$ is constrained to be used
 as a \emph{subroutine} solely by $\LLambda[j]$).
+All of those $\Lambda$ compositor clients are honest and will remain
+so throughout the execution.
+Outside of those $\Y[j][i]$ instances controlled by the $\Lambda$s, each of
+the protocols $\Y[][i]$ may have more instances running within the execution,
+spawned by the environment and potentially corrupted by the adversary.
+For example, if $\Y[][1]$ is the Bitcoin protocol, then the $\Y[j][i]$
+instance running within $\Lambda[j]$ is a Bitcoin client, whereas the
+execution comprises also others Bitcoin clients and full nodes, potentially
+corrupted by the adversary.
 The execution proceeds in rounds $r = 1, \ldots, R$
 for a polynomial number $R$ of rounds (where the polynomial
 is taken with respect to the security parameter). For every
 round $r$, the environment is constrained to first call
 the \emph{execute} function of each $\Y[j][i]$ for every
-$j, i \in \mathbb{N}$. Next, the environment must call
+$j, i \in \mathbb{N}$, as well as the \emph{execute} function of $\Y$s
+living outside of the clients $\Lambda$. Next, the environment must call
 the \emph{execute} function of each $\LLambda[j]$ sequentially.
 Finally, the environment is constrained to call the
 adversary $\mathcal{Z}$ (a rushing adversary).
+The adversary is allowed to corrupt the $\Y$ instances living outside of $\Lambda$s
+% TODO: Can there even be a safety-respecting environment, e.g., in Streamlet or Bitcoin?
+% I think the environment can only be things like honest-majority-respecting.
+% How can an environment constraint the execution to be safe?
+(we will later impose constraints, in the form of \emph{beliefs}, which the
+environment ensures the adversary must respect).
 At any time, the environment may choose to provide inputs
 to any of the $\LLambda[j]$ parties by invoking their \emph{writeToMachine}
 functionality with inputs of its choice.
@@ -469,6 +485,14 @@ contiguous honest participation is also known in the literature as
 For example, if $\mathcal{Y} = (\Y[][1], \Y[][2], \Y[][3])$,
 then for $B = \text{good}_1 \land \text{good}_3$, it holds that
 $B \in \mathcal{B}$ and $\mathcal{H}(B) = \{1, 3\}$.
+
+As an example of a $\Y[][1]$, consider the Bitcoin Backbone protocol.
+Then a $\text{good}_1$-respecting environment $\mathcal{Z}$ is an environment
+that ensures the Bitcoin Backbone protocol execution is safe, live, and timely.
+This can be done, for example, by demanding that the corruption of $\Y[][1]$
+parties outside of $\Lambda$s remains in the minority. In case the environment
+detects an upcoming security violation (due to a negligible event such as a
+Random Oracle collision), it can conclude the execution.
 
 \begin{lemma}[Rollerblade Cross-party]\label{lem:cross-party}
   Consider a \rollerblade execution $\mathcal{E}$ with duration $R$ rounds
