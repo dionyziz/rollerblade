@@ -585,6 +585,8 @@ Random Oracle collision), it can conclude the execution.
   and the environment $\mathcal{Z}$, the number of compositor parties $m$,
   and the index of the compositor $j$ of interest be arbitrary
   as in the statement, and set $H = \mathcal{H}(B)$.
+  Let $\mathcal{E}$ and $\mathcal{E}'$ be the emulated and party setting
+  executions, respectively.
 
   We will prove faithfulness by
   construction of the simulator $S$ and environment $\mathcal{Z}'$.
@@ -638,6 +640,7 @@ Random Oracle collision), it can conclude the execution.
   Hence, for all $i \in H$, $\Y[][i]$ is safe, live $(u_i)$, and timely $(v_i)$
   in $\mathcal{E}^*$.
 
+  Let $\PPi[i]$ be the $i$-th party in party setting execution $\mathcal{E}'$.
   First, we must show that the environment $\mathcal{Z}'$ respects the delay $\Delta$.
   Namely, for all $i, i'$, for all rounds $r$ of $\mathcal{E}'$:
 
@@ -685,17 +688,37 @@ Random Oracle collision), it can conclude the execution.
           during the $(r - 1)$-st iteration of the \emph{for loop} in
           Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
           when $\simulate$ is
-          invoked \emph{in vitro} after round $R$ with parameter $r - 1$.
+          invoked \emph{in vitro} after round $R$ with parameter
+          simulation round $r - 1$.
           \label{conj:simulation:config-A}
     \item The configuration of the machine $\Z[j][i]$ after the invocation of
           Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:execute}
           during the $(r - 1)$-st iteration of the \emph{for loop} in
           Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
           when $\simulate$ is
-          invoked \emph{in vitro} after round $R$ with parameter $r$.
+          invoked \emph{in vitro} after round $R$ with parameter
+          simulation round $r$.
           \label{conj:simulation:config-B}
-    \item ?
+    \item The configuration of the machine $\Z[j][i]$ after the invocation of
+          Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:execute}
+          during the $(r - 1)$-st iteration of the \emph{for loop} in
+          Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
+          when $\simulate$ is
+          invoked \emph{in vitro} after round $r + \Delta_v$ with parameter
+          simulation round $r - 1$.
           \label{conj:simulation:config-C}
+    \item The configuration of the machine $\Z[j][i]$ after the invocation of
+          Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:execute}
+          during the $(r - 1)$-st iteration of the \emph{for loop} in
+          Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
+          when $\simulate$ is
+          invoked \emph{in vitro} after round $r + \Delta_v + 1$ with parameter
+          simulation round $r$.
+          \label{conj:simulation:config-D}
+    \item The configuration of the machine $\PPi[i]$ at the end of round $r - 1$.
+          \label{conj:simulation:config-E}
+    \item The configuration of the machine $\PPi[i]$ at the end of round $r$.
+          \label{conj:simulation:config-F}
   \end{enumerate}
 
   Observe that the state of the machine at each $(r - 1)$-st iteration of the
@@ -704,6 +727,13 @@ Random Oracle collision), it can conclude the execution.
   and $\writeboxes^r[{:}{r - 1}], \inboxes^r[{:}{r - 1}]$ respectively.
   Therefore, the configurations~\ref{conj:simulation:config-A} and~\ref{conj:simulation:config-B}
   are identical.
+
+  Configurations \ref{conj:simulation:config-C} and \ref{conj:simulation:config-E} are
+  identical because of the inductive hypothesis.
+
+  Because $\mathcal{E}^*$ is consistent, therefore \ref{conj:simulation:config-A} and
+  \ref{conj:simulation:config-C} are identical. Hence \ref{conj:simulation:config-A} and
+  \ref{conj:simulation:config-E} are identical.
 
   \noindent
   \textbf{Subclaim 1b:}
