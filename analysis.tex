@@ -110,7 +110,7 @@ Outside of those $\Y[j][i]$ instances controlled by the $\Lambda$s, each of
 the protocols $\Y[][i]$ may have more instances running within the execution,
 spawned by the environment and potentially corrupted by the adversary.
 For example, if $\Y[][1]$ is the Bitcoin protocol, then the $\Y[j][i]$
-instance running within $\Lambda[j]$ is a Bitcoin client, whereas the
+instance running within $\LLambda[j]$ is a Bitcoin client, whereas the
 execution comprises also others Bitcoin clients and full nodes, potentially
 corrupted by the adversary.
 The execution proceeds in rounds $r = 1, \ldots, R$
@@ -607,7 +607,7 @@ Random Oracle collision), it can conclude the execution.
   a copy of the configuration $M_i$ of the ITI $\RB[j]$ from $\mathcal{E}^*$ at the end of
   $\mathcal{E}^*$.
   The simulator calls $\prepareSimulationInputs(i, \simulationRound, \realityRound)$ on $M_i$
-  \emph{in vitro}, where $\simulationRound = R - \Delta_v - 1$
+  \emph{in vitro} at the end of round $R$, where $\simulationRound = R - \Delta_v - 1$
   and $\realityRound = R$, to obtain the pair
   $(\writeboxes^i, \inboxes^i)$, where
   $|\writeboxes^i| = R - \Delta_v - 1$
@@ -635,6 +635,8 @@ Random Oracle collision), it can conclude the execution.
   similar to $\mathcal{E}^*$, not just \emph{distributionally} similar).
 
   Since $\mathcal{Z}$ is $B$-respecting, therefore $B(\mathcal{E}^*)$ holds.
+  Hence, for all $i \in H$, $\Y[][i]$ is safe, live $(u_i)$, and timely $(v_i)$
+  in $\mathcal{E}^*$.
 
   First, we must show that the environment $\mathcal{Z}'$ respects the delay $\Delta$.
   Namely, for all $i, i'$, for all rounds $r$ of $\mathcal{E}'$:
@@ -661,12 +663,47 @@ Random Oracle collision), it can conclude the execution.
 
   Induction base: {\color{red} Finish the base...}
 
-  Induction step: By inductive hypothesis $V^*_{i,r - 1} = V'_{i,r - 1}$.
+  Induction step: We will show that, for $r > 1$, $V^*_{i,r} = V'_{i,r}$.
+  By inductive hypothesis we have $V^*_{i,r - 1} = V'_{i,r - 1}$.
 
-  \noindent
-  \textbf{Subclaim 1a:} $\LLambda[j].\emulateMachine(i, r)$ ``extends''
-  $\LLambda[j].\emulateMachine(i, r - 1)$.
-  {\color{red} Finish the claim proof...}
+  Let $(\writeboxes^{r-1}, \inboxes^{r-1})$ be the pair
+  returned by the invocation of $\prepareSimulationInputs(i, r - 1, R)$
+  \emph{in vitro} after round $R$, and, likewise define
+  $(\writeboxes^r, \inboxes^r)$ to be the pair returned by the invocation
+  of $\prepareSimulationInputs(i, r, R)$ \emph{in vitro} after round $R$.
+  Because $\Y[j][i]$ is sticky, therefore $\Ledger[j][i][r - 1] \preceq \Ledger[j][i][r]$.
+  Hence, $\writeboxes^{r - 1} \preceq \writeboxes^r$ and $\inboxes^{r - 1} \preceq \inboxes^r$
+  because the loop of Algorithm~\ref{alg.prepare-simulation-inputs} Line~\ref{alg.prepare-simulation-inputs:for}
+  will run identically in the two invocations of $\prepareSimulationInputs$ up to
+  and including round $r - 1$.
+
+  Define the following machine configurations:
+
+  \begin{enumerate}[label=(\Alph*)]
+    \item The configuration of the machine $\Z[j][i]$ after the invocation of
+          Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:execute}
+          during the $(r - 1)$-st iteration of the \emph{for loop} in
+          Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
+          when $\simulate$ is
+          invoked \emph{in vitro} after round $R$ with parameter $r - 1$.
+          \label{conj:simulation:config-A}
+    \item The configuration of the machine $\Z[j][i]$ after the invocation of
+          Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:execute}
+          during the $(r - 1)$-st iteration of the \emph{for loop} in
+          Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
+          when $\simulate$ is
+          invoked \emph{in vitro} after round $R$ with parameter $r$.
+          \label{conj:simulation:config-B}
+    \item ?
+          \label{conj:simulation:config-C}
+  \end{enumerate}
+
+  Observe that the state of the machine at each $(r - 1)$-st iteration of the
+  \emph{for} loop only depends on the writeboxes and inboxes at position $(r - 1)$ and behind,
+  namely $\writeboxes^{r - 1}[{:}{r - 1}], \inboxes^{r - 1}[{:}{r - 1}]$
+  and $\writeboxes^r[{:}{r - 1}], \inboxes^r[{:}{r - 1}]$ respectively.
+  Therefore, the configurations~\ref{conj:simulation:config-A} and~\ref{conj:simulation:config-B}
+  are identical.
 
   \noindent
   \textbf{Subclaim 1b:}

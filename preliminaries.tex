@@ -87,13 +87,16 @@ protocol and the adversary, including the local state of each
 party and the network messages that were exchanged. The execution
 concludes after a finite amount of time.
 
+\begin{definition}[\emph{In vitro} invocation]
 When multiple protocols are executed together in a collective execution
 $\mathcal{E}$, we can take a snapshot of an instance of a machine within
-the execution during some round. After we have taken that snapshot, we
+the execution after some round $r$. After we have taken that snapshot, we
 can continue running the instance \emph{outside} the execution by, for
 example, invoking some of its functions, without affecting the execution
 which has already concluded. We call this process an \emph{in vitro}
-invocation (cf. Canetti's \emph{in vitro} and \emph{in vivo}~\cite{uc}).
+invocation (cf. Canetti's \emph{in vitro} and \emph{in vivo}~\cite{uc})
+after some round $r$.
+\end{definition}
 
 % TODO: Consider moving time above the "distributed protocol" definition,
 % since the concept of "round" is used within that definition.
