@@ -18,7 +18,9 @@
         \Let{\this.\Y[j]}{\Y[j]}
         \Let{\this.\Pi}{\Pi}
         \Let{\this.n}{|\Y[j]|}\Comment{Number of overlay parties}
-        \Let{\this.\Delta_u}{\max \{\this.\Y[j][i].u\}_{i \in [n]}}\Comment{Effective network delay $\Pi$ must tolerate}
+        \Let{\this.\Delta_u}{\max \{\this.\Y[j][i].u\}_{i \in [n]}}
+        \Let{\this.\Delta_v}{\max \{\this.\Y[j][i].v\}_{i \in [n]}}
+        \Let{\this.\Delta}{\Delta_u + \Delta_v}
         \Let{\this.\now}{0}\Comment{Current round number}
       \EndFunction
 
