@@ -591,6 +591,7 @@ Random Oracle collision), it can conclude the execution.
   as in the statement, and set $H = \mathcal{H}(B)$.
   Let $\mathcal{E}$ and $\mathcal{E}'$ be the emulated and party setting
   executions, respectively.
+  As $\Pi$ is a \rollerblade-suitable-overlay protocol it is deterministic.
 
   We will prove faithfulness by
   construction of the simulator $S$ and environment $\mathcal{Z}'$.
@@ -666,34 +667,43 @@ Random Oracle collision), it can conclude the execution.
   The two views have the same size.
   We need to show
   that the views of all \emph{honest} parties in the two executions are identical.
-  Let
-  $i$ be an arbitrary party in $H$ and $r$ be an arbitrary round $1 \leq r \leq R - \Delta_v - 1$.
-  We will prove that $V^*_{i,r} = V'_{i,r}$ by induction on the round $r$.
-
-  Induction base: {\color{red} Finish the base...}
-
-  Induction step: We will show that, for $r > 1$, $V^*_{i,r} = V'_{i,r}$.
-  By inductive hypothesis we have $V^*_{i,r - 1} = V'_{i,r - 1}$.
+  Let $i$ be an arbitrary party in $H$ and $r$ be an arbitrary round $1 \leq r \leq R - \Delta_v - 1$.
 
   Let $c^*(r_1, r_2, r_3)$ denote the configuration
   of the machine $\Z[j][i]$ after the invocation of
   Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:execute}
   during the $r_3$-rd iteration of the \emph{for loop} in
   Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
+  (or, if $r_3 = 0$, we set $c^*(r_1, r_2, r_3)$ to be the state of
+  $\Z[j][i]$ before the \emph{for loop})
   when $\emulateMachine$ is
   invoked \emph{in vitro} after round $r_1$ of execution $\mathcal{E}^*$,
-  where $r_1 \geq r_2 + \Delta_v + 1$ with parameter
-  $\simulationRound = r_2$, and $r_3 \geq r_2$.
+  where $r_2 + \Delta_v + 1 \leq r_1 \leq R + \Delta_v + 1$ with parameter
+  $\simulationRound = r_2$, and $r_3 \leq r_2$.
   This causes an invocation of \simulate with parameters
   $\simulationRound = r_2$ and $\realityRound = r_1$.
   Let $c'(r_3)$ denote the configuration of the machine $\PPi[i]$
   in $\mathcal{E}'$ at the end of round $r_3$.
-  By the inductive hypothesis we have that
+  We set $c'(0)$ to be the initial configuration of $\PPi[i]$,
+  after it's \emph{constructor} is invoked.
+
+  We will prove that $V^*_{i,r} = V'_{i,r}$ for $r \geq 0$ by induction on $r$.
+  Let $r$ be arbitrary.
+
+  If $r = 1$, then
   \begin{equation}\label{conj:simulation:ind-hyp}
     c^*(r + \Delta_v, r - 1, r - 1) = c'(r - 1)\,
   \end{equation}
-  and we wish to show that $c^*(r + \Delta_v + 1, r, r) = c'(r)$.
+  because the state of machine $\Z[j][i]$ and $\PPi[i]$ are identical
+  after the initial invocation of the \emph{constructor} as $\Pi$
+  is deterministic.
 
+  If $r > 1$, then by inductive hypothesis we have $V^*_{i,r - 1} = V'_{i,r - 1}$
+  and Eq~\ref{conj:simulation:ind-hyp} also holds.
+
+  In either case, we wish to show that $c^*(r + \Delta_v + 1, r, r) = c'(r)$.
+
+  %TODO: check that induction base holds
   Because $\mathcal{E}^*$ is consistent, we have that
   \begin{equation}\label{conj:simulation:consistency}
     c^*(r + \Delta_v, r - 1, r - 1) = c^*(r + \Delta_v + 1, r - 1, r - 1)\,.
@@ -753,7 +763,7 @@ Random Oracle collision), it can conclude the execution.
   As $c^*(r + \Delta_v + 1, r, r - 1) = c'(r - 1)$ (by Eq~\ref{conj:simulation:pre-state})
   and the two configurations evolve using the same inputs (by
   Eqs~\ref{conj:simulation:eq-inputs-writes} and \ref{conj:simulation:eq-inputs-inboxes}),
-  and, since $\Pi$ is deterministic (because it is a \rollerblade-suitable-overlay protocol),
+  and, since $\Pi$ is deterministic,
   therefore $c^*(r + \Delta_v + 1, r, r) = c'(r)$.
   We conclude that $V^*_{i,r} = V'_{i,r}$, completing the induction
   and the proof of Claim 1.
