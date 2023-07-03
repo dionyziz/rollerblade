@@ -607,7 +607,9 @@ Random Oracle collision), it can conclude the execution.
   The simulator looks at compositor party $j$ of $\mathcal{E}^*$
   and its $\Y[j][1], \ldots, \Y[j][n]$.
   The environment $\mathcal{Z}'$ chooses the duration, in rounds, of
-  $\mathcal{E}'$ to be $R - \Delta_v - 1$.
+  $\mathcal{E}'$ to be $R - \Delta_v - 1$. It initializes $n$
+  parties $\PPi[1], \ldots, \PPi[i], \ldots, \PPi[n]$ by invoking
+  the \emph{constructor} method with parameters $\Delta, i, n$.
 
   % TODO: consider moving the simulation to an algorithm/figure
   The simulator initially obtains, for every $i \in [n]$,
@@ -644,8 +646,6 @@ Random Oracle collision), it can conclude the execution.
   Since $\mathcal{Z}$ is $B$-respecting, therefore $B(\mathcal{E}^*)$ holds.
   Hence, for all $i \in H$, $\Y[][i]$ is safe, live $(u_i)$, and timely $(v_i)$
   in $\mathcal{E}^*$.
-
-  Let $\PPi[i]$ be the $i$-th party in party setting execution $\mathcal{E}'$.
 
   \noindent
   \textbf{Claim 0: $\mathcal{Z}'$ respects the delay $\Delta$.}
