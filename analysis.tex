@@ -571,8 +571,8 @@ Random Oracle collision), it can conclude the execution.
 %       and that those will appear in "close enough" times (maybe up to $u$ away
 %       from the original)
 \begin{conjecture}[Rollerblade Simulation]\label{conj:simulation}
-  For all \rollerblade-overlay-respecting protocols $\Pi$
-  and any sequence of \rollerblade-underlying-respecting
+  For all \rollerblade-suitable-overlay protocols $\Pi$
+  and any sequence of \rollerblade-suitable-underlying
   protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$
   for the \rollerblade-belief-system $\mathcal{B}$ of $\mathcal{Y}$
   and honesty correspondence $\mathcal{H}$,
@@ -583,8 +583,8 @@ Random Oracle collision), it can conclude the execution.
   and $u_i, v_i$ are the promised liveness and timeliness of $\Y[][i]$.
 \end{conjecture}
 \begin{proof}[Sketch]
-  Let $\Pi$, $\mathcal{Y}$, $\mathcal{B}$, $\mathcal{H}$,
-  and $\Delta$ be as in the statement.
+  Let $\Pi$, $\mathcal{Y}$, $\mathcal{B}$ and $\mathcal{H}$
+  be as in the statement, and $\Delta = \Delta_u + \Delta_v$.
   Let the adversary $\mathcal{A}$, the belief $B \in \mathcal{B}$,
   and the environment $\mathcal{Z}$, the number of compositor parties $m$,
   and the index of the compositor $j$ of interest be arbitrary
@@ -663,9 +663,9 @@ Random Oracle collision), it can conclude the execution.
   We know that $\mathcal{E}^*$ is $(j, H, \Delta_v)$-consistent
   from Lemma~\ref{lem:consistency}, and so $V^*$
   is well-defined.
+  The two views have the same size.
   We need to show
   that the views of all \emph{honest} parties in the two executions are identical.
-  The two views have the same size.
   Let
   $i$ be an arbitrary party in $H$ and $r$ be an arbitrary round $1 \leq r \leq R - \Delta_v - 1$.
   We will prove that $V^*_{i,r} = V'_{i,r}$ by induction on the round $r$.
@@ -683,8 +683,8 @@ Random Oracle collision), it can conclude the execution.
   when $\emulateMachine$ is
   invoked \emph{in vitro} after round $r_1$ of execution $\mathcal{E}^*$,
   where $r_1 \geq r_2 + \Delta_v + 1$ with parameter
-  $\simulationRound = r_2$, where $r_2 \geq r_3$.
-  That this causes an invocation of \simulate with parameters
+  $\simulationRound = r_2$, and $r_3 \geq r_2$.
+  This causes an invocation of \simulate with parameters
   $\simulationRound = r_2$ and $\realityRound = r_1$.
   Let $c'(r_3)$ denote the configuration of the machine $\PPi[i]$
   in $\mathcal{E}'$ at the end of round $r_3$.
@@ -696,9 +696,9 @@ Random Oracle collision), it can conclude the execution.
 
   Because $\mathcal{E}^*$ is consistent, we have that
   \begin{equation}\label{conj:simulation:consistency}
-    c^*(r + \Delta_v + 1, r - 1, r - 1) = c^*(R, r - 1, r - 1)
+    c^*(r + \Delta_v, r - 1, r - 1) = c^*(r + \Delta_v + 1, r - 1, r - 1)\,.
   \end{equation}
-  Each iteration of the \emph{for} loop of Algorithm~\ref{alg.simulate:for}
+  Each iteration of the \emph{for} loop of Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
   proceeds until the round reaches $\simulationRound$, therefore
   $c^*(r + \Delta_v + 1, r, r - 1) = c^*(r + \Delta_v + 1, r - 1, r - 1)$.
   From this and Eq~\ref{conj:simulation:consistency} we conclude that
@@ -710,15 +710,19 @@ Random Oracle collision), it can conclude the execution.
 
   Let $(\writeboxes^*, \inboxes^*)$
   be the pair
-  returned by the invocation of $\prepareSimulationInputs(i, r, r + \Delta_v + 1)$
-  \emph{in vitro} after round $r + \Delta_v + 1$ of $\mathcal{E}^*$, and, likewise define
+  returned by the invocation of $\prepareSimulationInputs(i, \Ledger[j][i][r + \Delta_v + 1], r)$
+  \emph{in vitro} after round $r + \Delta_v + 1$ for party $\LLambda[j]$ of $\mathcal{E}^*$, and, likewise define
   $(\writeboxes', \inboxes')$ to be the pair
-  returned by the invocation of $\prepareSimulationInputs(i, R - \Delta_v - 1, R)$
-  \emph{in vitro} after round $R$ of $\mathcal{E}^*$.
+  returned by the invocation of $\prepareSimulationInputs(i, \Ledger[j][i][R], R - \Delta_v - 1)$
+  \emph{in vitro} after round $R$ of $\mathcal{E}^*$ on party $\LLambda[j]$.
   Because $\Y[j][i]$ in $\mathcal{E}^*$ is \emph{sticky} and \emph{timely}$(v_i)$
   the transactions in
   $\Ledger[j][i][r + \Delta_v + 1]$ with recorded round $r - 1$ are identical to
-  the transactions in $\Ledger[j][i][R]$ with recorded round $r - 1$.
+  the transactions in $\Ledger[j][i][R]$ with recorded round $r - 1$
+  (all transactions with recorded round $r - 1$ of $\Ledger[j][i][r + \Delta_v + 1]$
+   will appear in $\Ledger[j][i][R]$ by stickiness;
+   and all transactions with recorded round $r - 1$ of $\Ledger[j][i][R]$ will
+   appear in $\Ledger[j][i][r + \Delta_v + 1]$ by timeliness).
   Hence,
   \begin{align}
     \writeboxes^*[r - 1] &= \writeboxes'[r - 1]\label{conj:simulation:eq-inputs-writes}\\
@@ -734,19 +738,22 @@ Random Oracle collision), it can conclude the execution.
   $c^*(r + \Delta_v + 1, r, r - 1)$
   and running the \emph{for} loop of Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
   for one more iteration, providing inputs $\writeboxes^*[r - 1], \inboxes^*[r - 1]$
-  during the execution of $\Z[i][j]$.
+  during the execution of $\Z[j][i]$.
+  To see why $\writeboxes^*, \inboxes^*$ in particular are used in this iteration,
+  note that these correspond to the invocation of $\prepareSimulationInputs$ in
+  Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:recursion}.
 
   Similarly, by the simulator construction, % TODO: when does the simulator obtain \writeboxes, \inboxes? In vitro R...
   the simulator evolves the machine $\PPi[i]$ in $\mathcal{E}'$ from round $r - 1$,
   in which it has configuration $c'(r - 1)$,
   to round $r$,
   in which it has configuration $c'(r)$,
-  by feeding it the inputs $\writeboxes[r - 1], \inboxes[r - 1]$.
+  by feeding it the inputs $\writeboxes'[r - 1], \inboxes'[r - 1]$.
 
   As $c^*(r + \Delta_v + 1, r, r - 1) = c'(r - 1)$ (by Eq~\ref{conj:simulation:pre-state})
   and the two configurations evolve using the same inputs (by
   Eqs~\ref{conj:simulation:eq-inputs-writes} and \ref{conj:simulation:eq-inputs-inboxes}),
-  and, since $\Pi$ is deterministic (because it is \rollerblade-overlay-respecting),
+  and, since $\Pi$ is deterministic (because it is a \rollerblade-suitable-overlay protocol),
   therefore $c^*(r + \Delta_v + 1, r, r) = c'(r)$.
   We conclude that $V^*_{i,r} = V'_{i,r}$, completing the induction
   and the proof of Claim 1.

@@ -190,11 +190,11 @@ issuing a \emph{read} instruction to its ledger protocol at the end of round $r$
   we have that
   $\Ledger[P_1][][r_1] \preceq \Ledger[P_2][][r_2]$ or
   $\Ledger[P_1][][r_1] \succeq \Ledger[P_2][][r_2]$.
-  Additionally, $\Ledger[P_1][][r_1] \preceq \Ledger[P_1][][r_2]$.
+  Additionally, the ledger is \emph{sticky}: $\Ledger[P_1][][r_1] \preceq \Ledger[P_1][][r_2]$.
 \end{definition}
 
 The last requirement ($\Ledger[P_1][][r_1] \preceq \Ledger[P_1][][r_2]$)
-that honest ledgers do not shrink (stickiness) can be easily enforced
+that an honest ledger is locally append-only (sticky) can be easily enforced
 in any safe protocol without stickiness by having the parties report the longest ledger they have seen so far~\cite{streamlet}.
 
 \begin{definition}[Live]
