@@ -645,8 +645,10 @@ Random Oracle collision), it can conclude the execution.
   in $\mathcal{E}^*$.
 
   Let $\PPi[i]$ be the $i$-th party in party setting execution $\mathcal{E}'$.
-  First, we must show that the environment $\mathcal{Z}'$ respects the delay $\Delta$.
-  Namely, for all $i, i'$, for all rounds $r$ of $\mathcal{E}'$:
+
+  \noindent
+  \textbf{Claim 0: $\mathcal{Z}'$ respects the delay $\Delta$.}
+  Namely, the claim is that for all $i, i'$, for all rounds $r$ of $\mathcal{E}'$:
 
   \begin{enumerate}
     \item If $\PPi[i]$ sends a message to $i'$ at round $r$, then this message is delivered to $\PPi[i']$ by round $r + \Delta$, and
@@ -676,7 +678,7 @@ Random Oracle collision), it can conclude the execution.
   Let $c^*(r_1, r_2, r_3)$ denote the configuration
   of the machine $\Z[j][i]$ after the invocation of
   Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:execute}
-  during the $r_3^\text{st}$ iteration of the \emph{for loop} in
+  during the $r_3$-rd iteration of the \emph{for loop} in
   Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
   when $\emulateMachine$ is
   invoked \emph{in vitro} after round $r_1$ of execution $\mathcal{E}^*$,
@@ -772,7 +774,7 @@ Random Oracle collision), it can conclude the execution.
   to the \emph{writebox} of party $i$, since $r^* \leq R - \Delta_v - 1$.
   Hence, $m$ will be inputted to the \emph{write} function call of $\Pi^i$
   in $\mathcal{E}'$ at round $r^*$ (and note that $1 \leq r^* \leq R - \Delta_v - 1$ falls
-  within the duration of $\mathcal{E}'$).
+  within the duration of $\mathcal{E}'$), completing the proof of Claim 2.
   \qed
   % TODO: Check that there are sufficient rounds before the end of the simulation
   % for $\Pi^i$ to write this message (i.e., for the message to appear in the prepareSimulationInputs
