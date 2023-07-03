@@ -564,41 +564,6 @@ Random Oracle collision), it can conclude the execution.
 % TODO: Consider removing all "in vitro" invocations by requiring the
 % compositor to output a configuration during every round by itself within
 % the execution. This would simplify the language.
-\begin{lemma}[In Vitro Independence]\label{lem:in-vitro-independence}
-  Consider an $(j, H, \Delta_v)$-consistent emulated setting
-  execution $\mathcal{E}^*$ in which
-  $\Y[i]$ is sticky.
-  Consider the configuration $c(j, i, r_1, r_2, r_3)$
-  of the machine $\Z[j][i]$ after the invocation of
-  Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:execute}
-  during the $r_1$-st iteration of the \emph{for loop} in
-  Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
-  when $\simulate$ is
-  invoked \emph{in vitro} after round $r_2 \geq r_1 + \Delta_v + 1$ with parameter
-  \simulationRound $r_3$, where $r_3 \geq r_1$.
-  Then the value of $c$ does not depend on $r_2$ or $r_3$.
-\end{lemma}
-\begin{proof}
-  We observe that the value of $c$ does not
-  depend on the \emph{in vitro} round $r_2$ because $\mathcal{E}^*$ is consistent.
-
-  Let $(\writeboxes^{r_3-1}, \inboxes^{r_3-1})$ be the pair
-  returned by the invocation of $\prepareSimulationInputs(i, r_3 - 1, r_2)$
-  \emph{in vitro} after round $r_2$, and, likewise define
-  $(\writeboxes^{r_3}, \inboxes^{r_3})$ to be the pair returned by the invocation
-  of $\prepareSimulationInputs(i, r_3, r_2)$ \emph{in vitro} after round $r_2$.
-  Because $\Y[j][i]$ is sticky, therefore $\Ledger[j][i][r_3 - 1] \preceq \Ledger[j][i][r_3]$.
-  Hence, $\writeboxes^{r_3 - 1} \preceq \writeboxes^r$ and $\inboxes^{r_3 - 1} \preceq \inboxes^{r_3}$
-  because the loop of Algorithm~\ref{alg.prepare-simulation-inputs} Line~\ref{alg.prepare-simulation-inputs:for}
-  will run identically in the two invocations of $\prepareSimulationInputs$ up to
-  and including round $r_3 - 1$.
-  The state of the machine at each $(r_3 - 1)$-st iteration of the
-  \emph{for} loop only depends on the writeboxes and inboxes at position $(r_3 - 1)$ and behind,
-  namely $\writeboxes^{r_3 - 1}[{:}{r_3 - 1}], \inboxes^{r_3 - 1}[{:}{r_3 - 1}]$
-  and $\writeboxes^{r_3}[{:}{r_3 - 1}], \inboxes^r[{:}{r_3 - 1}]$ respectively.
-  Therefore, the value of $c$ does not depend on $r_3$.
-  \qed
-\end{proof}
 
 % TODO: Define the relationship between Z and Z';
 %       we are hoping that Z' will have exactly the same writes as Z
@@ -687,9 +652,8 @@ Random Oracle collision), it can conclude the execution.
     \item If $\PPi[i]$ sends a message to $i'$ at round $r$, then this message is delivered to $\PPi[i']$ by round $r + \Delta$, and
     \item If $\PPi[i']$ received a message from $i$ at round $r$, then this message was sent by $\PPi[i]$ no earlier than round $r - \Delta$.
   \end{enumerate}
-  {\color{red} TODO: prove this.}
+  {\color{red} TODO: prove the above.}
 
-  % TODO: Double check this proof, it is a bit convoluted...
   \noindent
   \textbf{Claim 1: $\LCView_{j,H,\Delta_v}(\mathcal{E}^*) = \PEView_H(\mathcal{E}')$.}
   Let $V^* = \LCView_{j,H,\Delta_v}(\mathcal{E}^*)$ and
@@ -709,52 +673,81 @@ Random Oracle collision), it can conclude the execution.
   Induction step: We will show that, for $r > 1$, $V^*_{i,r} = V'_{i,r}$.
   By inductive hypothesis we have $V^*_{i,r - 1} = V'_{i,r - 1}$.
 
-  Let $\Z[j][i][r]$ denote the state of the emulated machine $\Z[j][i]$
-  after simulation round $r$ (and note by Lemma~\ref{lem:in-vitro-independence}
-  that this value does not depend on the \emph{in vitro} round or the round
-  during which the \emph{for} loop is observed).
+  Let $c^*(r_1, r_2, r_3)$ denote the configuration
+  of the machine $\Z[j][i]$ after the invocation of
+  Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:execute}
+  during the $r_3^\text{st}$ iteration of the \emph{for loop} in
+  Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
+  when $\emulateMachine$ is
+  invoked \emph{in vitro} after round $r_1$ of execution $\mathcal{E}^*$,
+  where $r_1 \geq r_2 + \Delta_v + 1$ with parameter
+  $\simulationRound = r_2$, where $r_2 \geq r_3$.
+  That this causes an invocation of \simulate with parameters
+  $\simulationRound = r_2$ and $\realityRound = r_1$.
+  Let $c'(r_3)$ denote the configuration of the machine $\PPi[i]$
+  in $\mathcal{E}'$ at the end of round $r_3$.
+  By the inductive hypothesis we have that
+  \begin{equation}\label{conj:simulation:ind-hyp}
+    c^*(r + \Delta_v, r - 1, r - 1) = c'(r - 1)\,
+  \end{equation}
+  and we wish to show that $c^*(r + \Delta_v + 1, r, r) = c'(r)$.
 
-  Define the following machine configurations:
+  Because $\mathcal{E}^*$ is consistent, we have that
+  \begin{equation}\label{conj:simulation:consistency}
+    c^*(r + \Delta_v + 1, r - 1, r - 1) = c^*(R, r - 1, r - 1)
+  \end{equation}
+  Each iteration of the \emph{for} loop of Algorithm~\ref{alg.simulate:for}
+  proceeds until the round reaches $\simulationRound$, therefore
+  $c^*(r + \Delta_v + 1, r, r - 1) = c^*(r + \Delta_v + 1, r - 1, r - 1)$.
+  From this and Eq~\ref{conj:simulation:consistency} we conclude that
+  $c^*(r + \Delta_v + 1, r, r - 1) = c^*(r + \Delta_v, r - 1, r - 1)$.
+  From this and Eq~\ref{conj:simulation:ind-hyp} we conclude that
+  \begin{equation}\label{conj:simulation:pre-state}
+    c^*(r + \Delta_v + 1, r, r - 1) = c'(r - 1)\,.
+  \end{equation}
 
-  \begin{enumerate}[label=(\Alph*)]
-    \item The configuration $\Z[j][i][r - 1]$.
-          \label{conj:simulation:config-A}
-    \item The configuration of the machine $\PPi[i]$ at the end of round $r - 1$.
-          \label{conj:simulation:config-B}
-    \item The configuration $\Z[j][i][r]$.
-          \label{conj:simulation:config-C}
-    \item The configuration of the machine $\PPi[i]$ at the end of round $r$.
-          \label{conj:simulation:config-D}
-  \end{enumerate}
+  Let $(\writeboxes^*, \inboxes^*)$
+  be the pair
+  returned by the invocation of $\prepareSimulationInputs(i, r, r + \Delta_v + 1)$
+  \emph{in vitro} after round $r + \Delta_v + 1$ of $\mathcal{E}^*$, and, likewise define
+  $(\writeboxes', \inboxes')$ to be the pair
+  returned by the invocation of $\prepareSimulationInputs(i, R - \Delta_v - 1, R)$
+  \emph{in vitro} after round $R$ of $\mathcal{E}^*$.
+  Because $\Y[j][i]$ in $\mathcal{E}^*$ is \emph{sticky} and \emph{timely}$(v_i)$
+  the transactions in
+  $\Ledger[j][i][r + \Delta_v + 1]$ with recorded round $r - 1$ are identical to
+  the transactions in $\Ledger[j][i][R]$ with recorded round $r - 1$.
+  Hence,
+  \begin{align}
+    \writeboxes^*[r - 1] &= \writeboxes'[r - 1]\label{conj:simulation:eq-inputs-writes}\\
+    \inboxes^*[r - 1] &= \inboxes'[r - 1]\label{conj:simulation:eq-inputs-inboxes}\,,
+  \end{align}
+  since the loop of Algorithm~\ref{alg.prepare-simulation-inputs} Line~\ref{alg.prepare-simulation-inputs:for}
+  will run identically in the two invocations of $\prepareSimulationInputs$ up to
+  and including round $r - 1$.
 
-  By inductive hypothesis, configurations \ref{conj:simulation:config-A}
-  and \ref{conj:simulation:config-B} are identical
-  (here, we interpret $\Z[j][i][r-1]$ using \emph{in vitro} round $r_2 = r + \Delta_v$,
-  \emph{simulation round} $r_3 = r - 1$, and \emph{for loop round} $r_1 = r - 1$ with reference to
-  Lemma~\ref{lem:in-vitro-independence} notation).
-
-  By the \rollerblade construction, % TODO: when does the construction obtain \writeboxes, \inboxes? In vitro r + \Delta_v + 1...
-  the machine configuration~\ref{conj:simulation:config-C}
-  $\Z[j][i][r]$ is the result of
-  taking the machine configuration~\ref{conj:simulation:config-A}
-  $\Z[j][i][r - 1]$
-  (here, we interpret $\Z[j][i][r-1]$ using \emph{in vitro} round $R$,
-  \emph{simulation round} $r_3 = r$, and \emph{for loop} round $r_2 = r - 1$)
-  and running the \emph{for} loop for one iteration
-  with inputs $\writeboxes[r - 1], \inboxes[r - 1]$, where
-  $\writeboxes, \inboxes$ refers to the pair returned by $\prepareSimulationInputs$.
+  By the \rollerblade construction,
+  $c^*(r + \Delta_v + 1, r, r)$ is the result of
+  taking the machine configuration
+  $c^*(r + \Delta_v + 1, r, r - 1)$
+  and running the \emph{for} loop of Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
+  for one more iteration, providing inputs $\writeboxes^*[r - 1], \inboxes^*[r - 1]$
+  during the execution of $\Z[i][j]$.
 
   Similarly, by the simulator construction, % TODO: when does the simulator obtain \writeboxes, \inboxes? In vitro R...
-  the simulator evolves the machine $\PPi[i]$ in $\mathcal{E}'$ from round $r - 1$
-  to round $r$ by feeding it the inputs $\writeboxes[r - 1], \inboxes[r - 1]$.
+  the simulator evolves the machine $\PPi[i]$ in $\mathcal{E}'$ from round $r - 1$,
+  in which it has configuration $c'(r - 1)$,
+  to round $r$,
+  in which it has configuration $c'(r)$,
+  by feeding it the inputs $\writeboxes[r - 1], \inboxes[r - 1]$.
 
-  Because the execution $\mathcal{E}^*$ is consistent and the ledger is sticky,
-  the \emph{in vitro} round and simulation round do not affect the output of $\prepareSimulationInputs$,
-  similarly to the argument in the proof of Lemma~\ref{lem:in-vitro-independence},
-  therefore $(\writeboxes, \inboxes) = \prepareSimulationInputs$ will be the same regardless
-  of when they are observed. % TODO: explain in more detail what is meant here
-
-  We conclude that $V^*_{i,r} = V'_{i,r}$.
+  As $c^*(r + \Delta_v + 1, r, r - 1) = c'(r - 1)$ (by Eq~\ref{conj:simulation:pre-state})
+  and the two configurations evolve using the same inputs (by
+  Eqs~\ref{conj:simulation:eq-inputs-writes} and \ref{conj:simulation:eq-inputs-inboxes}),
+  and, since $\Pi$ is deterministic (because it is \rollerblade-overlay-respecting),
+  therefore $c^*(r + \Delta_v + 1, r, r) = c'(r)$.
+  We conclude that $V^*_{i,r} = V'_{i,r}$, completing the induction
+  and the proof of Claim 1.
 
   % TODO: double check the exact numbers in this proof
 
