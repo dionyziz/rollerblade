@@ -651,14 +651,19 @@ Random Oracle collision), it can conclude the execution.
   in $\mathcal{E}^*$.
 
   \noindent
-  \textbf{Claim 0: $\mathcal{Z}'$ respects the delay $\Delta$.}
+  \textbf{Claim 0: $\mathcal{Z}'$ respects the network model.}
   Namely, the claim is that for all $i, i'$, for all rounds $r$ of $\mathcal{E}'$:
 
-  \begin{enumerate}
-    \item If $\PPi[i]$ sends a message to $i'$ at round $r$, then this message is delivered to $\PPi[i']$ by round $r + \Delta$, and
-    \item If $\PPi[i']$ received a message from $i$ at round $r$, then this message was sent by $\PPi[i]$ no earlier than round $r - \Delta$.
+  \begin{enumerate}[label=(\alph*)]
+    \item
+    \label{conj:simulation:claim-delta}
+    If $\PPi[i]$ sends a message to $i'$ at round $r$, then this message is delivered to $\PPi[i']$ (with source $i$) by round $r + \Delta$, and
+
+    \item
+    If $\PPi[i']$ received a message from $i$ at round $r$, then this message was sent by $\PPi[i]$.
   \end{enumerate}
-  {\color{red} TODO: prove the above.}
+
+
 
   \noindent
   \textbf{Claim 1: $\LCView_{j,H,\Delta_v}(\mathcal{E}^*) = \PEView_H(\mathcal{E}')$.}
