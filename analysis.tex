@@ -652,18 +652,46 @@ Random Oracle collision), it can conclude the execution.
 
   \noindent
   \textbf{Claim 0: $\mathcal{Z}'$ respects the network model.}
-  Namely, the claim is that for all $i, i'$, for all rounds $r$ of $\mathcal{E}'$:
+  Namely, the claim is that for all $i, i' \in H$, for all rounds $r$ of $\mathcal{E}'$:
 
   \begin{enumerate}[label=(\alph*)]
     \item
     \label{conj:simulation:claim-delta}
-    If $\PPi[i]$ sends a message to $i'$ at round $r$, then this message is delivered to $\PPi[i']$ (with source $i$) by round $r + \Delta$, and
+    If $\PPi[i]$ sends a message to $\PPi[i']$ at round $r$, then this message is delivered to $\PPi[i']$ (with source $i$) by round $r + \Delta$, and
 
     \item
-    If $\PPi[i']$ received a message from $i$ at round $r$, then this message was sent by $\PPi[i]$.
+    If $\PPi[i']$ received a message from $\PPi[i]$ at round $r$, then this message was sent by $\PPi[i]$.
   \end{enumerate}
 
+  If $\PPi[i]$ sends a message $\msg$ to $\PPi[i']$ at round $r$, then
+  if we call in vitro (after round $r + \Delta_v$) $\simulate(i, \Ledger[j][i][r], r)$
+  on $\LLambda[j]$ we will find that message in $\outboxes[r]$.
+  %TODO: prove the above
 
+  At round $r$, relayer $\LLambda[j]$ invokes $\relay()$.
+  This creates a transcription $\tau = \Y[j][i].\transcribe()$, where
+  $\Y[j][i].\untranscribe(\tau) = \Ledger[j][i][r]$.
+  Then, it transmits a new bulletin `checkpoint'
+  transaction $\tx$ containing transcription $\tau$ to $\Y[][i']$.
+
+  Because of the liveness of $\Y[][i']$,
+  transaction $\tx$ appears in $\Ledger[j][i'][r']$
+  at round $r' \leq r + u_{i'} \leq r + \Delta_u$.
+
+  Then, $(\tx, r^*) \in \Ledger[j][i'][R']$. If we call in vitro
+  (after round $r + \Delta_v$) $\simulate(i, \Ledger[j][i][r], r)$
+  on $\LLambda[j]$ we will find $\msg$ in $\outboxes[r]$.
+
+  That means that when the simulator calls in vitro
+  (at the end of round $R$ where $R \geq r' + \Delta_v$) $\prepareSimulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$
+  we will find $m$ in $\inboxes[r^*]$ (with source $i$).
+  Therefore, $\mathcal{Z}'$ will provide $m$ to $\PPi[i']$
+  if $\PPi[i']$ calls method $\recv()$ at round $r*$.
+  %TODO: formalize the above
+
+  This completes the proof of \ref{conj:simulation:claim-delta}.
+
+  %TODO: prove 0b.
 
   \noindent
   \textbf{Claim 1: $\LCView_{j,H,\Delta_v}(\mathcal{E}^*) = \PEView_H(\mathcal{E}')$.}
