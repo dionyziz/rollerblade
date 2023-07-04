@@ -772,9 +772,16 @@ Random Oracle collision), it can conclude the execution.
   and the two configurations evolve using the same inputs (by
   Eqs~\ref{conj:simulation:eq-inputs-writes} and \ref{conj:simulation:eq-inputs-inboxes}),
   and, since $\Pi$ is deterministic,
-  therefore $c^*(r + \Delta_v + 1, r, r) = c'(r)$.
+  therefore $c^*(r + \Delta_v + 1, r, r) = c'(r)$ (see Figure~\ref{fig.emulation-claim-1-induction}).
   We conclude that $V^*_{i,r} = V'_{i,r}$, completing the induction
   and the proof of Claim 1.
+
+  \begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth,keepaspectratio]{figures/emulation-claim-1-induction.pdf}
+    \caption{The inductive step in the proof of the Simulation Conjecture.}
+    \label{fig.emulation-claim-1-induction}
+  \end{figure*}
 
   % TODO: double check the exact numbers in this proof
 
