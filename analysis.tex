@@ -245,13 +245,16 @@ recorded in each row will be growing in an append-only fashion.
   a set of overlay machine indices $H \subseteq [n]$,
   and reality lag $\Delta_v$,
   if
-  for all $i \in H$, for all $r \geq 1$,
+  for all $i \in H$, for all $r \geq 0$,
   for all $r + \Delta_v < r' < R$,
   it holds that
   $\LLambda[j].\emulateMachine(i, r)$ executed \emph{in vitro} at the end of round $r'$
   is equal to
   $\LLambda[j].\emulateMachine(i, r)$ executed \emph{in vitro} at the end of round $r' + 1$.
 \end{definition}
+
+Note that in the above definition, we allow $r = 0$, even though rounds
+in the execution begin at $1$.
 
 \begin{definition}[Honest View in the Emulated Setting]
   Consider an emulated setting execution $\mathcal{E}$ with duration $R$ rounds
@@ -544,7 +547,7 @@ Random Oracle collision), it can conclude the execution.
   Then the execution is $(j, H, \Delta_v)$-consistent for all $j \in [m]$.
 \end{lemma}
 \begin{proof}
-  Let $i \in H$, $r \geq 1$, $r + \Delta_v < r' < R$ be arbitrary.
+  Let $i \in H$, $r \geq 0$, $r + \Delta_v < r' < R$ be arbitrary.
   When $\emulateMachine$ is invoked at the end of round $r'$ (resp. $r' + 1$),
   the value $\this.\now$
   is $r'$ (resp. $r' + 1$), so the check $\simulationRound > \this.\now - v_i$ of Algorithm~\ref{alg.prepare-simulation-inputs}
@@ -667,7 +670,7 @@ Random Oracle collision), it can conclude the execution.
   The two views have the same size.
   We need to show
   that the views of all \emph{honest} parties in the two executions are identical.
-  Let $i$ be an arbitrary party in $H$ and $r$ be an arbitrary round $1 \leq r \leq R - \Delta_v - 1$.
+  Let $i$ be an arbitrary party in $H$.
 
   Let $c^*(r_1, r_2, r_3)$ denote the configuration
   of the machine $\Z[j][i]$ after the invocation of
@@ -687,8 +690,8 @@ Random Oracle collision), it can conclude the execution.
   We set $c'(0)$ to be the initial configuration of $\PPi[i]$,
   after it's \emph{constructor} is invoked.
 
-  We will prove that $V^*_{i,r} = V'_{i,r}$ for $r \geq 0$ by induction on $r$.
-  Let $r$ be arbitrary.
+  We will prove that $V^*_{i,r} = V'_{i,r}$ by induction on $r$.
+  Let $r$ be an arbitrary round such that $1 \leq r \leq R - \Delta_v - 1$.
 
   If $r = 1$, then
   \begin{equation}\label{conj:simulation:ind-hyp}
@@ -699,9 +702,11 @@ Random Oracle collision), it can conclude the execution.
   is deterministic.
 
   If $r > 1$, then by inductive hypothesis we have $V^*_{i,r - 1} = V'_{i,r - 1}$
-  and Eq~\ref{conj:simulation:ind-hyp} also holds.
+  by which Eq~\ref{conj:simulation:ind-hyp} also follows.
 
-  In either case, we wish to show that $c^*(r + \Delta_v + 1, r, r) = c'(r)$.
+  In either case, Eq~\ref{conj:simulation:ind-hyp} holds, and we
+  wish to show that $c^*(r + \Delta_v + 1, r, r) = c'(r)$,
+  from which it will follow that $V^*_{i,r} = V'_{i,r}$.
 
   %TODO: check that induction base holds
   Because $\mathcal{E}^*$ is consistent, we have that
@@ -732,7 +737,9 @@ Random Oracle collision), it can conclude the execution.
   (all transactions with recorded round $r - 1$ of $\Ledger[j][i][r + \Delta_v + 1]$
    will appear in $\Ledger[j][i][R]$ by stickiness;
    and all transactions with recorded round $r - 1$ of $\Ledger[j][i][R]$ will
-   appear in $\Ledger[j][i][r + \Delta_v + 1]$ by timeliness).
+   have appeared in $\Ledger[j][i][r + \Delta_v + 1]$ by timeliness; in the case of
+   $r = 1$, no transactions with recorded round $r - 1$ will appear in either
+   ledger).
   Hence,
   \begin{align}
     \writeboxes^*[r - 1] &= \writeboxes'[r - 1]\label{conj:simulation:eq-inputs-writes}\\
@@ -740,7 +747,8 @@ Random Oracle collision), it can conclude the execution.
   \end{align}
   since the loop of Algorithm~\ref{alg.prepare-simulation-inputs} Line~\ref{alg.prepare-simulation-inputs:for}
   will run identically in the two invocations of $\prepareSimulationInputs$ up to
-  and including round $r - 1$.
+  and including round $r - 1$ (and for
+  $r = 1$, $\writeboxes^*[0] = \inboxes^*[0] = \writeboxes'[0] = \inboxes'[0]$ by construction).
 
   By the \rollerblade construction,
   $c^*(r + \Delta_v + 1, r, r)$ is the result of
