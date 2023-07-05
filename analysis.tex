@@ -607,12 +607,12 @@ Random Oracle collision), it can conclude the execution.
   As $\Pi$ is a \rollerblade-suitable-overlay protocol it is deterministic.
 
   We will prove faithfulness by
-  construction of the simulator $S$ and environment $\mathcal{Z}'$.
+  construction of the simulator $\mathcal{S}$ and environment $\mathcal{Z}'$.
 
   % TODO: consider removing the environment $\mathcal{Z}'$
-  The simulator $S$ and environment $\mathcal{Z}'$ work in tandem
+  The simulator $\mathcal{S}$ and environment $\mathcal{Z}'$ work in tandem
   as follows.
-  Initially, $S$ samples an execution
+  Initially, $\mathcal{S}$ samples an execution
   $\mathcal{E}^*$ in the emulation setting from
   % TODO: is the number of validators in \Y[][1] hard-coded into it?
   $\LCExec_m(\Lambda,\allowbreak\mathcal{Y},\allowbreak\mathcal{A},\allowbreak\mathcal{Z})$
@@ -669,7 +669,7 @@ Random Oracle collision), it can conclude the execution.
 
   % TODO: separate the notion of "emulation" and the notion of "simulation"
 
-  We note that $S$ uses the adversary $\mathcal{A}$ and the
+  We note that $\mathcal{S}$ uses the adversary $\mathcal{A}$ and the
   environment $\mathcal{Z}$ in this simulation, so $\mathcal{E}$
   and $\mathcal{E}^*$ are identically distributed.
   For (1) it suffices to show that for all $j$,
