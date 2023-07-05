@@ -2,17 +2,17 @@
   We observe that most fixed-party distributed protocols can be rewritten
   by replacing a \emph{party} with a \emph{ledger} (such as
   a blockchain system) and the authenticated channel communication between parties with
-  cross-chain light clients. This transform is useful because
+  cross-chain relayers. This transform is useful because
   blockchain systems are always online and have battle-tested
   security assumptions.
-  We posit and prove a \emph{metatheorem} that allows transforming all theorems from the \emph{party}
-  setting into theorems in the \emph{ledger} setting, while preserving
+  We provide a definitional framework that captures this analogy.
+  We model the transform formally,
+  and posit and prove a generic \emph{metatheorem} that allows translating all theorems from the \emph{party}
+  setting into theorems in the \emph{emulated} setting, while preserving
   analogies between party \emph{honesty} and ledger \emph{security}.
   In the heart of our proof lies a reduction-based simulation argument.
-  Next, we use our transform to instantiate our protocol by running a blockchain protocol
-  on top of other blockchain protocols, treating the underlying blockchains
-  as parties in the overlay protocol. This enables us to create a layer-2 rollup
-  that sits on top of multiple chains and is more reliable than the underlying
-  layer-1s: If the security of a minority of the underlying layer-1 blockchains fails,
-  the layer-2's security is maintained.
+  As an example, we instantiate our metatheorem with
+  a consensus protocol on top of other blockchains,
+  creating a reliable rollup that assumes only the majority
+  of the underlying layer-1s are secure.
 \end{abstract}
