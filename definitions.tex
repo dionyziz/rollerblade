@@ -168,8 +168,417 @@ of an event.
   \]
 \end{definition}
 
+\subsection{Compositors}
+
+To aid the analysis, we assume that the ITIs contain all the previous transcript
+of their execution (a history of machine configurations).
+
+% \begin{definition}[Determinism]
+%       Let $\Pi^\Sigma$ be a State Machine Replication protocol that makes
+%       oracle use of a signature protocol $\Sigma = (\textsf{Gen}, \textsf{Sig}, \textsf{Ver})$.
+%       The protocol $\Pi$ is called \emph{soft deterministic} if,
+%       when executed as an interactive turing machine $\Pi^\Sigma(i)$ initialized for party
+%       with index $i$, the machine does not make use of any local randomness.
+% \end{definition}
 %
+% TODO: define underlying, overlay, good, VIEW...
+
+% TODO: Move this to definitions? Expand this intuitive explanation,
+% and give it a title
+% Potential generalization: Use a different H_Z and H_Y that indicate
+% which Ys are "good" and which Zs are supposed to be "honest", and
+% make H_Z a function of H_Y, to be defined by the DPCP.
+% This would allow having a different number of Zs and Ys,
+% and each of the Zs could depend on different, and potentially multiple, Ys;
+% and each Y could help multiple Zs.
+
+A \emph{compositor} is a protocol that
+runs an \emph{overlay} distributed protocol $\Pi$ on top of a set of
+$n$ \emph{underlying} distributed protocols $\Y[][1], \ldots, \Y[][i], \ldots, \Y[][n]$.
+The protocol $\Pi$ is generally designed
+to work in the \emph{party setting} with a network (such as an authenticated channels network)
+connecting its instances directly.
+The compositor $\Lambda$ executes
+$\Pi$ in the \emph{emulated setting} by utilizing the underlying
+$\Y[][i]$ protocols to help with the emulation and communication between the
+overlay protocol instances.
+Multiple instances $\LLambda[1], \ldots, \LLambda[j], \ldots, \LLambda[m]$
+of the compositor are executed.
+Each $j^\text{th}$ compositor instance promises to emulate the execution of multiple
+instances of $\Pi$ ($\Z[j][1], \ldots, \Z[j][i], \ldots \Z[j][n]$).
+These emulated $\Z$ instances should behave similarly to instances of $\Pi$
+running in a stand-alone setting.
+
+\begin{definition}[Compositor]
+  A \emph{compositor} $\Lambda$ with overlay $\Pi$ and underlying $\mathcal{Y} = \Y[][1], \ldots, \Y[][n]$,
+  is a family of interactive machines
+  $\Lambda_{\Pi,\mathcal{Y}}$ providing the following
+  functionalities:
+
+  \begin{enumerate}
+    \item \construct$(\sid, (\Y[j][1] \ldots \Y[j][n]))$.
+    \item \writeToMachine$(i, \data)$.
+    \item \emulateMachine$(i, r)$. % <-- Z
+  \end{enumerate}
+\end{definition}
+
+The compositor is constructed by calling \emph{\construct} with parameter the session identifier $\sid$.
+Note that compositors are permissionless, as they don't know their instance identity $j \in \mathbb{N}$.
+Each compositor instance provides a \emph{\writeToMachine}
+functionality that allows writing data to the $i^\text{th}$ emulated machine.
+It also provides an \emph{\emulateMachine} functionality that promises to emulate the execution of
+the $i^\text{th}$ instance of $\Pi$ up to round $r$, and return the instance of this emulation
+at round $r$ (and note that this contains the full transcript of the emulation).
+Observe that \emph{\emulateMachine} can be invoked at a later round $r' > r$.
+Note here the difference between $\mathcal{Y} = \Y[][1], \ldots, \Y[][n]$ (denoting \emph{underlying protocols}
+in the form of ITMs) and
+$(\Y[j][1], \ldots, \Y[j][n])$ (denoting \emph{underlying protocol instances}
+in the form of ITIs). The compositor is parametrized with the former, and
+the latter are passed as parameters to the \emph{\construct} functionality.
+
+Even though we will not do the analysis in the full Universal Composability (UC) framework, and
+we treat executions as stand-alone, we do adopt some of the notation of the UC framework.
+Let $\LCExec(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
+denote the transcript of an execution of the compositor protocol $\Lambda$ parametrized with overlay protocol $\Pi$,
+and underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][n])$, adversary $\mathcal{A}$, and environment $\mathcal{Z}$.
+Following the notation of the UC framework, we define the notion of an \emph{execution}
+and a \emph{view}.
+
+\noindent
+\textbf{The Emulated Setting.}
+In particular, in the emulated setting execution, denoted by $\LCExec_{m,n}(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$,
+the environment $\mathcal{Z}$ is constrained by the control program
+to initially
+spawn a number $n \times \ell$ (where $n$ is a parameter of the execution,
+and $\ell = |\mathcal{Y}|$)
+underlying protocol instances
+
+\begin{align*}
+\Y[1][1], \Y[1][2], &\ldots, \Y[1][\ell],\\
+\Y[2][1], \Y[2][2], &\ldots, \Y[2][\ell],\\
+                    &\vdots              \\
+\Y[m][1], \Y[m][2], &\ldots, \Y[m][\ell]\,,
+\end{align*}
+
+where $\Y[j][i]$ denotes the $j^\text{th}$ instance of
+the protocol $\Y[][i]$. The environment facilitates the communication
+between the underlying protocol instances $\Y[j][i]$ and $\Y[j'][i]$
+for all $j, j'$, whereas protocols $\Y[j][i]$ and $\Y[j'][i']$
+with $i \neq i'$ are not allowed to directly communicate.
+Next, the environment is constrained to spawn
+a number $m$ of compositor clients
+$\LLambda[1], \ldots, \LLambda[m]$ (where $m \in \mathbb{N}$
+is a parameter of the execution), allowing
+the environment to choose the $\sid$ parameter,
+and passing the tuple $(\Y[j][1], \ldots, \Y[j][\ell])$ of ITIs
+to $\LLambda[j]$'s \emph{construct} functionality
+(in UC language, each of these $\Y[j][i]$ is constrained to be used
+as a \emph{subroutine} solely by $\LLambda[j]$).
+All of those $\Lambda$ compositor clients are honest and will remain
+so throughout the execution.
+Outside of those $\Y[j][i]$ instances controlled by the $\Lambda$s, each of
+the protocols $\Y[][i]$ may have more instances running within the execution,
+spawned by the environment and potentially corrupted by the adversary.
+For example, if $\Y[][1]$ is the Bitcoin protocol, then the $\Y[j][i]$
+instance running within $\LLambda[j]$ is a Bitcoin client, whereas the
+execution comprises also others Bitcoin clients and full nodes, potentially
+corrupted by the adversary.
+The execution proceeds in rounds $r = 1, \ldots, R$
+for a polynomial number $R$ of rounds (where the polynomial
+is taken with respect to the security parameter). For every
+round $r$, the environment is constrained to first call
+the \emph{execute} function of each $\Y[j][i]$ for every
+$j, i \in \mathbb{N}$, as well as the \emph{execute} function of $\Y$s
+living outside of the clients $\Lambda$. Next, the environment must call
+the \emph{execute} function of each $\LLambda[j]$ sequentially.
+Finally, the environment is constrained to call the
+adversary $\mathcal{Z}$ (a rushing adversary).
+The adversary is allowed to corrupt the $\Y$ instances living outside of $\Lambda$s
+% TODO: Can there even be a safety-respecting environment, e.g., in Streamlet or Bitcoin?
+% I think the environment can only be things like honest-majority-respecting.
+% How can an environment constraint the execution to be safe?
+(we will later impose constraints, in the form of \emph{beliefs}, which the
+environment ensures the adversary must respect).
+At any time, the environment may choose to provide inputs
+to any of the $\LLambda[j]$ parties by invoking their \emph{writeToMachine}
+functionality with inputs of its choice.
+
+\noindent
+\textbf{The Party Setting.}
+In the party setting execution, denoted by $\PEExec_n(\Pi,\allowbreak \mathcal{A},\allowbreak \mathcal{Z},\allowbreak n,\allowbreak H,\allowbreak \Delta)$,
+the environment $\mathcal{Z}$ is constrained by the control program
+to spawn $n$ parties $\PPi[1], \ldots, \PPi[n]$ (where $n \in \mathbb{N}$
+is a parameter of the execution). Note here that $\Pi$ is a protocol (an ITM),
+whereas each $\PPi[i]$ is an instance (an ITI).
+The adversary $\mathcal{A}$ is allowed to corrupt parties
+indexed by $[n] \setminus H$ at the beginning of the execution
+(a static corruption model). This is done by the adversary sending a message
+to the environment requesting to corrupt the desired party. The environment
+grants this corruption wish as long as it respects the requirement that the
+corruption falls within $[n] \setminus H$.
+The execution proceeds in rounds
+$r = 1, \ldots, R$, where $R$, again, is a polynomial of the security
+parameter. At every round, the environment is constrained to first
+call the \emph{execute} function of each $\PPi[i]$ for every
+honest party, in order. Next, the environment must call
+the adversary (again, a rushing adversary). The environment
+is constrained to deliver messages between honest parties
+in an authenticated manner, and to deliver messages within $\Delta$
+delay.
+
+We would like to define a notion of \emph{faithfulness} of a
+compositor, which captures the
+correspondence between the party setting execution and the emulated setting
+execution of $\Pi$. Roughly, a compositor is called \emph{faithful} is these
+two settings are identical in the eyes of the honest parties.
+This faithfulness may be conditioned to work only on certain classes
+of overlay protocols $\Pi$ and underlying protocols $\Y$, and may
+require that a certain subset $\mathcal{H}$ of these $\Y$s are well-behaved.
+
+\begin{definition}[Compositor Faithfulness (informal)]
+We say that a compositor $\Lambda$ is \emph{faithful} for an overlay protocol $\Pi$,
+a number of overlay parties $n \in \mathbb{N}$ running
+over a number of underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$
+if:
+For all number of compositor parties $m \in \mathbb{N}$,
+for every compositor index $j \in [m]$,
+for every overlay index $i \in [n]$ that ``corresponds' to ``well-behaving'' underlying $\mathcal{Y}$s
+it holds that:
+The party $\Z[j][i]$'s emulated execution ``is identical'' to \emph{some} party setting execution
+(it cannot tell if it is emulated or not).
+Within that emulated execution, the emulated instance $\Z[j][i]$
+is given the ``same'' inputs as \emph{write}(\emph{data}) by its environment
+as the compositor is given by its own environment as \emph{writeToMachine}(i, \emph{data})
+for that same $i$.
+\end{definition}
+
+The motivation for the above definition stems from the fact that, if it is known that
+$\Pi$ is secure in the party setting, these security results can be translated to the
+emulated setting. The full definition of faithfulness will state that for all adversaries
+in the emulated setting, there is a simulator in the party setting that makes the
+views of honest parties identical. Since the protocol $\Pi$ is secure in the party setting
+under that simulator, it must also be secure in the emulated setting under any adversary.
+This line of argument is not unlike Canetti's UC arguments.
+
+While the fact that the view of the honest party is the same in both the emulated and
+party setting is sufficient to argue that the \emph{write} instructions in both settings will
+be the same in the views of the honest parties, this will not be sufficient.
+The last part of the definition sketch above whereby the \emph{writeToMachine} instructions
+of the emulated setting are replicated as \emph{write} instructions in the party setting
+is a necessary ingredient to make the definition useful. Otherwise, trivial constructions
+in which \emph{writeToMachine} instructions are ignored are possible, yet we want to avoid
+such pathologies.
+
+To make the above definition precise, we must develop a number of tools. Namely,
+we must state what ``well-behaving'' underlying protocols are, and what the ``correspondence''
+between overlay parties and underlying protocols means. Furthermore, we must specify
+what the ``identical'' emulated execution means, and what the ``same'' inputs are,
+in which definitions we will be required to allow for some slack.
+
+We define the following views for the two execution settings.
+
+\begin{definition}[Honest View in the Party Setting]
+  Consider a party setting execution $\mathcal{E}'$ of duration $R$ rounds
+  sampled from
+  $\PEExec_n(\Pi,\allowbreak \mathcal{A},\allowbreak \mathcal{Z},\allowbreak n,\allowbreak H,\allowbreak \Delta)$.
+  The \emph{party setting view of honest parties} $\PEView_H(\mathcal{E}')$
+  is the $|H|\times R$ matrix of the following transcripts of honest parties:
+
+  \[
+  \begin{bmatrix}
+    \PPi[H_1]_1 &\ldots& \PPi[H_1]_R\\
+         \vdots &\ddots& \vdots     \\
+    \PPi[H_{|H|}]_1 &\ldots& \PPi[H_{|H|}]_R
+  \end{bmatrix}\,,
+  \]
+
+  where $\PPi[H_i]_r$ denotes the transcript of party $\PPi[H_i]$
+  (the party with index $H_i$, the $i^\text{th}$ honest party)
+  obtained at the end of round $r$.
+\end{definition}
+
+Note that, in the above definition, the transcripts concerned pertain to the
+set $H$ of guaranteed honest party indices only, even though the adversary may choose
+to leave some of the other parties uncorrupted, too. The transcript of
+those other parties are not included in $\PEView_H(\mathcal{E}')$.
+
+Note also that, in each row of the above definition, the transcripts
+are taken for a particular party $H_i$ at increasing rounds, and therefore
+we will have that $\PPi[H_i]_r \preceq \PPi[H_i]_{r+1}$ and, so, the transcripts
+recorded in each row will be growing in an append-only fashion.
+
+\begin{definition}[Emulation Consistency]
+  An execution $\mathcal{E}$ with duration $R$ rounds sampled from
+  $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
+  is \emph{$(j,H,\Delta_v)$-\emph{consistent}},
+  for a compositor index $j \in [m]$,
+  a set of overlay machine indices $H \subseteq [n]$,
+  and reality lag $\Delta_v$,
+  if
+  for all $i \in H$, for all $r \geq 0$,
+  for all $r + \Delta_v < r' < R$,
+  it holds that
+  $\LLambda[j].\emulateMachine(i, r)$ executed \emph{in vitro} at the end of round $r'$
+  is equal to
+  $\LLambda[j].\emulateMachine(i, r)$ executed \emph{in vitro} at the end of round $r' + 1$.
+\end{definition}
+
+Note that in the above definition, we allow $r = 0$, even though rounds
+in the execution begin at $1$.
+
+\begin{definition}[Honest View in the Emulated Setting]
+  Consider an emulated setting execution $\mathcal{E}$ with duration $R$ rounds
+  sampled from $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$.
+  If the execution $\mathcal{E}$ is $(j,H,\Delta_v)$-consistent, then
+  the \emph{emulated setting view of honest parties} $\LCView_{j,H,\Delta_v}(\mathcal{E})$,
+  % TODO: change "reality lag" to be a generic "time distortion" function,
+  % for now f(r) = r + \Delta_v, but this could be more generic
+  parametrized by an index $j$, a set of indices $H$, and a \emph{reality lag} $\Delta_v \in \mathbb{N}$,
+  is the $|H| \times R$ matrix of the following values:
+
+  \[
+  \begin{bmatrix}
+    \LLambda[j].\emulateMachine(H_1, 1) & \ldots & \LLambda[j].\emulateMachine(H_1, R - \Delta_v - 1)\\
+                                 \vdots & \ddots & \vdots \\
+    \LLambda[j].\emulateMachine(H_{|H|}, 1) & \ldots & \LLambda[j].\emulateMachine(H_{|H|}, R - \Delta_v - 1)
+  \end{bmatrix}\,,
+  \]
+
+  where $\LLambda[j].\emulateMachine(H_i, r)$ denotes the return value of invoking,
+  \emph{in vitro} at the end of round $r + \Delta_v + 1$,
+  the $\emulateMachine$ functionality of the $j^\text{th}$ compositor party $\LLambda[j]$
+  with parameters the index $H_i$ of the $i^\text{th}$ overlay machine (among those
+  included in $H$) and round $r$.
+
+  On the other hand, if the execution $\mathcal{E}$ is \emph{not} $(j,H,\Delta_v)$-consistent, then
+  we let $\LCView_{j,H,\Delta_v}(\mathcal{E}) = \bot$.
+\end{definition}
+
+\begin{definition}[Party Setting Externalities]
+  Consider a party setting view $V$ of honest parties and size $|H| \times R$.
+  The \emph{party setting externalities} $\PEExtern(V)$ is the $|H| \times R$ matrix:
+  \[
+  \begin{bmatrix}
+    \W[H_1][1] &\ldots& \W[H_1][R]\\
+         \vdots &\ddots& \vdots     \\
+    \W[H_{|H|}][1] &\ldots& \W[H_{|H|}][R]
+  \end{bmatrix}\,,
+  \]
+
+  where $\W[H_i][r]$ denotes the sequence of messages written into an honest party
+  with index $H_i$ during round $r$. This sequence of messages can be extracted from
+  the transcript $\PPi[H_i]_r$ found in $V$.
+\end{definition}
+
+\begin{definition}[Emulated Setting Externalities]
+  Consider an emulated setting execution $\mathcal{E}$ with duration $R$ rounds
+  sampled from $\LCExec_m(\Lambda,\allowbreak \mathcal{Y},\allowbreak \mathcal{A},\allowbreak \mathcal{Z})$.
+  Consider the transcript of compositor client $\LLambda[j]$ in $\mathcal{E}$.
+  Within that transcript, observe the \emph{writeToMachine} calls made by
+  $\mathcal{Z}$ on $\LLambda[j]$ during some fixed round $1 \leq r \leq R$.
+  Among those, consider the calls to \emph{writeToMachine} that were
+  invoked with first argument some fixed machine index $1 \leq i \leq m$.
+  These \emph{writeToMachine} calls were invoked, in order, as
+  $\writeToMachine(i, \data_1), \ldots, \writeToMachine(i, \data_k)$
+  all during round $r$.
+  Let $\W[i][r] = (\data_1,\allowbreak\ldots,\allowbreak\data_k)$ denote the sequence containing
+  all the \emph{data} parameter values of those calls.
+  The \emph{emulated setting externalities} $\LCExtern_{j,H}(\mathcal{E})$, parametrized
+  by an index $j$ and a set of indices $H$, is the $|H| \times R$ matrix:
+
+  \[
+  \begin{bmatrix}
+    \W[H_1][1] &\ldots& \W[H_1][R]\\
+         \vdots &\ddots& \vdots     \\
+    \W[H_{|H|}][1] &\ldots& \W[H_{|H|}][R]
+  \end{bmatrix}\,.
+  \]
+\end{definition}
+
+\begin{definition}[Externality Similarity]
+  Consider the externalities $E_1, E_2$ (in the party or emulated setting)
+  with dimensions $n \times R_1$ and $n \times R_2$ respectively.
+  We say that $E_1$ is \emph{similar} to $E_2$ with \emph{lateness} parameter
+  $\Delta_u \in \mathbb{N}$ and \emph{earliness} parameter $\Delta_v \in \mathbb{N}$, written
+  $E_1 \laterly{\Delta_u,\Delta_v} E_2$, if
+  the following holds:
+  For any message $m$ located within the writebox at position $(i, r)$ of $E_1$,
+  with $r < R_1 - \Delta_u - \Delta_v$,
+  there exists a round $r - \Delta_v \leq r' \leq r + \Delta_u$ such that
+  the message $m$ appears within the writebox at position $(i, r')$ of $E_2$.
+
+  Furthermore, we say that the random variable $E_1$
+  is \emph{distributionally similar} to $E_2$
+  with \emph{lateness} parameter $\Delta_u \in \mathbb{N}$
+  and \emph{earliness} parameter $\Delta_v \in \mathbb{N}$,
+  written $E_1 \laterlydistr{\Delta_u,\Delta_v} E_2$, if
+  there is a mapping $f: \supp(E_1) \rightarrow \supp(E_2)$
+  such that for all $x \in \supp(E_1)$, $x \laterly{\Delta_u,\Delta_v} f(x)$ and
+  for all $y \in \supp(E_2)$, $\Pr[E_2 = y] = \sum_{x \in f^{-1}(y)} \Pr[E_1 = x]$.
+\end{definition}
 
 
+\begin{definition}[Belief]
+  A \emph{belief} $B$ is any predicate over an execution $\mathcal{E}$.
+\end{definition}
+
+For example, given an execution $\mathcal{E}$, with underlying distributed ledger
+protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$, we can define a belief
+$B$ asserting that the majority of underlying ledger protocols are secure.
+
+\begin{definition}[Belief System]
+  A \emph{belief system} $\mathcal{B}$ is a set of beliefs.
+\end{definition}
+
+\begin{definition}[Honesty Correspondence]
+  Given a belief system $\mathcal{B}$ and a number $n \in \mathbb{N}$ of overlay parties,
+  an \emph{honesty correspondence} $\mathcal{H}(B)$ is any function
+  from $\mathcal{B} \longrightarrow 2^{[n]}$.
+\end{definition}
+
+\begin{definition}[Belief-Respecting Environment]
+  An environment $\mathcal{Z}$ is \emph{belief-respecting} for a belief $B$
+  if for all executions $\mathcal{E}$ in the support of
+  a given distribution of executions, it holds that $B(\mathcal{E})$.
+\end{definition}
+
+% TODO: Mention that the validator and other protocol settings for \Y[][i]
+% are hard-coded into \Y[][i]
+\begin{definition}[Compositor Faithfulness]\label{def:faithfulness}
+  A compositor $\Lambda$
+  is $(\Pi,\allowbreak n,\allowbreak \mathcal{Y},\allowbreak \mathcal{B},\allowbreak \mathcal{H},\allowbreak \Delta_u,\allowbreak \Delta_v)$-\emph{faithful}
+  for an overlay protocol $\Pi$,
+  a number of overlay parties $n \in \mathbb{N}$,
+  a sequence of underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$,
+  a belief system $\mathcal{B}$,
+  honesty correspondence $\mathcal{H}: \mathcal{B} \longrightarrow 2^{[n]}$,
+  lateness $\Delta_u \in \mathbb{N}$,
+  and reality lag $\Delta_v \in \mathbb{N}$
+  if:
+
+  For all beliefs $B \in \mathcal{B}$,
+  for all PPT adversaries $\mathcal{A}$ and all
+  $B$-respecting PPT environments $\mathcal{Z}$,
+  for all number of compositor parties $m \in \mathbb{N}$,
+  for all compositor party indices $j \in [m]$,
+  % TODO: There is no need for the polynomiality constraint on A and Z,
+  % but the reduction maintains polynomiality
+  there is a PPT simulator $\mathcal{S}$ and there is a
+  PPT environment $\mathcal{Z}'$ such that
+  the following holds:
+
+  \begin{enumerate}
+    \item $\LCView_{j,\mathcal{H}(B),\Delta_v}(\mathcal{E}) \distreq \PEView_{\mathcal{H}(B)}(\mathcal{E}')$
+    \item $\LCExtern_{j,\mathcal{H}(B)}(\mathcal{E}) \laterlydistr{\Delta_u,\Delta_v} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$
+  \end{enumerate}
+
+  where execution $\mathcal{E}$ is sampled from
+  % TODO: Do not use "EXEC", as this is inconsistent with the UC framework
+  $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
+  % TODO: B should only depend on the collective execution of \Y, not anything else
+  and execution $\mathcal{E}'$ is sampled from
+  $\PEExec(\Pi, \mathcal{S}, \mathcal{Z}', n, \mathcal{H}(B), \Delta)$,
+  and $\Delta = \Delta_v + \Delta_u$.
+\end{definition}
 
 % Remark: Differences from a UC-style proof
