@@ -224,18 +224,7 @@ Random Oracle collision), it can conclude the execution.
     setting with adversary $\mathcal{A}$ and environment $\mathcal{Z}$
     (bottom right). The simulator uses each good ledger $\Y[i][j]$ in
     $\mathcal{E}^*$ to feed data into the respective honest party $\PPi[i]$
-    in $\mathcal{E}'$. The environments $\mathcal{Z}$ in $\mathcal{E}$ and $\mathcal{Z}'$
-    in $\mathcal{E}'$ respectively
-    give rise to externalities similar in distribution ($\laterlydistr{\Delta_u,\Delta_v}$,
-    middle top),
-    whereas the views of the honest parties in $\mathcal{E}$
-    and $\mathcal{E}'$ are distributionally equivalent ($\distreq$, middle top).
-    The executions $\mathcal{E}$ and $\mathcal{E}^*$ are sampled
-    from the same distribution ($\distreq$, bottom left).
-    The views of the honest parties in $\mathcal{E}^*$ and $\mathcal{E}'$
-    are equal (not just equal in distribution)
-    and the externalities in $\mathcal{E}^*$ and $\mathcal{E}'$
-    similar (not just similar in distribution).}
+    in $\mathcal{E}'$. }
     \label{fig.conj.simulation}
   \end{figure*}
 
@@ -270,6 +259,25 @@ Random Oracle collision), it can conclude the execution.
   $\LCExtern_j(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\mathcal{E}')$
   (i.e., we will show that the externalities of $\mathcal{E}'$ are
   similar to $\mathcal{E}^*$, not just \emph{distributionally} similar).
+  See Figure~\ref{fig.emulation-distribution}.
+
+  \begin{figure*}
+    \centering
+    \includegraphics[width=0.6 \textwidth,keepaspectratio]{figures/rollerblade-emulation-distribution.pdf}
+    \caption{The environments $\mathcal{Z}$ in $\mathcal{E}$ and $\mathcal{Z}'$
+    in $\mathcal{E}'$ respectively
+    give rise to externalities similar in distribution ($\laterlydistr{\Delta_u,\Delta_v}$,
+    middle top),
+    whereas the views of the honest parties in $\mathcal{E}$
+    and $\mathcal{E}'$ are distributionally equivalent ($\distreq$, middle top).
+    The executions $\mathcal{E}$ and $\mathcal{E}^*$ are sampled
+    from the same distribution ($\distreq$, bottom left).
+    The views of the honest parties in $\mathcal{E}^*$ and $\mathcal{E}'$
+    are equal (not just equal in distribution)
+    and the externalities in $\mathcal{E}^*$ and $\mathcal{E}'$
+    similar (not just similar in distribution).}
+    \label{fig.emulation-distribution}
+  \end{figure*}
 
   Since $\mathcal{Z}$ is $B$-respecting, therefore $B(\mathcal{E}^*)$ holds.
   Hence, for all $i \in H$, $\Y[][i]$ is safe, live $(u_i)$, and timely $(v_i)$
