@@ -1,6 +1,37 @@
 \section{Discussion}
 
 \noindent
+\textbf{Related work.}
+Building a reliable system by composing potentially faulty components
+is a classical engineering problem~\cite{von1956probabilistic,moore1956reliable}.
+In the era of consensus, the seminal
+paper by Lamport that introduced the Byzantine Fault Tolerance problem~\cite{shostak1982byzantine}
+aims to solve a reliability problem, where different processors disagree about their
+outcomes. The composition of multiple \emph{blockchain} protocols was explored by
+Kiayias et al.~cite{fitzi2020ledger}, but for the purpose of performance in terms of throughput
+and latency, not reliability. The idea of borrowing security from one chain to
+secure another was first proposed in the context of \emph{merged mining}~\cite{namecoin}, where
+a strong proof-of-work blockchain secures a weaker proof-of-work blockchain. This
+concept was later extended to \emph{merged staking}~\cite{pos-sidechains}, where a
+strong proof-of-stake \emph{parent chain} lends its security to a less secure
+\emph{child chain}. Similar ideas have recently appeared in Cosmos proof-of-stake
+chains as \emph{Mesh Security}. Hybrids between different consensus mechanisms
+have also been proposed. The idea of \emph{checkpointing}
+one blockchain onto another to borrow security was formalized by Karakostas et al.~\cite{karakostas2021securing},
+and has been applied to secure newly created proof-of-work systems using stronger
+preexisting proof-of-stake systems. Such constructions are uni-directional:
+one ``parent'' chain is designated as authoritative and \emph{stronger},
+while the ``child'' chain is designated as \emph{weaker} and in need of securing.
+The idea of composing ledgers to achieve a more reliable overlay ledger
+was first proposed in a short Cosmos GitHub issue called
+\emph{recursive Tendermint}~\cite{recursive-tendermint}.
+This concept was expanded upon by TrustBoost~\cite{trustboost}
+where they build a composition using Cosmos as the underlying
+construction, IBC for cross-chain communication, and Information Theoretic
+HotStuff as the overlay protocol. Regrettably, their construction is not
+accompanied by a proof of security.
+
+\noindent
 \textbf{Certificates \textsc{vs} transcriptions.}
 Our \rollerblade construction was given assuming the underlying protocols
 provide a \transcribe and \untranscribe interface which guarantees that
