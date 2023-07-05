@@ -1,24 +1,31 @@
 \begin{algorithm}
-  \caption{\label{alg.consensus} The write and read functionalities of a consensus \rollerblade node.}
+  \caption{\label{alg.consensus} A ``recursive consensus'' application of the \rollerblade compositor.
+  The protocol is parameterized by the overlay distributed ledger protocol $\Pi$ and the underlying
+  clients to existing distributed ledger protocols $\Y[j][1], \ldots, \Y[j][n]$.}
   \begin{algorithmic}[1]
-    \Function{\lread}{$\sid, \Pi, \Y[j], \realityRound$}
-      \Let{\overline{L}}{[\,]}
-      %TODO: is this zero-based?
-      \Let{v}{\max_{\Y[j][i] \in \Y[j]}{\{\Y[j][i].v\}}}
-      \Let{\simulationRound}{\realityRound - v - 1}
-      \For{$i \gets 1 \gets |\Y[j]|$}
-        \Let{L}{\emulateMachine(\sid, \Pi, i, \Y[j], \simulationRound, \realityRound)}
-        \State{$\overline{L}$.\append($L$)}
-      \EndFor
-      \State{\Return{$\majorityVote(\overline{L})$}}
-    \EndFunction
+    \Protocol{$\textsf{RecursiveConsensus}_{\Pi}$}
+      \Function{\construct}{$\Y[j]$}
+        \Let{\this.\LLambda[j]}{\new \rollerblade(\Y[j], \Pi)}
+      \EndFunction
 
-    \Function{\lwrite}{$\sid, \Y[j], \tx$}
-      \For{$i \gets 1 \text{ to } |\Y[j]|$}
-        \State{$\writeToMachine(\sid, i, \tx, \Y[j])$}
-      \EndFor
-    \EndFunction
+      \Function{\lread}{\,}
+        \Let{\overline{L}}{[\,]}
+        %TODO: is this zero-based?
+        \Let{v}{\max_{\Y[j][i] \in \Y[j]}{\{\Y[j][i].v\}}}
+        \Let{\simulationRound}{\this.\now - v - 1}
+        \For{$i \gets 1 \text{ to } |\Y[j]|$}
+          \Let{L}{\this.\LLambda[j].\emulateMachine(i, \simulationRound)}
+          \State{$\overline{L}$.\append($L$)}
+        \EndFor
+        \State{\Return{$\majorityVote(\overline{L})$}}
+      \EndFunction
 
+      \Function{\lwrite}{$\tx$}
+        \For{$i \gets 1 \text{ to } |\Y[j]|$}
+          \State{$\this.\LLambda[j].\writeToMachine(i, \tx)$}
+        \EndFor
+      \EndFunction
+    \EndProtocol
     \vskip2pt
   \end{algorithmic}
 \end{algorithm}
