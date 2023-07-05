@@ -539,7 +539,7 @@ Random Oracle collision), it can conclude the execution.
   \centering
   \includegraphics[width=0.6 \textwidth,keepaspectratio]{figures/rollerblade-cross-party.pdf}
   \caption{The Cross-Party Lemma (Lemma~\ref{lem:cross-party}) states that
-  the execution of the emulated machines $\Z[j][i]$ and $\Z[j][i']$
+  the execution of the emulated machines $\Z[j][i]$ and $\Z[j'][i]$
   across two different compositor parties $\LLambda[j]$ and $\LLambda[j']$
   is consistent, as long as the underlying ledger $\Y[][i]$ is \emph{good}.}
   \label{fig.cross-party}
@@ -643,9 +643,11 @@ Random Oracle collision), it can conclude the execution.
     whereas the views of the honest parties in $\mathcal{E}$
     and $\mathcal{E}'$ are distributionally equivalent ($\distreq$, middle top).
     The executions $\mathcal{E}$ and $\mathcal{E}^*$ are sampled
-    from the same distribution ($\distreq$, bottom left),
-    so the views of the honest parties are equal (not just equal in distribution)
-    and the externalities similar (not just similar in distribution).}
+    from the same distribution ($\distreq$, bottom left).
+    The views of the honest parties in $\mathcal{E}^*$ and $\mathcal{E}'$
+    are equal (not just equal in distribution)
+    and the externalities in $\mathcal{E}^*$ and $\mathcal{E}'$
+    similar (not just similar in distribution).}
     \label{fig.conj.simulation}
   \end{figure*}
 
