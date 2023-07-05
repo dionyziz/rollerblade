@@ -168,50 +168,8 @@ of an event.
   \]
 \end{definition}
 
-\begin{definition}[\rollerblade-Suitable Underlying Protocol]
-  A \emph{distributed protocol} is called a \emph{\rollerblade-Suitable
-  Underlying Protocol} if it is a
-  (potentially permissionless)
-  distributed temporal ledger protocol
-  which is a bulletin board and a
-  certifiable protocol.
-\end{definition}
-
-In summary, the underlying ledgers provide the following functionalities:
-
-\begin{enumerate}
-  \item \textbf{construct}: Initializes the protocol.
-  \item \textbf{execute}: Executes one round of the protocol.
-  \item \textbf{write}: Writes a transaction to the ledger. The transaction
-        appears within $u$ rounds if the ledger protocol is \emph{live}.
-  \item \textbf{read}: Reads the temporal ledger. The ledger read is
-        consistent with whatever other honest parties are reading if the
-        ledger protocol is \emph{safe}, and the transactions appear with
-        correct recorded rounds if the protocol is \emph{timely}.
-  \item \textbf{encode}: Given an arbitrary string, produces a valid bulletin transaction.
-  \item \textbf{decode}: Given a bulletin transaction, produces the original
-        string used to encode it.
-  \item \textbf{transcribe}: Produces a transcription $\tau$ of the
-        current temporal ledger.
-  \item \textbf{untranscribe}: Given a transcription $\tau$, produces a ledger
-        promised to be \emph{safe} and \emph{live} as compared to the
-        rest of the honest parties.
-\end{enumerate}
-
-% TODO: restore this definition
-% \begin{definition}[Transcribability]
-%       Definition of transcribability...
-% \end{definition}
 %
 
-\subsection{Overlay Requirements}
 
-Our construction allows running \emph{any} deterministic
-overlay permissioned distributed protocol
-working over authenticated channels.
 
-% TODO: write out the execution environment...
-\begin{definition}[\rollerblade-Suitable Overlay Protocol]
-  A distributed protocol is called \emph{\rollerblade-Suitable Overlay Protocol}
-  if it is deterministic and permissioned.
-\end{definition}
+% Remark: Differences from a UC-style proof
