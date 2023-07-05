@@ -6,7 +6,7 @@ PDF = $(PACKAGE).pdf ${SAMPLES:%.tex=%.pdf}
 
 all: rollerblade.pdf
 
-rollerblade.pdf: *.tex *.bib algorithms/*.tex
+rollerblade.pdf: *.tex *.bib algorithms/*.tex figures/*.pdf
 	xelatex rollerblade.tex && \
 	bibtex rollerblade && \
 	xelatex rollerblade.tex && \
