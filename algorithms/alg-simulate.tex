@@ -8,6 +8,7 @@
     ``sent'' to other parties) and the instance $\Z[j][i]$ of the simulated machine
     as reported by overlay party $i$.
   }
+  %TODO: Rename simulate function
   \begin{algorithmic}[1]
     \Function{\simulate}{$i, \Ledger[j][i], \simulationRound$}
       \Let{(\writeboxes, \inboxes)}{\this.\prepareSimulationInputs(i, \Ledger[j][i], \simulationRound)}\label{alg.simulate:recursion}
@@ -16,8 +17,8 @@
       \Let{\inboxThisRound}{[\,]}
       \Let{\outboxThisRound}{[\,]}
 
-      \Function{\send}{recp, m}\label{alg.simulate:send}
-        \State{$\outboxThisRound.\append(\{\textsf{to}{:} \textsf{recp}, \textsf{msg}{:}m\})$}
+      \Function{\send}{recp, \msg}\label{alg.simulate:send}
+        \State{$\outboxThisRound.\append(\{\textsf{to}{:} \textsf{recp}, \msg{:}\msg\})$}
       \EndFunction
 
       \Function{\recv}{\,}\label{alg.simulate:receive}

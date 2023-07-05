@@ -242,9 +242,12 @@ Random Oracle collision), it can conclude the execution.
   At the beginning of round $r$ of $\mathcal{E}'$, the simulator calls
   $\lwrite(\data)$ on party $i$
   for every $\data \in \writeboxes^i[r - 1]$.
-  When $\mathcal{Z}'$ activates party $i$ during round $r$,
-  if party $i$ invokes the network receive method $\recv()$, then $\mathcal{Z}'$
-  provides $\inboxes^i[r - 1]$.
+  At every round, $\mathcal{Z}'$ activates each party, in order,
+  by invoking $\PPi[i].\execute()$.
+  If party $\PPi[i]$ invokes the network receive method $\recv()$, while active,
+  then $\mathcal{Z}'$ provides $\inboxes^i[r - 1]$.
+  If $\PPi[i]$ invokes the network send method $\send(i', \msg)$, while active,
+  then it is ignored by $\mathcal{Z}'$.
 
   % TODO: separate the notion of "emulation" and the notion of "simulation"
 
@@ -282,49 +285,6 @@ Random Oracle collision), it can conclude the execution.
   Since $\mathcal{Z}$ is $B$-respecting, therefore $B(\mathcal{E}^*)$ holds.
   Hence, for all $i \in H$, $\Y[][i]$ is safe, live $(u_i)$, and timely $(v_i)$
   in $\mathcal{E}^*$.
-
-  \noindent
-  \textbf{Claim 0: $\mathcal{Z}'$ respects the network model.}
-  Namely, the claim is that for all $i, i' \in H$, for all rounds $r$ of $\mathcal{E}'$:
-
-  \begin{enumerate}[label=(\alph*)]
-    \item
-    \label{conj:simulation:claim-delta}
-    If $\PPi[i]$ sends a message to $\PPi[i']$ at round $r$, then this message is delivered to $\PPi[i']$ (with source $i$) by round $r + \Delta$, and
-
-    \item
-    If $\PPi[i']$ received a message from $\PPi[i]$ at round $r$, then this message was sent by $\PPi[i]$.
-  \end{enumerate}
-
-  If $\PPi[i]$ sends a message $\msg$ to $\PPi[i']$ at round $r$, then
-  if we call in vitro (after round $r + \Delta_v$) $\simulate(i, \Ledger[j][i][r], r)$
-  on $\LLambda[j]$ we will find that message in $\outboxes[r]$.
-  %TODO: prove the above
-
-  At round $r$, relayer $\LLambda[j]$ invokes $\relay()$.
-  This creates a transcription $\tau = \Y[j][i].\transcribe()$, where
-  $\Y[j][i].\untranscribe(\tau) = \Ledger[j][i][r]$.
-  Then, it transmits a new bulletin `checkpoint'
-  transaction $\tx$ containing transcription $\tau$ to $\Y[][i']$.
-
-  Because of the liveness of $\Y[][i']$,
-  transaction $\tx$ appears in $\Ledger[j][i'][r']$
-  at round $r' \leq r + u_{i'} \leq r + \Delta_u$.
-
-  Then, $(\tx, r^*) \in \Ledger[j][i'][R']$. If we call in vitro
-  (after round $r + \Delta_v$) $\simulate(i, \Ledger[j][i][r], r)$
-  on $\LLambda[j]$ we will find $\msg$ in $\outboxes[r]$.
-
-  That means that when the simulator calls in vitro
-  (at the end of round $R$ where $R \geq r' + \Delta_v$) $\prepareSimulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$
-  we will find $m$ in $\inboxes[r^*]$ (with source $i$).
-  Therefore, $\mathcal{Z}'$ will provide $m$ to $\PPi[i']$
-  if $\PPi[i']$ calls method $\recv()$ at round $r*$.
-  %TODO: formalize the above
-
-  This completes the proof of \ref{conj:simulation:claim-delta}.
-
-  %TODO: prove 0b.
 
   \noindent
   \textbf{Claim 1: $\LCView_{j,H,\Delta_v}(\mathcal{E}^*) = \PEView_H(\mathcal{E}')$.}
@@ -449,10 +409,75 @@ Random Oracle collision), it can conclude the execution.
     \label{fig.emulation-claim-1-induction}
   \end{figure*}
 
-  % TODO: double check the exact numbers in this proof
-
   \noindent
-  \textbf{Claim 2: $\LCExtern_{j,H}(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$.}
+  \textbf{Claim 2: $\mathcal{Z}'$ respects the network model.}
+  Namely, the claim is that for all $i, i' \in H$, for all rounds $r$ of $\mathcal{E}'$:
+
+  \begin{enumerate}[label=(\alph*)]
+    \item
+    \label{conj:simulation:claim-delta}
+    If $\PPi[i]$ sends a message to $\PPi[i']$ at round $r$, then this message is delivered to $\PPi[i']$ (with source $i$) by round $r + \Delta$, and
+
+    \item
+    If $\PPi[i']$ received a message from $\PPi[i]$ at round $r$, then this message was sent by $\PPi[i]$.
+  \end{enumerate}
+
+  Let $r$ be the round during which $\PPi[i]$ sends message $\msg$ to $\PPi[i']$.
+  That means that $\PPi[i]$ invoked network function $\send(i', \msg)$ at round $r$.
+  In Claim 1, we showed that the transcript of machine $\PPi[i]$ in $\mathcal{E}'$
+  is identical to the transcript of machine $\Z[j][i] = \LLambda[j].\emulate(i,r)$ in $\mathcal{E}^*$
+  called in vitro at the end of round $r + \Delta_v + 1$.
+  Hence, $\Z[j][i]$ also invoked network function $\send(i', \msg)$ at round $r$.
+  This means that $\msg \in \LLambda[j].\simulate(i, \Ledger[j][i][r + \Delta_v + 1], r).\outboxes[r]$
+
+
+  At the beginning of round $r$, environment $\mathcal{Z}'$
+  calls $\lwrite(\data)$ on party $i$.
+  Then, $\PPi[i]$ is activated
+  is provided
+
+  At round $r$, $\PPi[i]$ is activated by $\mathcal{Z}'$ and
+  has $\inboxes^i[r - 1]$
+
+  Definitionally, this means that $\msg \in \simulate(i, \Ledger[j][i][r], r).\outboxes[r]$
+  called in vitro at the end of round $R$. This is because
+
+  function $\send()$ (Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:send}) is invoked
+  with parameters $i'$ and $\msg$ the $r$-th time that $\Z[j][i].\execute()$ is called.
+
+  At round $r$, relayer $\LLambda[j]$ invokes $\relay()$.
+  This creates a transcription $\tau = \Y[j][i].\transcribe()$, where
+  $\Y[j][i].\untranscribe(\tau) = \Ledger[j][i][r]$.
+  Then, it transmits a new bulletin `checkpoint'
+  transaction $\tx$ containing transcription $\tau$ to $\Y[][i']$.
+
+  Because of the liveness of $\Y[][i']$,
+  transaction $\tx$ appears in $\Ledger[j][i'][r']$
+  at round $r' \leq r + u_{i'} \leq r + \Delta_u$.
+  Hence, $(\tx, r^*) \in \Ledger[j][i'][r']$, where $r^*$ is the recorded round of $\tx$ and $r' - u_{i'}\leq r^* \leq r'$.
+
+  Simulator calls in vitro (at the end of round $R$ where
+  $R \geq r' + \Delta_v$) $\prepareSimulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$.
+
+  If we call in vitro
+  (after round $r + \Delta_v$) $\simulate(i, \Ledger[j][i][r], r)$
+  on $\LLambda[j]$ we will find $\msg$ in $\outboxes[r]$.
+
+  That means that when the simulator calls in vitro
+  (at the end of round $R$ where $R \geq r' + \Delta_v$) $\prepareSimulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$
+  we will find $m$ in $\inboxes[r^*]$ (with source $i$).
+  Therefore, $\mathcal{Z}'$ will provide $m$ to $\PPi[i']$
+  if $\PPi[i']$ calls method $\recv()$ at round $r*$.
+  %TODO: formalize the above
+
+  This completes the proof of \ref{conj:simulation:claim-delta}.
+
+  %TODO: prove 0b.
+
+
+  % TODO: double check the exact numbers in this proof
+  \noindent
+  \textbf{Claim 3: $\LCExtern_{j,H}(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$.}
 
   Let $i \in H$ and $r \leq R - \Delta_u - \Delta_v - 1$ be arbitrary, and $W^i_r$ be the writebox
   at position $(i, r)$ of $\LCExtern(\mathcal{E}^*)$. Let $m$ be an arbitrary message
@@ -472,7 +497,7 @@ Random Oracle collision), it can conclude the execution.
   to the \emph{writebox} of party $i$, since $r^* \leq R - \Delta_v - 1$.
   Hence, $m$ will be inputted to the \emph{write} function call of $\Pi^i$
   in $\mathcal{E}'$ at round $r^*$ (and note that $1 \leq r^* \leq R - \Delta_v - 1$ falls
-  within the duration of $\mathcal{E}'$), completing the proof of Claim 2.
+  within the duration of $\mathcal{E}'$), completing the proof of Claim 3.
   \qed
   % TODO: Check that there are sufficient rounds before the end of the simulation
   % for $\Pi^i$ to write this message (i.e., for the message to appear in the prepareSimulationInputs
