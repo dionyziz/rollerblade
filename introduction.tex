@@ -23,12 +23,12 @@ overlay protocol?
 In this paper, we observe that many distributed systems protocols, among others
 distributed ledger protocols e.g., Streamlet and HotStuff, can be run
 on top of other existing long-running and battle-tested ledger \emph{underlying}
-protocols such as Bitcoin, Ethereum, Cardano, and Dogecoin. The underlying protocols
+protocols such as Bitcoin, Ethereum, Cardano, and Algorand. The underlying protocols
 play the role of always-online validators that participate in the overlay protocol's
 execution. If we run a consensus protocol on top of existing consensus protocols,
 we can realize a rollup, in the form of the overlay, which is securer than each
 of the constituent underlying Layer-1s it is based on. For example, we can construct
-a rollup that maintains security even if one of Bitcoin, Ethereum, Cardano, or Dogecoin
+a rollup that maintains security even if one of Bitcoin, Ethereum, Cardano, or Algorand
 faces a catastrophic failure such as a persistent 51\% attack.
 
 Our construction is quite generic.
@@ -40,25 +40,29 @@ internally-generated randomness, and must be designed to work in the commonly us
 satisfy a minimal set of axioms which are satisfied by all popular blockchain and
 related protocols today: It must realize a ledger functionality (with the ability
 to \emph{write} transactions and \emph{read} sequences of transactions in the form of a ledger)
-which promises to be secure; it must ascribe timestamps to each transaction on the ledger (a temporal ledger);
-it must allow the recording of any arbitrary string inside a transaction (a bulletin board);
+which promises to be secure; it must ascribe roughly accurate timestamps to each transaction on the ledger (a temporal ledger);
+it must allow the recording of arbitrary strings inside a transaction (a bulletin board,
+similar to Bitcoin's \texttt{OP\_RETURN});
 and it must support non-interactive clients (the ledgers must be \emph{transcribable}
 into a string that can recover the original ledger).
 The minimal set of axioms are satisfied by Bitcoin (Nakamoto), Ethereum, Cardano
-(Ouroboros/Ouroboros Praos/Ouroboros Genesis), Dogecoin, Algorand, Monero, Sui
+(Ouroboros/Ouroboros Praos/Ouroboros Genesis), Algorand, Monero, Sui
 (HotStuff/Bullshark/Narwhal/Tusk), and all other distributed ledger protocols
 to our knowledge. Notably, we don't require that the underlying protocols have
 any smart contract support (although such support can greatly increase the efficiency
 of our protocol), or that existing bridging is implemented between them (as
-transcribability is enough to realize this functionality). Our construction works on
+transcribability is enough to realize this functionality ourselves). Our construction works on
 top of both proof-of-work and proof-of-stake blockchains, among others.
 
 \noindent
 \textbf{Our contributions.} The contributions of this paper are the following:
 
 \begin{enumerate}
-  \item We put forth \emph{rollerblade}, a general method that allows transforming
-        distributed systems protocols from the \emph{party} to the \emph{ledger}
+  \item We formally define the \emph{compositing problem}, of emulating
+        one distributed protocol in a replicated fashion on top of other
+        distributed protocols.
+  \item We put forth \emph{rollerblade}, a generic method that allows transforming
+        distributed systems protocols from the \emph{party} to the \emph{emulated}
         setting.
   \item We show how our protocol works on top of any proof-of-work or proof-of-stake
         blockchain with minimal axiomatic assumptions. We give the exact properties
@@ -191,9 +195,9 @@ This whole construction is described in Section~\ref{sec:construction}.
 Our analysis is conducted in two central lemmas: The \emph{Simulation Lemma}
 and the \emph{Cross-Party Lemma}.
 Firstly, the Simulation Lemma pertains to the comparison of the execution
-of an overlay protocol in the ledger setting and within the confines of
+of an overlay protocol in the emulated setting and within the confines of
 \emph{one} \rollerblade client in the party setting.
-It states that the execution in the ledger setting
+It states that the execution in the emulated setting
 is equivalent to some execution in the \emph{party} setting.
 We prove this by a reduction-based simulation argument.
 Secondly, the Cross-Party Lemma concerns the execution of \emph{multiple}
