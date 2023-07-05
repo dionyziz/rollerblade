@@ -1,5 +1,52 @@
 \section{Definitions}
 
+\begin{definition}[Temporal Ledger]
+  A distributed protocol $\Pi$, together with a \emph{transaction validity language} $\mathcal{V}$
+  is a \emph{temporal ledger} protocol if its \emph{read} and \emph{write}
+  functionalities have the following semantics:
+
+  \begin{itemize}
+    \item $\lwrite(\tx)$: The write functionality accepts a \emph{transaction}, which is
+          a string that belongs to $\mathcal{V}$.
+    \item $L \gets \lread()$: The read functionality returns a \emph{ledger} $L \in (\mathbb{N} \times \mathcal{V})^*$, which is
+          a finite sequence of pairs $(r, \tx)$ where $\tx \in \mathcal{V}$ is a transaction, and
+          $r$ is a \emph{round} indicating the time at which the transaction in question
+          is recorded on the ledger.
+  \end{itemize}
+\end{definition}
+
+The following definition is first introduced in this work\footnote{A related notion of \emph{relative persistence}
+appears in \emph{Fitzi et al.}~\cite{fitzi2020ledger}},
+as it will prove
+immensely useful for composability, but is a natural property that all well-designed
+blockchain systems have:
+
+\begin{definition}[Timely]\label{def:timely}
+  An execution $\Exec$ of a temporal ledger protocol $\Pi$ is \emph{timely} with parameter $v \in \mathbb{N}$
+  if for all honest parties $P$ and rounds $r_1$ it holds that:
+
+  \begin{enumerate}
+    \item The rounds recorded in $\Ledger[P][][r_1]$ are non-decreasing.\label{def:timely-increasing}
+    \item The round recorded at $\Ledger[P][][r_1][-1]$ is at most $r_1$.\label{def:timely-past}
+    \item For all $r_2 \geq r_1$, the rounds recorded in $\Ledger[P][][r_2][|\Ledger[P][][r_1]|{:}]$ are at least $r_1 - v$.\label{def:timely-chunk}
+  \end{enumerate}
+\end{definition}
+
+All popular blockchain protocols report timestamps together with their
+transactions and ensure their timeliness. For example, Bitcoin and Ethereum
+produce blocks each of which contains a timestamp. These timestamps can be copied
+into the transactions therein when \emph{reading}. Because the respective protocols do not accept
+chains with decreasing timestamps, or blocks with future timestamps the timeliness
+points~\ref{def:timely-increasing} and~\ref{def:timely-past} are ensured.
+Point~\ref{def:timely-chunk} is more subtle and asks that very old transactions will
+not suddenly appear in the ledger. As an example protocol, we include a proof that Bitcoin is timely in
+Appendix~\ref{sec:appendix}.
+
+\begin{definition}[Temporal Ledger Security]
+  An execution $\Exec$ of a temporal ledger protocol $\Pi$ is \emph{secure} (with parameters $(u, v)$) if the execution
+  is \emph{safe}, \emph{timely} (with parameter $v$), and \emph{live} (with parameter $u$).
+\end{definition}
+
 \subsection{The Setting}
 
 We are given $n \in \mathbb{N}$ ledger protocols
