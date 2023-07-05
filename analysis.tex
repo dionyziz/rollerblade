@@ -535,6 +535,16 @@ Random Oracle collision), it can conclude the execution.
   relayer.\qed
 \end{proof}
 
+\begin{figure*}
+  \centering
+  \includegraphics[width=0.6 \textwidth,keepaspectratio]{figures/rollerblade-cross-party.pdf}
+  \caption{The Cross-Party Lemma (Lemma~\ref{lem:cross-party}) states that
+  the execution of the emulated machines $\Z[j][i]$ and $\Z[j][i']$
+  across two different compositor parties $\LLambda[j]$ and $\LLambda[j']$
+  is consistent, as long as the underlying ledger $\Y[][i]$ is \emph{good}.}
+  \label{fig.cross-party}
+\end{figure*}
+
 \begin{lemma}[Rollerblade Consistency]\label{lem:consistency}
   Consider a \rollerblade $\Lambda$ execution $\mathcal{E}$ with duration $R$ rounds
   sampled from $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
@@ -605,7 +615,8 @@ Random Oracle collision), it can conclude the execution.
   Initially, $S$ samples an execution
   $\mathcal{E}^*$ in the emulation setting from
   % TODO: is the number of validators in \Y[][1] hard-coded into it?
-  $\LCExec_m(\Lambda,\allowbreak\mathcal{Y},\allowbreak\mathcal{A},\allowbreak\mathcal{Z})$.
+  $\LCExec_m(\Lambda,\allowbreak\mathcal{Y},\allowbreak\mathcal{A},\allowbreak\mathcal{Z})$
+  (see Figure~\ref{fig.conj.simulation}).
   Let $R$ be the duration of $\mathcal{E}^*$ in rounds.
   The simulator looks at compositor party $j$ of $\mathcal{E}^*$
   and its $\Y[j][1], \ldots, \Y[j][n]$.
@@ -613,6 +624,30 @@ Random Oracle collision), it can conclude the execution.
   $\mathcal{E}'$ to be $R - \Delta_v - 1$. It initializes $n$
   parties $\PPi[1], \ldots, \PPi[i], \ldots, \PPi[n]$ by invoking
   the \emph{constructor} method with parameters $\Delta, i, n$.
+
+  \begin{figure*}
+    \centering
+    \includegraphics[width=0.7 \textwidth,keepaspectratio]{figures/rollerblade-emulation.pdf}
+    \caption{A visualization of the argument that \rollerblade is faithful.
+    In the proof of Conjecture~\ref{conj:simulation},
+    the simulator $\mathcal{S}$ and simulated environment $\mathcal{Z}'$
+    give rise to execution $\mathcal{E}'$ in the
+    party setting (top right) by sampling an execution $\mathcal{E}^*$ in the emulated
+    setting with adversary $\mathcal{A}$ and environment $\mathcal{Z}$
+    (bottom right). The simulator uses each good ledger $\Y[i][j]$ in
+    $\mathcal{E}^*$ to feed data into the respective honest party $\PPi[i]$
+    in $\mathcal{E}'$. The environments $\mathcal{Z}$ in $\mathcal{E}$ and $\mathcal{Z}'$
+    in $\mathcal{E}'$ respectively
+    give rise to externalities similar in distribution ($\laterlydistr{\Delta_u,\Delta_v}$,
+    middle top),
+    whereas the views of the honest parties in $\mathcal{E}$
+    and $\mathcal{E}'$ are distributionally equivalent ($\distreq$, middle top).
+    The executions $\mathcal{E}$ and $\mathcal{E}^*$ are sampled
+    from the same distribution ($\distreq$, bottom left),
+    so the views of the honest parties are equal (not just equal in distribution)
+    and the externalities similar (not just similar in distribution).}
+    \label{fig.conj.simulation}
+  \end{figure*}
 
   % TODO: consider moving the simulation to an algorithm/figure
   The simulator initially obtains, for every $i \in [n]$,
