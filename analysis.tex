@@ -374,7 +374,7 @@ $B$ asserting that the majority of underlying ledger protocols are secure.
 
 % TODO: Mention that the validator and other protocol settings for \Y[][i]
 % are hard-coded into \Y[][i]
-\begin{definition}[Compositor Faithfulness]
+\begin{definition}[Compositor Faithfulness]\label{def:faithfulness}
   A compositor $\Lambda$
   is $(\Pi,\allowbreak n,\allowbreak \mathcal{Y},\allowbreak \mathcal{B},\allowbreak \mathcal{H},\allowbreak \Delta_u,\allowbreak \Delta_v)$-\emph{faithful}
   for an overlay protocol $\Pi$,
@@ -603,7 +603,7 @@ Random Oracle collision), it can conclude the execution.
   and the index of the compositor $j$ of interest be arbitrary
   as in the statement, and set $H = \mathcal{H}(B)$.
   Let $\mathcal{E}$ and $\mathcal{E}'$ be the emulated and party setting
-  executions, respectively.
+  executions, respectively, sampled as in Definition~\ref{def:faithfulness}.
   As $\Pi$ is a \rollerblade-suitable-overlay protocol it is deterministic.
 
   We will prove faithfulness by
