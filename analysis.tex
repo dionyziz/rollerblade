@@ -425,7 +425,7 @@ Random Oracle collision), it can conclude the execution.
   Let $r$ be the round during which $\PPi[i]$ sends message $\msg$ to $\PPi[i']$.
   That means that $\PPi[i]$ invoked network function $\send(i', \msg)$ at round $r$.
   In Claim 1, we showed that the transcript of machine $\PPi[i]$ in $\mathcal{E}'$
-  is identical to the transcript of machine $\Z[j][i] = \LLambda[j].\emulate(i,r)$ in $\mathcal{E}^*$
+  is identical to the transcript of machine $\Z[j][i] = \LLambda[j].\emulateMachine(i,r)$ in $\mathcal{E}^*$
   called in vitro at the end of round $r + \Delta_v + 1$.
   Hence, $\Z[j][i]$ also invoked network function $\send(i', \msg)$ at round $r$.
   This means that $\msg \in \LLambda[j].\simulate(i, \Ledger[j][i][r + \Delta_v + 1], r).\outboxes[r]$
