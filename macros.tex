@@ -154,3 +154,11 @@
 \textbf{#1}.
 \fi
 }
+
+\newcommandx{\appsection}[1][1=]{
+\iftwocolumn
+\subsection{#1}
+\else
+\section{#1}
+\fi
+}

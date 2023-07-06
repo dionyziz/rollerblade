@@ -44,8 +44,8 @@
 \import{./}{frontpage.tex}
 \import{./}{body.tex}
 
-\vfill
-\pagebreak
+% \vfill
+% \pagebreak
 \iflncs
   \thispagestyle{plain}
 \fi
@@ -60,5 +60,11 @@
   \bibliographystyle{IEEEtran}
 \fi
 \bibliography{biblio,pubs}
+
+\appendix
+\import{./}{appendix-proofs.tex}
+\iflong
+\import{./}{appendix-timely.tex}
+\fi
 
 \end{document}
