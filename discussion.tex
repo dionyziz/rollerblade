@@ -1,31 +1,36 @@
 \section{Discussion}
 
 \noindent
-\textbf{Related work.}
+\myparagraph[Related work.]
 Building a reliable system by composing potentially faulty components
 is a classical engineering problem~\cite{von1956probabilistic,moore1956reliable}.
 In the era of consensus, the seminal
 paper by Lamport that introduced the Byzantine Fault Tolerance problem~\cite{shostak1982byzantine}
 aims to solve a reliability problem, where different processors disagree about their
 outcomes. The composition of multiple \emph{blockchain} protocols was explored by
-\emph{Fitzi et al.}~\cite{fitzi2020ledger}, but for the purpose of performance in terms of throughput
-and latency, not reliability. In their paper, they also introduce the notion of
+\emph{Fitzi et al.}~\cite{combiners}, but for the purpose of performance in terms of
+latency, not reliability. In their paper, they also introduce the notion of
 \emph{relative persistence}, in which they talk of \emph{dynamic ledgers} (\emph{cf.}, our
 \emph{temporal ledgers}) and transaction \emph{ranks} (\emph{cf.}, our \emph{recorded rounds})
 which is related, but not equivalent, to our notion of \emph{timeliness}.
 They also define the notion of a \emph{blockchain combiner} (\emph{cf.}, our \emph{compositors}).
+Their protocol is \emph{passive} (\emph{cf.} TrustBoost~\cite{trustboost}),
+meaning the ``combiner'' does not achieve full consensus (\cite[Section 5]{combiners}).
+Their ``combiner'' is an instance of our \emph{compositors}, which
+further allow for generic distributed protocols to run in an emulated and
+replicated fashion, and achieve full consensus.
 
 The idea of borrowing security from one chain to
 secure another was first proposed in the context of \emph{merged mining}~\cite{namecoin}, where
-a strong proof-of-work blockchain secures a weaker proof-of-work blockchain. This
+a strong proof-of-work (PoW) chain secures a weaker one. This
 concept was later extended to \emph{merged staking}~\cite{pos-sidechains}, where a
-strong proof-of-stake \emph{parent chain} lends its security to a less secure
-\emph{child chain}. Similar ideas have recently appeared in Cosmos proof-of-stake
+strong proof-of-stake (PoS) \emph{parent chain} lends security to a less secure
+\emph{child chain}. Similar ideas have recently appeared in Cosmos PoS
 chains as \emph{Mesh Security}. Hybrids between different consensus mechanisms
 have also been proposed. The idea of \emph{checkpointing}
-one blockchain onto another to borrow security was formalized by Karakostas et al.~\cite{karakostas2021securing},
-and has been applied to secure newly created proof-of-work systems using stronger
-preexisting proof-of-stake systems. Such constructions are uni-directional:
+one chain to another to borrow security was formalized by Karakostas et al.~\cite{karakostas2021securing},
+and has been applied to secure newly created PoW systems using stronger
+preexisting PoS systems. Such constructions are uni-directional:
 one ``parent'' chain is designated as authoritative and \emph{stronger},
 while the ``child'' chain is designated as \emph{weaker} and in need of securing.
 The idea of composing ledgers to achieve a more reliable overlay ledger
@@ -34,11 +39,16 @@ was first proposed in a short Cosmos GitHub issue called
 This concept was expanded upon by TrustBoost~\cite{trustboost}
 where they build a composition using Cosmos as the underlying
 construction, IBC for cross-chain communication, and Information Theoretic
-HotStuff as the overlay protocol. Regrettably, their construction is not
-accompanied by a proof of security.
+HotStuff as the overlay protocol. They conjecture that their construction
+is secure (short paragraph ``Security guarantee''~\cite[Section 4.1]{trustboost}),
+but they leave the proof as an open problem. In the present work, we
+answer this open question in the affirmative and calculate the correct
+parametrization to instantiate their system securely (e.g., the calculation
+of $\Delta$ in Conjecture~\ref{conj:simulation}; we note that an incorrect
+choice of $\Delta$ leads to insecure protocol deployments).
 
 \noindent
-\textbf{Certificates \textsc{vs} transcriptions.}
+\myparagraph[Certificates \textsc{vs} transcriptions.]
 Our \rollerblade construction was given assuming the underlying protocols
 provide a \transcribe and \untranscribe interface which guarantees that
 dishonest certificates are always untranscribed into ledgers that are
@@ -70,7 +80,7 @@ transcription of $i$ will be recorded, and thus the untranscribed source ledger
 will be safe.
 
 \noindent
-\textbf{Practical optimizations.}
+\myparagraph[Practical optimizations.]
 In our \rollerblade construction, we allowed relayers to freely write all
 checkpoints between all pairs of ledgers. This theoretically demonstrates
 the breadth of theoretical applicability of our scheme, and highlights

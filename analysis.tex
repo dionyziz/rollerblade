@@ -299,7 +299,7 @@ Random Oracle collision), it can conclude the execution.
   in $\mathcal{E}^*$.
 
   \noindent
-  \textbf{Claim 1: $\LCView_{j,H,\Delta_v}(\mathcal{E}^*) = \PEView_H(\mathcal{E}')$.}
+  \myparagraph[Claim 1: $\LCView_{j,H,\Delta_v}(\mathcal{E}^*) = \PEView_H(\mathcal{E}')$.]
   Let $V^* = \LCView_{j,H,\Delta_v}(\mathcal{E}^*)$ and
   $V' = \PEView_H(\mathcal{E}')$.
   We know that $\mathcal{E}^*$ is $(j, H, \Delta_v)$-consistent
@@ -426,7 +426,7 @@ Random Oracle collision), it can conclude the execution.
   \end{figure*}
 
   \noindent
-  \textbf{Claim 2: $\mathcal{Z}'$ respects the network model.}
+  \myparagraph[Claim 2: $\mathcal{Z}'$ respects the network model.]
   Namely, the claim is that for all $i, i' \in H$, for all rounds $r$ of $\mathcal{E}'$:
 
   \begin{enumerate}[label=(\alph*)]
@@ -493,7 +493,7 @@ Random Oracle collision), it can conclude the execution.
 
   % TODO: double check the exact numbers in this proof
   \noindent
-  \textbf{Claim 3: $\LCExtern_{j,H}(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$.}
+  \myparagraph[Claim 3: $\LCExtern_{j,H}(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$.]
 
   Let $i \in H$ and $r \leq R - \Delta_u - \Delta_v - 1$ be arbitrary, and $W^i_r$ be the writebox
   at position $(i, r)$ of $\LCExtern(\mathcal{E}^*)$. Let $m$ be an arbitrary message

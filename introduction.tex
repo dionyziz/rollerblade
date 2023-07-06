@@ -56,7 +56,7 @@ transcribability is enough to realize this functionality ourselves). Our constru
 top of both proof-of-work and proof-of-stake blockchains, among others.
 
 \noindent
-\textbf{Our contributions.} The contributions of this paper are the following:
+\textbf{Our contributions} The contributions of this paper are the following:
 
 \begin{enumerate}
   \item We formally define the \emph{compositing problem}, of emulating
@@ -126,11 +126,19 @@ available. For a particular example on Tendermint, see TrustBoost~\cite{trustboo
 % 6) Generalize to non-ledger protocols
 % 7) Generalize to transcribable protocols instead of just certifiable
 \noindent
-\textbf{Construction overview and paper structure.}
+\textbf{Construction overview.}
 % Model
-We begin by describing the model in Section~\ref{sec:model}, in which
-we define the axioms that are required of the overlay and underlying protocols,
-as well as our network and time assumptions.
+% We begin by describing the model in Section~\ref{sec:model}, in which
+% we define the axioms that are required of the overlay and underlying protocols,
+% as well as our network and time assumptions.
+
+The goal is to emulate the execution of a distributed protocol $\Pi$,
+consisting of multiple parties. Each of these complete emulations will take place
+within the confines of a single machine: a \emph{\rollerblade client} $\Lambda[j]$.
+Each \rollerblade client $\Lambda[j]$ will execute multiple instances $\Z[j][1], \ldots, \Z[j][n]$
+of $\Pi$, one for each party of $\Pi$, and these instances will be allowed to communicate
+with one another. For example, $\Pi$ could be a distributed consensus protocol such as
+IT Streamlet~\cite{it-streamlet}, and each $\Z[j][i]$.
 
 % Rollerblade clients
 The execution is conducted by \emph{\rollerblade clients},
@@ -175,7 +183,7 @@ It states that the execution in the emulated setting
 is equivalent to some execution in the \emph{party} setting.
 We prove this by a reduction-based simulation argument.
 Secondly, the Cross-Party Lemma concerns the execution of \emph{multiple}
-\rollerblade clients. It state that the execution of a simulated party
+\rollerblade clients. It states that the execution of a simulated party
 within one \rollerblade client is the ``same'' as the execution of the
 same simulated party within a different \rollerblade client, as long
 as the respective underlying ledger is secure.
@@ -191,7 +199,7 @@ overlay consensus protocol (e.g., Streamlet or HotStuff) and uses a simple
 majority voting rule.  We state and prove a security corollary
 using the two lemmas as puzzle pieces, assuming secure majority of the underlying
 ledgers, and that the overlay protocol is a good protocol. These results
-are illustrated in Section~\ref{sec:consensus}.
+are presented in Section~\ref{sec:consensus}.
 
 % TODO: Table of analogies?
 

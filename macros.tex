@@ -146,3 +146,12 @@
 \newcommand{\PEExec}{\textsc{Run}^{\textsf{PS}}}
 
 \DeclareMathOperator\supp{supp}
+
+% TODO: fix missing .
+\newcommandx{\myparagraph}[1][1=]{
+\ifoakland
+\subsubsection*{#1}
+\else
+\textbf{#1}.
+\fi
+}
