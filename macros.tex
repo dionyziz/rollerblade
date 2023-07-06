@@ -105,9 +105,9 @@
 \newcommand{\simulate}{\textsf{simulate}\xspace}
 \newcommand{\relay}{\textsf{relay}\xspace}
 \newcommand{\data}{\textsf{data}\xspace}
-\newcommand{\instruction}{\textsf{instruction}\xspace}
-\newcommand{\certificate}{\textsf{certificate}\xspace}
-\newcommand{\consumedLengths}{\textsf{consumedLen}\xspace}
+\newcommand{\instruction}{\textsf{instr}\xspace}
+\newcommand{\certificate}{\textsf{cert}\xspace}
+\newcommand{\consumedLengths}{\textsf{seenLen}\xspace}
 \newcommand{\decodeUnderlying}{\textsf{decodeUnderlying}\xspace}
 \newcommand{\netout}{\textsf{netout}\xspace}
 \newcommand{\netouts}{\textsf{netouts}\xspace}
@@ -115,7 +115,7 @@
 \newcommand{\netin}{\textsf{netin}\xspace}
 \newcommand{\netins}{\textsf{netins}\xspace}
 \newcommand{\unprocessedNetins}{\textsf{newNetins}\xspace}
-\newcommand{\outboxesToInbox}{\textsf{outboxesToInbox}\xspace}
+\newcommand{\outboxesToInbox}{\textsf{outToIn}\xspace}
 \newcommand{\prepareSimulationInputs}{\textsf{prepSimInputs}\xspace}
 \newcommand{\net}{\textsc{Net}\xspace}
 \newcommand{\majorityVote}{\textsf{majVote}\xspace}
@@ -147,7 +147,6 @@
 
 \DeclareMathOperator\supp{supp}
 
-% TODO: fix missing .
 \newcommandx{\myparagraph}[1][1=]{
 \ifoakland
 \subsubsection*{#1}

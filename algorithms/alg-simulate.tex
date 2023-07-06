@@ -11,7 +11,8 @@
   %TODO: Rename simulate function
   \begin{algorithmic}[1]
     \Function{\simulate}{$i, \Ledger[j][i], \simulationRound$}
-      \Let{(\writeboxes, \inboxes)}{\this.\prepareSimulationInputs(i, \Ledger[j][i], \simulationRound)}\label{alg.simulate:recursion}
+      \Let{\textsf{in}}{\this.\prepareSimulationInputs(i, \Ledger[j][i], \simulationRound)}\label{alg.simulate:recursion}
+      \Let{(\writeboxes, \inboxes)}{\textsf{in}}
 
       \Let{\outboxes}{[[\,]]}\label{alg.simulate:outboxes-init}
       \Let{\inboxThisRound}{[\,]}
@@ -34,14 +35,14 @@
         \Let{\outboxThisRound}{[\,]}\label{alg.simulate:outboxThisRound-init}
 
         \For{$\textsf{data} \in \textsf{writeboxes}[r - 1]$}\label{alg.simulate:write}
-          \CommentLine{Submit `write' commands recorded at round $r - 1$}
+          \CommentLine{Submit writes recorded at $r - 1$}
           \State{$\Z[j][i].\textsf{write}(\textsf{data})$}
         \EndFor
 
-        \CommentLine{Prepare network messages to be delivered at round $r$}
+        \CommentLine{Prepare network msgs to be delivered at $r$}
         \Let{\inboxThisRound}{\inboxes[r - 1]}\label{alg.simulate:netin}
 
-        \CommentLine{Run a single round of the overlay machine for round $r$}
+        \CommentLine{Run a single round $r$ of overlay machine}
         \State{$\Z[j][i].\textsf{execute}()$}\label{alg.simulate:execute}
 
         \State{$\outboxes.\append(\outboxThisRound)$}\label{alg.simulate:outboxes-append}

@@ -7,14 +7,14 @@ PDF = $(PACKAGE).pdf ${SAMPLES:%.tex=%.pdf}
 all: rollerblade.pdf
 
 rollerblade.pdf: *.tex *.bib algorithms/*.tex figures/*.pdf *.sty
-	xelatex rollerblade.tex && \
+	pdflatex rollerblade.tex && \
 	bibtex rollerblade && \
-	xelatex rollerblade.tex && \
-	xelatex rollerblade.tex && \
+	pdflatex rollerblade.tex && \
+	pdflatex rollerblade.tex && \
 	rm -rf *.aux *.log *.out;
 
 minimal:
-	xelatex rollerblade.tex
+	pdflatex rollerblade.tex
 
 clean:
 	$(RM)  *.log *.aux \

@@ -16,20 +16,20 @@
   \begin{algorithmic}[1]
     \Function{\prepareSimulationInputs}{$i, \Ledger[j][i], \simulationRound$}
       \If{$\simulationRound > \this.\now - v_i$}\label{alg.prepare-simulation-inputs:reality-lag}
-        \State\Return{$\bot$} \Comment{Simulation round is too far in the future}
+        \State\Return{$\bot$} \Comment{Sim round is too far in future}
       \EndIf
 
       \Let{\inboxes}{[[\,]]}
       \Let{\writeboxes}{[[\,]]}
 
       \For{$r \gets 1 \text{ to } \simulationRound$}\label{alg.prepare-simulation-inputs:init}
-        \CommentLine{For each round $r$: $\inboxes[r]$ and $\writeboxes[r]$ is a \emph{list} of inputs}
+        % \CommentLine{For each round $r$: $\inboxes[r]$ and $\writeboxes[r]$ is a \emph{list} of inputs}
         \State{\inboxes.\append([\,])}
         \State{\writeboxes.\append([\,])}
       \EndFor
 
       % TODO(dionyziz): Typeset \CommentLine and \Comment to both use the same \emph{} style
-      \CommentLine{How many messages each other overlay party $i'$ has ``sent'' us}
+      \CommentLine{Count messages each overlay party $i'$ ``sent'' us}
       \Let{\sf \consumedLengths}{[\,]}
 
       \For{$i' \gets 1 \text{ to } n$}
@@ -40,7 +40,7 @@
       \For{$(r, \instruction) \in L$}\label{alg.prepare-simulation-inputs:for}
         % TODO: Mention that timeliness (time marches forward)
         \If{$r \geq \simulationRound$}\label{alg.prepare-simulation-inputs:early-exit}
-          \CommentLine{Further data is irrelevant for the simulation at round $\simulationRound$}
+          \CommentLine{Further data irrelevant for this simulation}
           \Break
         \EndIf
         % TODO(dionyziz): Turn this into "switch"?
@@ -48,10 +48,12 @@
           \State{$\writeboxes[r].\append(\instruction\textsf{.data})$}\label{alg.prepare-simulation-inputs:write}
           \Continue
         \EndIf
-        \If{$\instruction\textsf{.type} = \text{`checkpoint'}$}
+        \If{$\instruction\textsf{.type} = \text{`chkpt'}$}
           \Let{i'}{\instruction\textsf{.from}}
-          \Let{\ImaginaryLedger[j][i']}{\this.\Y[j][i']\textsf{.untranscribe}(\instruction\textsf{.data.certificate})}\label{alg.prepare-simulation-inputs:untranscribe}
-          \Let{\outboxes}{\this.\textsf{simulate}(i', \ImaginaryLedger[j][i'], r - u_i - v_{i'} - 1)\textsf{.outboxes}}\label{alg.prepare-simulation-inputs:recursion}
+          \Let{\tau}{\instruction.\data.\certificate}
+          \Let{\ImaginaryLedger[j][i']}{\this.\Y[j][i'].\untranscribe(\tau)}\label{alg.prepare-simulation-inputs:untranscribe}
+          \Let{\textsf{res}}{\this.\textsf{simulate}(i', \ImaginaryLedger[j][i'], r - u_i - v_{i'} - 1)}\label{alg.prepare-simulation-inputs:recursion}
+          \Let{\outboxes}{\textsf{res}.\outboxes}
           \Let{\textsf{netins}}{\this.\outboxesToInbox(\outboxes, i', i)}\label{alg.prepare-simulation-inputs:outboxes-to-inbox}
           \Let{\unprocessedNetins}{\textsf{netins}[\consumedLengths[i']{:}]}
 

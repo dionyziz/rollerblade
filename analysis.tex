@@ -53,18 +53,16 @@ contiguous honest participation is also known in the literature as
 \begin{definition}[Rollerblade Belief System and Honesty Correspondence]
   Given a sequence of \rollerblade-underlying-respecting
   protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$,
-  define for each $i \in [\ell]$ the following predicate on
-  a collective execution $\mathcal{E}$ of $\mathcal{Y}$:
+  define for each $i \in [\ell]$ the predicate, on
+  a collective execution $\mathcal{E}$ of $\mathcal{Y}$,
+  $
+  \text{good}_i(\mathcal{E}) = \text{``} \Y[][i] \text{ is safe, live$(u_i)$, and timely$(v_i)$ in $\mathcal{E}$''}\,.
+  $
 
-  \[
-    \text{good}_i(\mathcal{E}) = \text{``} \Y[][i] \text{ is safe, live$(u_i)$, and timely$(v_i)$ in $\mathcal{E}$''}
-  \]
-
-  Next, for any $H \subseteq [\ell]$, we define:
-
-  \[
-    \text{good}_H(\mathcal{E}) = \text{``}\forall i \in H: \text{good}_i(\mathcal{E})\text{''}
-  \]
+  Next, for any $H \subseteq [\ell]$, we define
+  $
+    \text{good}_H(\mathcal{E}) = \text{``}\forall i \in H: \text{good}_i(\mathcal{E})\text{''}\,.
+  $
 
   Define $\mathcal{H}^{-1}$ on the domain $2^{[n]}$ as
   $\mathcal{H}^{-1}(H) = \text{good}_H$.
@@ -94,11 +92,7 @@ Random Oracle collision), it can conclude the execution.
   all rounds $1 \leq r < R - \max(v_i, u_i)$,
   and
   all compositor party indexes $j, j' \in [m]$
-
-  \[
-    \Sim[j][r] = \Sim[j'][r]\,,
-  \]
-
+  $\Sim[j][r] = \Sim[j'][r]\,,$
   where $\Sim[j][r]$ (resp. $\Sim[j'][r]$) indicates the result of calling
   \emulateMachine of $\RB[j]$ (resp. $\RB[j']$) with inputs
   $(i, r)$
@@ -298,8 +292,7 @@ Random Oracle collision), it can conclude the execution.
   Hence, for all $i \in H$, $\Y[][i]$ is safe, live $(u_i)$, and timely $(v_i)$
   in $\mathcal{E}^*$.
 
-  \noindent
-  \myparagraph[Claim 1: $\LCView_{j,H,\Delta_v}(\mathcal{E}^*) = \PEView_H(\mathcal{E}')$.]
+  \myparagraph[Claim 1: $\LCView_{j,H,\Delta_v}(\mathcal{E}^*) = \PEView_H(\mathcal{E}')$]
   Let $V^* = \LCView_{j,H,\Delta_v}(\mathcal{E}^*)$ and
   $V' = \PEView_H(\mathcal{E}')$.
   We know that $\mathcal{E}^*$ is $(j, H, \Delta_v)$-consistent
@@ -425,8 +418,7 @@ Random Oracle collision), it can conclude the execution.
     \label{fig.emulation-claim-1-induction}
   \end{figure*}
 
-  \noindent
-  \myparagraph[Claim 2: $\mathcal{Z}'$ respects the network model.]
+  \myparagraph[Claim 2: $\mathcal{Z}'$ respects the network model]
   Namely, the claim is that for all $i, i' \in H$, for all rounds $r$ of $\mathcal{E}'$:
 
   \begin{enumerate}[label=(\alph*)]
@@ -446,7 +438,6 @@ Random Oracle collision), it can conclude the execution.
   Hence, $\Z[j][i]$ also invoked network function $\send(i', \msg)$ at round $r$.
   This means that $\msg \in \LLambda[j].\simulate(i, \Ledger[j][i][r + \Delta_v + 1], r).\outboxes[r]$
 
-
   At the beginning of round $r$, environment $\mathcal{Z}'$
   calls $\lwrite(\data)$ on party $i$.
   Then, $\PPi[i]$ is activated
@@ -464,7 +455,7 @@ Random Oracle collision), it can conclude the execution.
   At round $r$, relayer $\LLambda[j]$ invokes $\relay()$.
   This creates a transcription $\tau = \Y[j][i].\transcribe()$, where
   $\Y[j][i].\untranscribe(\tau) = \Ledger[j][i][r]$.
-  Then, it transmits a new bulletin `checkpoint'
+  Then, it transmits a new bulletin `chkpt'
   transaction $\tx$ containing transcription $\tau$ to $\Y[][i']$.
 
   Because of the liveness of $\Y[][i']$,
@@ -492,8 +483,7 @@ Random Oracle collision), it can conclude the execution.
 
 
   % TODO: double check the exact numbers in this proof
-  \noindent
-  \myparagraph[Claim 3: $\LCExtern_{j,H}(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$.]
+  \myparagraph[Claim 3: $\LCExtern_{j,H}(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$]
 
   Let $i \in H$ and $r \leq R - \Delta_u - \Delta_v - 1$ be arbitrary, and $W^i_r$ be the writebox
   at position $(i, r)$ of $\LCExtern(\mathcal{E}^*)$. Let $m$ be an arbitrary message

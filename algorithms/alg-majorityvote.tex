@@ -6,7 +6,8 @@
       \For{$k = 0 \text{ to } \max\{|\overline{L}[0]|, \ldots, |\overline{L}[|\overline{L}| - 1]|\}$}
         \Let{\sf freq}{\{\}}
         \For{$L \in \overline{L}$}
-          \If{$L[k] = \bot$}\Comment{$L$ ended before the $k^\text{th}$ element}
+          \If{$L[k] = \bot$}
+            \CommentLine{$L$ ended before the $k^\text{th}$ element}
             \Continue
           \EndIf
           \If{$L[k] \not\in \textsf{freq}$}

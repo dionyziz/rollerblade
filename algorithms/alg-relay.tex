@@ -12,15 +12,14 @@
             \Continue
           \EndIf
           % TODO(dionyziz): typeset this
-          \Let{\instruction}{\{
-            \type{:} \text{`checkpoint'},
-            \data{:} \{
-              \textsf{from}{:} i',
-              \textsf{certificate}{:} \tau
-            \}
-          \}}
-          \Let{\textsf{encoded}}{\this.\Y[j][i].\encode(\serialize(\instruction))}
-          \State{$\this.\Y[j][i].\lwrite(\textsf{encoded})$}
+          \State$\instruction \gets \{$
+          \State\hspace{\algorithmicindent}$\type{:} \text{`chkpt'},$
+          \State\hspace{\algorithmicindent}$\data{:} \{\textsf{from}{:} i', \certificate{:} \tau \}$
+          \State$\}$
+          % \Let{\instruction}{\{
+          % \}}
+          \Let{\textsf{enc}}{\this.\Y[j][i].\encode(\serialize(\instruction))}
+          \State{$\this.\Y[j][i].\lwrite(\textsf{enc})$}
         \EndFor
       \EndFor
     \EndFunction

@@ -122,7 +122,7 @@ must be honest for the protocol to be secure. Therefore, a \rollerblade client c
 own relayer if it wishes, so this does not introduce any additional trust assumptions
 (this is what we do in our construction above).
 
-\emph{These ``write'' and ``checkpoint'' instructions are the only thing ever written
+\emph{These ``write'' and ``chkpt'' instructions are the only thing ever written
 to the ledger from the honest rollerblade clients}. In particular, no network outputs
 produced by any of the $\Z[j][i]$ are ever written on the ledger. Instead, we observe
 that reading the checkpoints is sufficient for each rollerblade client to reproduce
@@ -152,7 +152,7 @@ protocols $\Y$ is marked with a \emph{session id} \sid in order to achieve conte
 separation with other rollerblades running, potentially different, protocols $\Pi'$
 on top of a, potentially different but not disjoint, set of underlying ledger protocols
 $\Y[][']$. This \sid is placed into every `write' instruction recorded on-ledger.
-Note that `checkpoint' instructions do not need a session id, as checkpoints can be
+Note that `chkpt' instructions do not need a session id, as checkpoints can be
 shared across different rollerblade sessions. This means that relayers can be the
 same across \emph{all} rollerblade sessions.
 
@@ -175,7 +175,7 @@ Line~\ref{alg.decode-underlying:catch}). Once decoded into a string, the string
 is deserialized into a dictionary containing the instruction information. This
 information is checked for relevance in Line~\ref{alg.decode-underlying:check}.
 In particular, if the instruction is a `write' instruction, we ensure that its
-\sid matches the \sid of the rollerblade in question. As `checkpoint' instructions
+\sid matches the \sid of the rollerblade in question. As `chkpt' instructions
 are not tied to any particular rollerblade, they are always considered relevant.
 
 \import{./}{algorithms/alg-decode-underlying}
@@ -342,7 +342,7 @@ early if we see a transaction recorded with round $r \geq \simulationRound$ (Lin
 The easy case is when the instruction type is a `write'. In that case, we extend the writebox $\writeboxes[r]$
 for round $r$ by appending the data $\instruction.\data$ to be written to it (Line~\ref{alg.prepare-simulation-inputs:write}).
 
-The more complicated case pertains to instruction type `checkpoint'. This is a checkpoint from underlying
+The more complicated case pertains to instruction type `chkpt'. This is a checkpoint from underlying
 ledger $i'$ to underlying ledger $i$, i.e., concerns a certificate of ledger $i'$ that was recorded onto
 ledger $i$. This certificate's data $\instruction.\data.\certificate$ is fully recorded within $\Ledger[j][i]$
 and does not require reading from $\Y[j][i']$. The function $\untranscribe$ of $\Y[j][i']$ is used to untranscribe

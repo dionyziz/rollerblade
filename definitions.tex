@@ -164,11 +164,7 @@ of an event.
   whenever an honest party $P_1$ executes $\untranscribe(\tau)$ at round $r_1$
   with some (honestly or adversarially produced) transcription $\tau$,
   then for all honest parties $P_2$ at round $r_2$, it holds that
-
-  \[
-    \Ledger[P_1][][r_1] \preceq \Ledger[P_2][][r_2] \lor
-    \Ledger[P_2][][r_2] \preceq \Ledger[P_1][][r_1]
-  \]
+  $\Ledger[P_1][][r_1] \preceq \Ledger[P_2][][r_2] \lor \Ledger[P_2][][r_2] \preceq \Ledger[P_1][][r_1]$.
 \end{definition}
 
 \subsection{Compositors}
@@ -247,22 +243,19 @@ and underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][n])$, adversary $
 Following the notation of the UC framework, we define the notion of an \emph{execution}
 and a \emph{view}.
 
-\noindent
-\myparagraph[The Emulated Setting.]
+\myparagraph[The Emulated Setting]
 In particular, in the emulated setting execution, denoted by $\LCExec_{m,n}(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$,
 the environment $\mathcal{Z}$ is constrained by the control program
 to initially
 spawn a number $n \times \ell$ (where $n$ is a parameter of the execution,
 and $\ell = |\mathcal{Y}|$)
 underlying protocol instances
-
 \begin{align*}
-\Y[1][1], \Y[1][2], &\ldots, \Y[1][\ell],\\
-\Y[2][1], \Y[2][2], &\ldots, \Y[2][\ell],\\
-                    &\vdots              \\
-\Y[m][1], \Y[m][2], &\ldots, \Y[m][\ell]\,,
+\Y[1][1], &\ldots, \Y[1][\ell],\\
+\Y[2][1], &\ldots, \Y[2][\ell],\\
+  \vdots, &\ddots, \vdots      \\
+\Y[m][1], &\ldots, \Y[m][\ell]\,,
 \end{align*}
-
 where $\Y[j][i]$ denotes the $j^\text{th}$ instance of
 the protocol $\Y[][i]$. The environment facilitates the communication
 between the underlying protocol instances $\Y[j][i]$ and $\Y[j'][i]$
@@ -306,8 +299,7 @@ At any time, the environment may choose to provide inputs
 to any of the $\LLambda[j]$ parties by invoking their \emph{writeToMachine}
 functionality with inputs of its choice.
 
-\noindent
-\myparagraph[The Party Setting.]
+\myparagraph[The Party Setting]
 In the party setting execution, denoted by $\PEExec_n(\Pi,\allowbreak \mathcal{A},\allowbreak \mathcal{Z},\allowbreak n,\allowbreak H,\allowbreak \Delta)$,
 the environment $\mathcal{Z}$ is constrained by the control program
 to spawn $n$ parties $\PPi[1], \ldots, \PPi[n]$ (where $n \in \mathbb{N}$
@@ -385,8 +377,7 @@ We define the following views for the two execution settings.
   sampled from
   $\PEExec_n(\Pi,\allowbreak \mathcal{A},\allowbreak \mathcal{Z},\allowbreak n,\allowbreak H,\allowbreak \Delta)$.
   The \emph{party setting view of honest parties} $\PEView_H(\mathcal{E}')$
-  is the $|H|\times R$ matrix of the following transcripts of honest parties:
-
+  is the $|H|\times R$ matrix
   \[
   \begin{bmatrix}
     \PPi[H_1]_1 &\ldots& \PPi[H_1]_R\\
@@ -394,7 +385,7 @@ We define the following views for the two execution settings.
     \PPi[H_{|H|}]_1 &\ldots& \PPi[H_{|H|}]_R
   \end{bmatrix}\,,
   \]
-
+  of the transcripts of honest parties
   where $\PPi[H_i]_r$ denotes the transcript of party $\PPi[H_i]$
   (the party with index $H_i$, the $i^\text{th}$ honest party)
   obtained at the end of round $r$.
@@ -432,22 +423,20 @@ in the execution begin at $1$.
 \begin{definition}[Honest View in the Emulated Setting]
   Consider an emulated setting execution $\mathcal{E}$ with duration $R$ rounds
   sampled from $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$.
-  If the execution $\mathcal{E}$ is $(j,H,\Delta_v)$-consistent, then
+  If $\mathcal{E}$ is $(j,H,\Delta_v)$-consistent, then
   the \emph{emulated setting view of honest parties} $\LCView_{j,H,\Delta_v}(\mathcal{E})$,
   % TODO: change "reality lag" to be a generic "time distortion" function,
   % for now f(r) = r + \Delta_v, but this could be more generic
   parametrized by an index $j$, a set of indices $H$, and a \emph{reality lag} $\Delta_v \in \mathbb{N}$,
-  is the $|H| \times R$ matrix of the following values:
-
+  is the $|H| \times R$ matrix
   \[
   \begin{bmatrix}
-    \LLambda[j].\emulateMachine(H_1, 1) & \ldots & \LLambda[j].\emulateMachine(H_1, R - \Delta_v - 1)\\
-                                 \vdots & \ddots & \vdots \\
-    \LLambda[j].\emulateMachine(H_{|H|}, 1) & \ldots & \LLambda[j].\emulateMachine(H_{|H|}, R - \Delta_v - 1)
+    \emulateMachine(H_1, 1) & \ldots & \emulateMachine(H_1, R - \Delta_v - 1)\\
+                     \vdots & \ddots & \vdots \\
+    \emulateMachine(H_{|H|}, 1) & \ldots & \emulateMachine(H_{|H|}, R - \Delta_v - 1)
   \end{bmatrix}\,,
   \]
-
-  where $\LLambda[j].\emulateMachine(H_i, r)$ denotes the return value of invoking,
+  where $\emulateMachine(H_i, r)$ denotes the return value of invoking,
   \emph{in vitro} at the end of round $r + \Delta_v + 1$,
   the $\emulateMachine$ functionality of the $j^\text{th}$ compositor party $\LLambda[j]$
   with parameters the index $H_i$ of the $i^\text{th}$ overlay machine (among those
@@ -459,7 +448,7 @@ in the execution begin at $1$.
 
 \begin{definition}[Party Setting Externalities]
   Consider a party setting view $V$ of honest parties and size $|H| \times R$.
-  The \emph{party setting externalities} $\PEExtern(V)$ is the $|H| \times R$ matrix:
+  The \emph{party setting externalities} $\PEExtern(V)$ is the $|H| \times R$ matrix
   \[
   \begin{bmatrix}
     \W[H_1][1] &\ldots& \W[H_1][R]\\
@@ -467,7 +456,6 @@ in the execution begin at $1$.
     \W[H_{|H|}][1] &\ldots& \W[H_{|H|}][R]
   \end{bmatrix}\,,
   \]
-
   where $\W[H_i][r]$ denotes the sequence of messages written into an honest party
   with index $H_i$ during round $r$. This sequence of messages can be extracted from
   the transcript $\PPi[H_i]_r$ found in $V$.
@@ -487,8 +475,7 @@ in the execution begin at $1$.
   Let $\W[i][r] = (\data_1,\allowbreak\ldots,\allowbreak\data_k)$ denote the sequence containing
   all the \emph{data} parameter values of those calls.
   The \emph{emulated setting externalities} $\LCExtern_{j,H}(\mathcal{E})$, parametrized
-  by an index $j$ and a set of indices $H$, is the $|H| \times R$ matrix:
-
+  by an index $j$ and a set of indices $H$, is the $|H| \times R$ matrix
   \[
   \begin{bmatrix}
     \W[H_1][1] &\ldots& \W[H_1][R]\\

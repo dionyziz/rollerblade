@@ -1,7 +1,6 @@
 \section{Discussion}
 
-\noindent
-\myparagraph[Related work.]
+\myparagraph[Related work]
 Building a reliable system by composing potentially faulty components
 is a classical engineering problem~\cite{von1956probabilistic,moore1956reliable}.
 In the era of consensus, the seminal
@@ -47,8 +46,7 @@ parametrization to instantiate their system securely (e.g., the calculation
 of $\Delta$ in Conjecture~\ref{conj:simulation}; we note that an incorrect
 choice of $\Delta$ leads to insecure protocol deployments).
 
-\noindent
-\myparagraph[Certificates \textsc{vs} transcriptions.]
+\myparagraph[Certificates \textsc{vs} transcriptions]
 Our \rollerblade construction was given assuming the underlying protocols
 provide a \transcribe and \untranscribe interface which guarantees that
 dishonest certificates are always untranscribed into ledgers that are
@@ -79,8 +77,7 @@ Liveness of the receiving ledger guarantees that, every $u_{i'}$ rounds, an hone
 transcription of $i$ will be recorded, and thus the untranscribed source ledger
 will be safe.
 
-\noindent
-\myparagraph[Practical optimizations.]
+\myparagraph[Practical optimizations]
 In our \rollerblade construction, we allowed relayers to freely write all
 checkpoints between all pairs of ledgers. This theoretically demonstrates
 the breadth of theoretical applicability of our scheme, and highlights
