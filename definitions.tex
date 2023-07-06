@@ -38,8 +38,12 @@ into the transactions therein when \emph{reading}. Because the respective protoc
 chains with decreasing timestamps, or blocks with future timestamps the timeliness
 points~\ref{def:timely-increasing} and~\ref{def:timely-past} are ensured.
 Point~\ref{def:timely-chunk} is more subtle and asks that very old transactions will
-not suddenly appear in the ledger. As an example protocol, we include a proof that Bitcoin is timely in
+not suddenly appear in the ledger.
+
+\iflong
+As an example protocol, we include a proof that Bitcoin is timely in
 Appendix~\ref{sec:appendix}.
+\fi
 
 \begin{definition}[Temporal Ledger Security]
   An execution $\Exec$ of a temporal ledger protocol $\Pi$ is \emph{secure} (with parameters $(u, v)$) if the execution

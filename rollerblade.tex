@@ -5,11 +5,17 @@
 \newif\ifoakland
 \newif\ifanonymous
 \newif\iftoday
+\newif\ifshort
+\newif\iflong
 % \todaytrue
 \oaklandtrue % pick one: LNCS or CCS or Oakland (and `make clean`)
+\shorttrue
 % \lncstrue
 % \anonymoustrue
 
+\ifshort\else
+  \longtrue
+\fi
 \ifccs
   \twocolumntrue
 \fi
