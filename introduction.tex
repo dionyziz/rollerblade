@@ -94,9 +94,13 @@ possible, but efficiency can be greatly increased for concrete underlying
 protocols, for example leveraging smart contract capabilities if they are
 available. For a particular example on Tendermint, see TrustBoost~\cite{trustboost}.
 
-\begin{figure*}
+\begin{figure}
     \centering
-    \includegraphics[width=0.9 \textwidth,keepaspectratio]{figures/rollerblade-overview.pdf}
+    \iftwocolumn
+    \includegraphics[width=\columnwidth,keepaspectratio]{figures/rollerblade-overview.pdf}
+    \else
+    \includegraphics[width=0.9 \columnwidth,keepaspectratio]{figures/rollerblade-overview.pdf}
+    \fi
     \caption{An overview of the \rollerblade construction.
              There are $m$ \rollerblade clients $\LLambda[1], \ldots, \LLambda[j], \ldots, \LLambda[m]$.
              Each $\LLambda[j]$ such client of them is executing $n$ instances $\Z[j][1], \ldots, \Z[j][i], \ldots, \Z[j][n]$
@@ -111,7 +115,7 @@ available. For a particular example on Tendermint, see TrustBoost~\cite{trustboo
              The construction will ensure that the executions of $\Z[j][i]$ and
              $\Z[j'][i]$ are ``consistent'' if $i$ is a good underlying protocol.}
     \label{fig.rollerblade-overview}
-\end{figure*}
+\end{figure}
 
 % TODO: Rewrite the paper in Lakatos "Proofs and Refutations" format
 % 1) Describe concrete protocol for overlay ledger protocols only

@@ -1,27 +1,35 @@
-% \title{
-%   \rollerblade:
-%   Ledgers as a Network Layer
-% }
 \title{
   \rollerblade:
   Replicated Distributed\\
   Protocol Emulation on Top of Ledgers
 }
-\ifanonymous{\iflncs
-\author{}\institute{}
-\fi}
+\ifanonymous
+  \iflncs
+    \author{}\institute{}
+  \fi
 \else
-\author{
-  Dionysis Zindros\and
-  David Tse
-}
-\iflncs
-\institute{
-  Stanford University
-}
-\else
-\affiliation{
-  \institution{Stanford University}
-}
-\fi
+  \ifoakland
+    \author{\IEEEauthorblockN{Dionysis Zindros}
+    \IEEEauthorblockA{Stanford University}
+    \and
+    \IEEEauthorblockN{Apostolos Tzinas}
+    \IEEEauthorblockA{National Technical University of Athens}
+    \and
+    \IEEEauthorblockN{David Tse}
+    \IEEEauthorblockA{Stanford University}}
+  \else
+    \author{
+      Dionysis Zindros\and
+      David Tse
+    }
+    \iflncs
+      \institute{
+        Stanford University
+      }
+    \else
+      \affiliation{
+        \institution{Stanford University}
+      }
+    \fi
+  \fi
 \fi

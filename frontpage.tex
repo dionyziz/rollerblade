@@ -2,6 +2,9 @@
 \iflncs
 \maketitle
 \fi
+\ifoakland
+\maketitle
+\fi
 
 \iftoday
 \noindent
@@ -14,4 +17,7 @@
 \ifccs
 \input{ccs-keywords}
 \maketitle
+\fi
+\ifoakland
+\IEEEpeerreviewmaketitle
 \fi

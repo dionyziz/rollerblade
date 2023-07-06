@@ -128,9 +128,9 @@ produced by any of the $\Z[j][i]$ are ever written on the ledger. Instead, we ob
 that reading the checkpoints is sufficient for each rollerblade client to reproduce
 the network outputs of all simulated machines.
 
-\begin{figure*}
+\begin{figure}
   \centering
-  \includegraphics[width=\textwidth,keepaspectratio]{figures/rollerblade-instructions.pdf}
+  \includegraphics[width=\columnwidth,keepaspectratio]{figures/rollerblade-instructions.pdf}
   \caption{The two types of instructions recorded on-ledger to enable the emulation.
            On the left, the flow of a \emph{write} instruction, indicating user (environment)
            input is illustrated. Whereas the environment invokes \emph{writeToMachine}, the
@@ -143,7 +143,7 @@ the network outputs of all simulated machines.
            the network outputs of a machine $i'$, which are, upon appropriate translation,
            given to the machine $\Z[j][i]$ as network input.}
   \label{fig.rollerblade-instructions}
-\end{figure*}
+\end{figure}
 
 % TODO(dionyziz): remove sid from everywhere
 Let us now explore, in more detail, how this simulation works. Each rollerblade execution

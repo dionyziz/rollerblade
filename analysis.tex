@@ -43,7 +43,7 @@
   Due to safety, $\Ledger[P_2][][r_3 + u][k] = (r^*, \tx)$.
   Therefore
   $(r^*, \tx) \in \Ledger[P_2][][r_3 + u][|\Ledger[P_2][][r_2]|{:}]$.
-  Since $r^* < r_2 - v$, this contradicts the timeliness with parameter $v$.\qed
+  Since $r^* < r_2 - v$, this contradicts the timeliness with parameter $v$.\Qed
 \end{proof}
 
 The above property, which follows from safety, liveness, timeliness and
@@ -120,18 +120,22 @@ Random Oracle collision), it can conclude the execution.
   This holds because of Lemma~\ref{lem:past-perfect} invoked with parties $\Y[j][i]$ and $\Y[j'][i]$,
   rounds $r_1 = r_2 = r + v_i$, $r_3 = r + v_i + 1$ and $r^* < r$.
   During round $r_3$, the new honest transaction is due to any honest
-  relayer.\qed
+  relayer.\Qed
 \end{proof}
 
-\begin{figure*}
+\begin{figure}
   \centering
-  \includegraphics[width=0.6 \textwidth,keepaspectratio]{figures/rollerblade-cross-party.pdf}
+  \iftwocolumn
+  \includegraphics[width=0.7 \columnwidth,keepaspectratio]{figures/rollerblade-cross-party.pdf}
+  \else
+  \includegraphics[width=0.6 \columnwidth,keepaspectratio]{figures/rollerblade-cross-party.pdf}
+  \fi
   \caption{The Cross-Party Lemma (Lemma~\ref{lem:cross-party}) states that
   the execution of the emulated machines $\Z[j][i]$ and $\Z[j'][i]$
   across two different compositor parties $\LLambda[j]$ and $\LLambda[j']$
   is consistent, as long as the underlying ledger $\Y[][i]$ is \emph{good}.}
   \label{fig.cross-party}
-\end{figure*}
+\end{figure}
 
 \begin{lemma}[Rollerblade Consistency]\label{lem:consistency}
   Consider a \rollerblade $\Lambda$ execution $\mathcal{E}$ with duration $R$ rounds
@@ -159,7 +163,7 @@ Random Oracle collision), it can conclude the execution.
   All $\Ledger[j][i][r']$ transactions with recorded rounds up to $\simulationRound$
   are included in $\Ledger[j][i][r' + 1]$ by \emph{stickiness}.
   Conversely, all $\Ledger[j][i][r' + 1]$ transactions with recorded rounds up to $\simulationRound$
-  are included in $\Ledger[j][i][r']$ by \emph{timeliness}.\qed
+  are included in $\Ledger[j][i][r']$ by \emph{timeliness}.\Qed
 \end{proof}
 
 % TODO: Consider removing all "in vitro" invocations by requiring the
@@ -213,9 +217,13 @@ Random Oracle collision), it can conclude the execution.
   parties $\PPi[1], \ldots, \PPi[i], \ldots, \PPi[n]$ by invoking
   the \emph{constructor} method with parameters $\Delta, i, n$.
 
-  \begin{figure*}
+  \begin{figure}
     \centering
-    \includegraphics[width=0.7 \textwidth,keepaspectratio]{figures/rollerblade-emulation.pdf}
+    \iftwocolumn
+    \includegraphics[width=0.9 \columnwidth,keepaspectratio]{figures/rollerblade-emulation.pdf}
+    \else
+    \includegraphics[width=0.7 \columnwidth,keepaspectratio]{figures/rollerblade-emulation.pdf}
+    \fi
     \caption{A visualization of the argument that \rollerblade is faithful.
     In the proof of Conjecture~\ref{conj:simulation},
     the simulator $\mathcal{S}$ and simulated environment $\mathcal{Z}'$
@@ -226,7 +234,7 @@ Random Oracle collision), it can conclude the execution.
     $\mathcal{E}^*$ to feed data into the respective honest party $\PPi[i]$
     in $\mathcal{E}'$. }
     \label{fig.conj.simulation}
-  \end{figure*}
+  \end{figure}
 
   % TODO: consider moving the simulation to an algorithm/figure
   The simulator initially obtains, for every $i \in [n]$,
@@ -264,9 +272,13 @@ Random Oracle collision), it can conclude the execution.
   similar to $\mathcal{E}^*$, not just \emph{distributionally} similar).
   See Figure~\ref{fig.emulation-distribution}.
 
-  \begin{figure*}
+  \begin{figure}
     \centering
-    \includegraphics[width=0.6 \textwidth,keepaspectratio]{figures/rollerblade-emulation-distribution.pdf}
+    \iftwocolumn
+    \includegraphics[width=0.8 \columnwidth,keepaspectratio]{figures/rollerblade-emulation-distribution.pdf}
+    \else
+    \includegraphics[width=0.6 \columnwidth,keepaspectratio]{figures/rollerblade-emulation-distribution.pdf}
+    \fi
     \caption{The environments $\mathcal{Z}$ in $\mathcal{E}$ and $\mathcal{Z}'$
     in $\mathcal{E}'$ respectively
     give rise to externalities similar in distribution ($\laterlydistr{\Delta_u,\Delta_v}$,
@@ -280,7 +292,7 @@ Random Oracle collision), it can conclude the execution.
     and the externalities in $\mathcal{E}^*$ and $\mathcal{E}'$
     similar (not just similar in distribution).}
     \label{fig.emulation-distribution}
-  \end{figure*}
+  \end{figure}
 
   Since $\mathcal{Z}$ is $B$-respecting, therefore $B(\mathcal{E}^*)$ holds.
   Hence, for all $i \in H$, $\Y[][i]$ is safe, live $(u_i)$, and timely $(v_i)$
@@ -404,7 +416,11 @@ Random Oracle collision), it can conclude the execution.
 
   \begin{figure*}
     \centering
+    \iftwocolumn
+    \includegraphics[width=0.6 \textwidth,keepaspectratio]{figures/emulation-claim-1-induction.pdf}
+    \else
     \includegraphics[width=\textwidth,keepaspectratio]{figures/emulation-claim-1-induction.pdf}
+    \fi
     \caption{The inductive step in the proof of the Simulation Conjecture.}
     \label{fig.emulation-claim-1-induction}
   \end{figure*}
@@ -498,7 +514,7 @@ Random Oracle collision), it can conclude the execution.
   Hence, $m$ will be inputted to the \emph{write} function call of $\Pi^i$
   in $\mathcal{E}'$ at round $r^*$ (and note that $1 \leq r^* \leq R - \Delta_v - 1$ falls
   within the duration of $\mathcal{E}'$), completing the proof of Claim 3.
-  \qed
+  \Qed
   % TODO: Check that there are sufficient rounds before the end of the simulation
   % for $\Pi^i$ to write this message (i.e., for the message to appear in the prepareSimulationInputs
   % output).

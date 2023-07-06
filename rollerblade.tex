@@ -2,14 +2,18 @@
 \newif\ifonecolumn
 \newif\iflncs
 \newif\ifccs
+\newif\ifoakland
 \newif\ifanonymous
 \newif\iftoday
 % \todaytrue
-% \ccstrue % pick one: LNCS or CCS (and `make clean`)
-\lncstrue
+\oaklandtrue % pick one: LNCS or CCS or Oakland (and `make clean`)
+% \lncstrue
 % \anonymoustrue
 
 \ifccs
+  \twocolumntrue
+\fi
+\ifoakland
   \twocolumntrue
 \fi
 \iflncs
@@ -23,24 +27,34 @@
 \documentclass[sigconf, anonymous]{acmart}
 \input{ccs-preamble}
 \fi
+\ifoakland
+\documentclass[conference,compsoc]{IEEEtran}
+\input{oakland-preamble}
+\fi
 
 \usepackage{preamble}
 
 \begin{document}
+
 \import{./}{frontpage.tex}
+
 
 \import{./}{body.tex}
 
-\vfill
-\pagebreak
+% \vfill
+% \pagebreak
 \iflncs
-\thispagestyle{plain}
+  \thispagestyle{plain}
 \fi
 
 \ifccs
   \bibliographystyle{ACM-Reference-Format}
-\else
+\fi
+\iflncs
   \bibliographystyle{abbrv}
+\fi
+\ifoakland
+  \bibliographystyle{IEEEtran}
 \fi
 \bibliography{biblio,pubs}
 
