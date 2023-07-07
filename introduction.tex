@@ -125,81 +125,95 @@ available. For a particular example on Tendermint, see TrustBoost~\cite{trustboo
 % 5) Describe the full simulation-based construction
 % 6) Generalize to non-ledger protocols
 % 7) Generalize to transcribable protocols instead of just certifiable
-\noindent
-\textbf{Construction overview.}
+\myparagraph[Construction overview and paper structure]
 % Model
 % We begin by describing the model in Section~\ref{sec:model}, in which
 % we define the axioms that are required of the overlay and underlying protocols,
 % as well as our network and time assumptions.
-
-The goal is to emulate the execution of a distributed protocol $\Pi$,
+Our goal is to \emph{emulate} the execution of a distributed protocol $\Pi$,
+the \emph{overlay protocol},
 consisting of multiple parties. Each of these complete emulations will take place
-within the confines of a single machine: a \emph{\rollerblade client} $\Lambda[j]$.
-Each \rollerblade client $\Lambda[j]$ will execute multiple instances $\Z[j][1], \ldots, \Z[j][n]$
-of $\Pi$, one for each party of $\Pi$, and these instances will be allowed to communicate
+within the confines of a single machine: a \emph{compositor client} $\Lambda[j]$.
+Each compositor client $\Lambda[j]$ will execute multiple $\Pi$ parties
+$\Z[j][1], \ldots, \Z[j][n]$, and these parties will be allowed to communicate
 with one another. For example, $\Pi$ could be a distributed consensus protocol such as
-IT Streamlet~\cite{it-streamlet}, and each $\Z[j][i]$.
+IT Streamlet~\cite{it-streamlet}, and each $\Z[j][i]$ could take the role of a
+validator within that consensus protocol. We wish this execution to be \emph{replicated}
+across different $\Lambda$s: For $j \neq j'$, the emulation of $\Pi$ in the view of $\Lambda[j]$
+should be consistent with the emulation of $\Pi$ in the view of $\Lambda[j']$.
+We call the protocol $\Lambda$ that allows this replicated emulation the
+\emph{compositor protocol}. We give the detailed definitions of compositors
+and the desiderata (of emulation and replication consistency) in Section~\ref{sec:definitions}.
+In order to perform this emulation in a replicated manner, the different compositor
+clients must use some shared infrastructure $\mathcal{Y}$ that enables the clients
+to communicate and maintain consistency in their replication. We term these pre-existing
+protocols that the compositor leverages the \emph{underlying protocols}.
 
-% Rollerblade clients
-The execution is conducted by \emph{\rollerblade clients},
-the users of the overlay protocol.
-Each of them operates a full node for each of the underlying ledger protocols.
+We give one construction of a compositor protocol, which we term \emph{\rollerblade}.
+\rollerblade works by using existing \emph{distributed ledger protocols} as its underlying infrastructure.
+For example, the underlying infrastructure could be Bitcoin, Ethereum, Cardano, etc.
+Each of the $\Lambda[j]$ clients maintains a full node to each of the underlying ledgers.
+The protocol $\Pi$ that can be emulated on top can be \emph{any} distributed protocol,
+among others a consensus protocol, a data availability protocol, an distributed
+auction protocol, reliable broadcast etc. We give the detailed \rollerblade construction
+in Section~\ref{sec:construction}.
+
+The construction briefly works as follows.
 Each of the \rollerblade clients simulates \emph{each} party of the overlay
 ledger protocol locally, by using the respective underlying ledger protocol
 as a ``guide'' to the overlay party's execution.
 The respective underlying ledger indirectly records all the
 user input to the overlay protocol parties, as well as the network
 messages exchanged between the overlay participants.
-
-% Writing
 Any \rollerblade client can attempt to \emph{write} an input to any
 of the overlay party simulations. This is performed by recording this
-\emph{write instruction} to the respective underlying chain. In case
-the chain written to is secure, the other \rollerblade clients will
+\emph{write instruction} to the respective underlying ledger. In case
+the ledger written to is secure, the other \rollerblade clients will
 also receive the instruction in question and replicate it within their
 own simulations.
 
-% Checkpointing
 The
-state of each chain is relayed to each other chain by helpful but
+state of each ledger is relayed to each other ledger by helpful but
 untrusted relayers, at least one of which is assumed to be honest
 (any \rollerblade client that does not trust the relayers can relay
 the data themselves). When a checkpoint of a source ledger
-appears within target ledger, this corresponds to a network message
+appears within a target ledger, this corresponds to a network message
 exchange from the simulated source party to the simulated target party.
 Whereas no network messages are recorded on-ledger at any time,
 the \rollerblade client can simulate the network messages that
 \emph{would have been sent} by the source by looking at the checkpointed
 source ledger data and performing a recursive simulation.
-This whole construction is described in Section~\ref{sec:construction}.
 
-% The two conjectures
-Our analysis is conducted in two central lemmas: The \emph{Simulation Lemma}
-and the \emph{Cross-Party Lemma}.
-Firstly, the Simulation Lemma pertains to the comparison of the execution
+To prove that our construction realizes the notions of emulation and replication consistency,
+we state and prove our main results in Lemma~\ref{lem:cross-party} (replication consistency)
+and Conjecture~\ref{conj:sim} (emulation consistency).
+The Simulation Conjecture pertains to the comparison of the execution
 of an overlay protocol in the emulated setting and within the confines of
 \emph{one} \rollerblade client in the party setting.
 It states that the execution in the emulated setting
 is equivalent to some execution in the \emph{party} setting.
-We prove this by a reduction-based simulation argument.
 Secondly, the Cross-Party Lemma concerns the execution of \emph{multiple}
 \rollerblade clients. It states that the execution of a simulated party
 within one \rollerblade client is the ``same'' as the execution of the
 same simulated party within a different \rollerblade client, as long
 as the respective underlying ledger is secure.
-None of the two lemmas require any honesty assumptions.
-These lemmas are stated and proven in Section~\ref{sec:analysis}.
+Our main proof is a simulation-based
+reduction proof in an execution-driven model. The flavour of our proofs is reminiscent of the
+stand-alone version of Canetti's Universal Composability, albeit simpler. Our central result
+is that each party of $\Pi$ is made to correspond to one underlying ledger, and the party's
+behavior is \emph{honest} if the respective underlying ledger is \emph{secure}. This ledger
+security requirement consists of the established notions of \emph{safety} and \emph{liveness},
+as well as some additional axiomatization which we introduce in this work (most importantly
+the notion of \emph{timeliness} and \emph{temporal ledgers}).
+These lemmas are stated in Section~\ref{sec:analysis} and proven in the Appendix.
 
 % The concrete consensus example
 Lastly, as an example use-case, we instantiate our \rollerblade construction
-to run a consensus protocol on top which allows the creation of a ``reliable
+to run a consensus overlay protocol which allows the creation of a ``reliable
 rollup'' that runs on top of multiple underlying ledgers and offers better security
 than any of its constituents alone. The construction can be based on top of any
 overlay consensus protocol (e.g., Streamlet or HotStuff) and uses a simple
-majority voting rule.  We state and prove a security corollary
-using the two lemmas as puzzle pieces, assuming secure majority of the underlying
-ledgers, and that the overlay protocol is a good protocol. These results
-are presented in Section~\ref{sec:consensus}.
+majority voting rule. This result is presented in the Appendix.
 
 % TODO: Table of analogies?
 
