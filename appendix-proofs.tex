@@ -66,7 +66,7 @@ contiguous honest participation is also known in the literature as
   \label{fig.cross-party}
 \end{figure}
 
-\restateLemCrossParty*
+\myparagraph[Lemma~\ref{lem:cross-party}]
 \begin{proof}
   The function \emulateMachine of party $j$ (resp. party $j'$)
   calls the deterministic function \simulate with overlay party index $i$,
@@ -86,7 +86,7 @@ contiguous honest participation is also known in the literature as
   relayer.\Qed
 \end{proof}
 
-\restateLemConsistency*
+\myparagraph[Lemma~\ref{lem:consistency}]
 \begin{proof}
   Let $i \in H$, $r \geq 0$, $r + \Delta_v < r' < R$ be arbitrary.
   When $\emulateMachine$ is invoked at the end of round $r'$ (resp. $r' + 1$),
@@ -105,7 +105,7 @@ contiguous honest participation is also known in the literature as
   are included in $\Ledger[j][i][r']$ by \emph{timeliness}.\Qed
 \end{proof}
 
-\restateConjSim*
+\myparagraph[Conjecture~\ref{conj:simulation}]
 \begin{proof}[Sketch]
   Let $\Pi$, $\mathcal{Y}$, $\mathcal{B}$ and $\mathcal{H}$
   be as in the statement, and $\Delta = \Delta_u + \Delta_v$.
@@ -264,7 +264,17 @@ contiguous honest participation is also known in the literature as
   wish to show that $c^*(r + \Delta_v + 1, r, r) = c'(r)$,
   from which it will follow that $V^*_{i,r} = V'_{i,r}$.
 
-  %TODO: check that induction base holds
+  \begin{figure*}
+    \centering
+    \iftwocolumn
+    \includegraphics[width=0.6 \textwidth,keepaspectratio]{figures/emulation-claim-1-induction.pdf}
+    \else
+    \includegraphics[width=\textwidth,keepaspectratio]{figures/emulation-claim-1-induction.pdf}
+    \fi
+    \caption{The inductive step in the proof of the Simulation Conjecture.}
+    \label{fig.emulation-claim-1-induction}
+  \end{figure*}
+
   Because $\mathcal{E}^*$ is consistent, we have that
   \begin{equation}\label{conj:simulation:consistency}
     c^*(r + \Delta_v, r - 1, r - 1) = c^*(r + \Delta_v + 1, r - 1, r - 1)\,.
@@ -331,17 +341,6 @@ contiguous honest participation is also known in the literature as
   therefore $c^*(r + \Delta_v + 1, r, r) = c'(r)$ (see Figure~\ref{fig.emulation-claim-1-induction}).
   We conclude that $V^*_{i,r} = V'_{i,r}$, completing the induction
   and the proof of Claim 1.
-
-  \begin{figure*}
-    \centering
-    \iftwocolumn
-    \includegraphics[width=0.6 \textwidth,keepaspectratio]{figures/emulation-claim-1-induction.pdf}
-    \else
-    \includegraphics[width=\textwidth,keepaspectratio]{figures/emulation-claim-1-induction.pdf}
-    \fi
-    \caption{The inductive step in the proof of the Simulation Conjecture.}
-    \label{fig.emulation-claim-1-induction}
-  \end{figure*}
 
   \myparagraph[Claim 2: $\mathcal{Z}'$ respects the network model]
   Namely, the claim is that for all $i, i' \in H$, for all rounds $r$ of $\mathcal{E}'$:
