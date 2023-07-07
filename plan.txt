@@ -1,8 +1,6 @@
 - Verbal/written and transcribability/certifiability table
   * Where does TrustBoost stand in this?
 - Formalize notion of verbal/written communication
-- Rework algorithm to modularize role of "Rollerblade",
-  and of the overlay ledger protocol.
 - State conjectures in the form of UC
   * "Verbal communication" can be replaced with an underlying ledger
   * "Written communication" can be replaced with an underlying ledger
