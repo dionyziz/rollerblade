@@ -1,10 +1,29 @@
 \appsection[A Consensus Application]\label{sec:consensus}
 
-\import{./}{algorithms/alg-majorityvote}
+One way to run \rollerblade is with an overlay consensus protocol.
+In this construction, each overlay party acts as a validator.
+Since each overlay party depends on the security of its
+corresponding underlying ledger, the security resilience
+of the overlay protocol now dictates the number of well
+behaved underlying ledgers required.
+If $\Pi$ has $\frac{1}{2}$ resilience and the majority of underlying
+ledgers are secure, then the emulated execution of $\Pi$ is also secure.
+This gives life to a new kind of roll-up, which stands on top of multiple
+layer-1s, making it more secure than any of them individually.
+
+
 \import{./}{algorithms/alg-consensus}
+\import{./}{algorithms/alg-majorityvote}
 
 \begin{conjecture}[Security]
-  TODO: Write security conjecture for any consensus $\Pi$ ran on top of Rollerblade
+  Let $\Pi$ be a distributed ledger protocol, and $\frac{t}{n}$ be its resilience such
+  that if $f < t$, where $f$ is the number of adversarial parties, and $n$ is the total number of parties,
+  then for all PPT adversaries, an execution of $\Pi$ is secure with overwhelming probability.
+
+  The execution of $\recursiveConsensus_{\Pi}$ is secure if $f < t$, where $n - f$ of the
+  underlying ledgers are guaranteed to be secure with overwhelming probability.
+
+  %TODO: continue
 \end{conjecture}
 
 % \begin{corollary}[Safety]
