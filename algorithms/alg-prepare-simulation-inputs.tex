@@ -34,6 +34,7 @@
 
       \For{$i' \gets 1 \text{ to } n$}
         \State{\consumedLengths.\append(0)}
+        \Let{F^{i'}}{[\,]}
       \EndFor
 
       \Let{L}{\this.\decodeUnderlying(i, \Ledger[j][i])}\label{alg.prepare-simulation-inputs:decode-underlying}
@@ -52,7 +53,8 @@
           \Let{i'}{\instruction\textsf{.from}}
           \Let{\tau}{\instruction.\data.\certificate}
           \Let{\ImaginaryLedger[j][i']}{\this.\Y[j][i'].\untranscribe(\tau)}\label{alg.prepare-simulation-inputs:untranscribe}
-          \Let{\textsf{res}}{\this.\textsf{simulate}(i', \ImaginaryLedger[j][i'], r - u_i - v_{i'} - 1)}\label{alg.prepare-simulation-inputs:recursion}
+          \Let{F^{i'}}{F^{i'} \concat ({\ImaginaryLedger[j][i']}[{|F^{i'}|}{:}])}
+          \Let{\textsf{res}}{\this.\textsf{simulate}(i', F^{i'}, r - u_i - v_{i'} - 1)}\label{alg.prepare-simulation-inputs:recursion}
           \Let{\outboxes}{\textsf{res}.\outboxes}
           \Let{\textsf{netins}}{\this.\outboxesToInbox(\outboxes, i', i)}\label{alg.prepare-simulation-inputs:outboxes-to-inbox}
           \Let{\unprocessedNetins}{\textsf{netins}[\consumedLengths[i']{:}]}
