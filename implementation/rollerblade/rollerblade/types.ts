@@ -35,6 +35,6 @@ export type PartyNetworkInbox = AuthenticatedIncomingMessage[][]
 
 export type SimulationResult = {
   machine: DistributedProtocol,
-  simulationRound: number,
+  emulationRound: number,
   outbox: PartyNetworkOutbox
 }

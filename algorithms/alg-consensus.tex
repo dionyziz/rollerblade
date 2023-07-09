@@ -12,9 +12,9 @@
         \Let{\overline{L}}{[\,]}
         %TODO: is this zero-based?
         \Let{v}{\max_{\Y[j][i] \in \Y[j]}{\{\Y[j][i].v\}}}
-        \Let{\simulationRound}{\this.\now - v - 1}
+        \Let{\emulationRound}{\this.\now - v - 1}
         \For{$i \gets 1 \text{ to } |\Y[j]|$}
-          \Let{L}{\this.\LLambda[j].\emulateMachine(i, \simulationRound)}
+          \Let{L}{\this.\LLambda[j].\emulationSnapshot(i, \emulationRound)}
           \State{$\overline{L}$.\append($L$)}
         \EndFor
         \State{\Return{$\majorityVote(\overline{L})$}}

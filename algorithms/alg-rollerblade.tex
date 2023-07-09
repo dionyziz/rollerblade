@@ -5,11 +5,11 @@
   \begin{algorithmic}[1]
     \Protocol{\rollerblade}
       % TODO(dionyziz): typeset this, fix the spacing after function names
-      \State{\textbf{public function} \emulateMachine($i, \simulationRound$)}
+      \State{\textbf{public function} \emulationSnapshot($i, \emulationRound$)}
       \State{\textbf{public function} \writeToMachine($i, \data$)}
 
-      \State{\textbf{function} \prepareSimulationInputs($i, \Ledger[j][i], \simulationRound$)}
-      \State{\textbf{function} \simulate($i, \Ledger[j][i], \simulationRound$)}
+      \State{\textbf{function} \prepareEmulationInputs($i, \Ledger[j][i], \emulationRound$)}
+      \State{\textbf{function} \emulate($i, \Ledger[j][i], \emulationRound$)}
       \State{\textbf{function} \outboxesToInbox($\outboxes, i', i$)}
       \State{\textbf{function} \relay()}
       \State{\textbf{function} \decodeUnderlying($i, L$)}

@@ -4,25 +4,25 @@
 % and .n = |\this.\Y[j]|
 % \Let{n}{|\Y[j]|}\Comment{Number of overlay parties}
 \begin{algorithm}
-  \caption{\label{alg.prepare-simulation-inputs}
-    The \emph{prepare simulation inputs} function ran by \rollerblade party $j$
-    to prepare the necessary inputs for the simulation of overlay party
-    $i$ at round $\simulationRound$ based on the underlying ledger $\Ledger[j][i]$.
+  \caption{\label{alg.prepare-emulation-inputs}
+    The \emph{prepare emulation inputs} function ran by \rollerblade party $j$
+    to prepare the necessary inputs for the emulation of overlay party
+    $i$ at round $\emulationRound$ based on the underlying ledger $\Ledger[j][i]$.
     The function returns the inputs, which consist of \emph{writes} (user inputs)
     and \emph{inboxes} (network inputs produced as network output when recursively
     simulating all other parties $\Y[j][i']$)
     arranged by round.
   }
   \begin{algorithmic}[1]
-    \Function{\prepareSimulationInputs}{$i, \Ledger[j][i], \simulationRound$}
-      \If{$\simulationRound > \this.\now - v_i$}\label{alg.prepare-simulation-inputs:reality-lag}
+    \Function{\prepareEmulationInputs}{$i, \Ledger[j][i], \emulationRound$}
+      \If{$\emulationRound > \this.\now - v_i$}\label{alg.prepare-emulation-inputs:reality-lag}
         \State\Return{$\bot$} \Comment{Sim round is too far in future}
       \EndIf
 
       \Let{\inboxes}{[[\,]]}
       \Let{\writeboxes}{[[\,]]}
 
-      \For{$r \gets 1 \text{ to } \simulationRound$}\label{alg.prepare-simulation-inputs:init}
+      \For{$r \gets 1 \text{ to } \emulationRound$}\label{alg.prepare-emulation-inputs:init}
         % \CommentLine{For each round $r$: $\inboxes[r]$ and $\writeboxes[r]$ is a \emph{list} of inputs}
         \State{\inboxes.\append([\,])}
         \State{\writeboxes.\append([\,])}
@@ -37,32 +37,32 @@
         \Let{F^{i'}}{[\,]}
       \EndFor
 
-      \Let{L}{\this.\decodeUnderlying(i, \Ledger[j][i])}\label{alg.prepare-simulation-inputs:decode-underlying}
-      \For{$(r, \instruction) \in L$}\label{alg.prepare-simulation-inputs:for}
+      \Let{L}{\this.\decodeUnderlying(i, \Ledger[j][i])}\label{alg.prepare-emulation-inputs:decode-underlying}
+      \For{$(r, \instruction) \in L$}\label{alg.prepare-emulation-inputs:for}
         % TODO: Mention that timeliness (time marches forward)
-        \If{$r \geq \simulationRound$}\label{alg.prepare-simulation-inputs:early-exit}
-          \CommentLine{Further data irrelevant for this simulation}
+        \If{$r \geq \emulationRound$}\label{alg.prepare-emulation-inputs:early-exit}
+          \CommentLine{Further data irrelevant for this emulation}
           \Break
         \EndIf
         % TODO(dionyziz): Turn this into "switch"?
         \If{$\instruction\textsf{.type} = \text{`write'}$}
-          \State{$\writeboxes[r].\append(\instruction\textsf{.data})$}\label{alg.prepare-simulation-inputs:write}
+          \State{$\writeboxes[r].\append(\instruction\textsf{.data})$}\label{alg.prepare-emulation-inputs:write}
           \Continue
         \EndIf
         \If{$\instruction\textsf{.type} = \text{`chkpt'}$}
           \Let{i'}{\instruction\textsf{.from}}
           \Let{\tau}{\instruction.\data.\certificate}
-          \Let{\ImaginaryLedger[j][i']}{\this.\Y[j][i'].\untranscribe(\tau)}\label{alg.prepare-simulation-inputs:untranscribe}
+          \Let{\ImaginaryLedger[j][i']}{\this.\Y[j][i'].\untranscribe(\tau)}\label{alg.prepare-emulation-inputs:untranscribe}
           \Let{F^{i'}}{F^{i'} \concat ({\ImaginaryLedger[j][i']}[{|F^{i'}|}{:}])}
-          \Let{\textsf{res}}{\this.\textsf{simulate}(i', F^{i'}, r - u_i - v_{i'} - 1)}\label{alg.prepare-simulation-inputs:recursion}
+          \Let{\textsf{res}}{\this.\textsf{emulate}(i', F^{i'}, r - u_i - v_{i'} - 1)}\label{alg.prepare-emulation-inputs:recursion}
           \Let{\outboxes}{\textsf{res}.\outboxes}
-          \Let{\textsf{netins}}{\this.\outboxesToInbox(\outboxes, i', i)}\label{alg.prepare-simulation-inputs:outboxes-to-inbox}
+          \Let{\textsf{netins}}{\this.\outboxesToInbox(\outboxes, i', i)}\label{alg.prepare-emulation-inputs:outboxes-to-inbox}
           \Let{\unprocessedNetins}{\textsf{netins}[\consumedLengths[i']{:}]}
 
-          \For{$\netin \in \unprocessedNetins$}\label{alg.prepare-simulation-inputs:for-netin}
+          \For{$\netin \in \unprocessedNetins$}\label{alg.prepare-emulation-inputs:for-netin}
             \State{$\inboxes[r].\append(\netin)$}
           \EndFor
-          \Let{\consumedLengths[i']}{\consumedLengths[i'] + |\unprocessedNetins|}\label{alg.prepare-simulation-inputs:consumed-lengths}
+          \Let{\consumedLengths[i']}{\consumedLengths[i'] + |\unprocessedNetins|}\label{alg.prepare-emulation-inputs:consumed-lengths}
         \EndIf
       \EndFor
       \State\Return{$(\writeboxes, \inboxes)$}

@@ -1,0 +1,54 @@
+% TODO: write these in the form of a compositor protocol (a class with multiple methods)
+\begin{algorithm}
+  \caption{\label{alg.emulate}
+    The \emph{emulate} function ran by a \rollerblade party
+    executing the overlay protocol for party $i$ at a
+    particular \emph{emulation round} using ledger $\Ledger[j][i]$.
+    The emulation returns the outbox (messages
+    ``sent'' to other parties) and the instance $\Z[j][i]$ of the emulated machine
+    as reported by overlay party $i$.
+  }
+  \begin{algorithmic}[1]
+    \Function{\emulate}{$i, \Ledger[j][i], \emulationRound$}
+      \Let{\textsf{in}}{\this.\prepareEmulationInputs(i, \Ledger[j][i], \emulationRound)}\label{alg.emulate:recursion}
+      \Let{(\writeboxes, \inboxes)}{\textsf{in}}
+
+      \Let{\outboxes}{[[\,]]}\label{alg.emulate:outboxes-init}
+      \Let{\inboxThisRound}{[\,]}
+      \Let{\outboxThisRound}{[\,]}
+
+      \Function{\send}{recp, \msg}\label{alg.emulate:send}
+        \State{$\outboxThisRound.\append(\{\textsf{to}{:} \textsf{recp}, \msg{:}\msg\})$}
+      \EndFunction
+
+      \Function{\recv}{\,}\label{alg.emulate:receive}
+        \State\Return{\inboxThisRound}
+      \EndFunction
+
+      \CommentLine{Oracles passed to the overlay protocol}
+      \Let{\net}{(\textsf{send}, \textsf{receive})}
+
+      \Let{\Z[j][i]}{\new \Pi^\net(\this.\Delta, j, n)}\label{alg.emulate:construct}
+      \For{$r \gets 1 \text{ to } \emulationRound$}\label{alg.emulate:for}
+        \Let{\sf roundReceives}{[\,]}
+        \Let{\outboxThisRound}{[\,]}\label{alg.emulate:outboxThisRound-init}
+
+        \For{$\textsf{data} \in \textsf{writeboxes}[r - 1]$}\label{alg.emulate:write}
+          \CommentLine{Submit writes recorded at $r - 1$}
+          \State{$\Z[j][i].\textsf{write}(\textsf{data})$}
+        \EndFor
+
+        \CommentLine{Prepare network msgs to be delivered at $r$}
+        \Let{\inboxThisRound}{\inboxes[r - 1]}\label{alg.emulate:netin}
+
+        \CommentLine{Run a single round $r$ of overlay machine}
+        \State{$\Z[j][i].\textsf{execute}()$}\label{alg.emulate:execute}
+
+        \State{$\outboxes.\append(\outboxThisRound)$}\label{alg.emulate:outboxes-append}
+      \EndFor
+
+      \State\Return{$\{\outboxes{:} \outboxes, Z{:} \Z[j][i]\}$}\label{alg.emulate:return}
+    \EndFunction
+    \vskip2pt
+  \end{algorithmic}
+\end{algorithm}

@@ -61,7 +61,7 @@ such as Bitcoin, Ethereum, and Cardano, for which we have access to already runn
 and we are asked to compose on top of.
 
 We are also given a distributed protocol $\Pi$ (not necessarily a ledger protocol),
-the so-called \emph{overlay} protocol. We will simulate an $n$-party execution of $\Pi$,
+the so-called \emph{overlay} protocol. We will emulate an $n$-party execution of $\Pi$,
 with each $i$ of these $n$ parties corresponding to the underlying ledger protocol $\Y[][i]$.
 
 The users of the protocol are $m \in \mathbb{N}$ \rollerblade \emph{clients} termed
@@ -217,7 +217,7 @@ running in a stand-alone setting.
   \begin{enumerate}
     \item \construct$(\sid, (\Y[j][1] \ldots \Y[j][n]))$.
     \item \writeToMachine$(i, \data)$.
-    \item \emulateMachine$(i, r)$. % <-- Z
+    \item \emulationSnapshot$(i, r)$. % <-- Z
   \end{enumerate}
 \end{definition}
 
@@ -225,10 +225,10 @@ The compositor is constructed by calling \emph{\construct} with parameter the se
 Note that compositors are permissionless, as they don't know their instance identity $j \in \mathbb{N}$.
 Each compositor instance provides a \emph{\writeToMachine}
 functionality that allows writing data to the $i^\text{th}$ emulated machine.
-It also provides an \emph{\emulateMachine} functionality that promises to emulate the execution of
+It also provides an \emph{\emulationSnapshot} functionality that promises to emulate the execution of
 the $i^\text{th}$ instance of $\Pi$ up to round $r$, and return the instance of this emulation
 at round $r$ (and note that this contains the full transcript of the emulation).
-Observe that \emph{\emulateMachine} can be invoked at a later round $r' > r$.
+Observe that \emph{\emulationSnapshot} can be invoked at a later round $r' > r$.
 Note here the difference between $\mathcal{Y} = \Y[][1], \ldots, \Y[][n]$ (denoting \emph{underlying protocols}
 in the form of ITMs) and
 $(\Y[j][1], \ldots, \Y[j][n])$ (denoting \emph{underlying protocol instances}
@@ -412,9 +412,9 @@ recorded in each row will be growing in an append-only fashion.
   for all $i \in H$, for all $r \geq 0$,
   for all $r + \Delta_v < r' < R$,
   it holds that
-  $\LLambda[j].\emulateMachine(i, r)$ executed \emph{in vitro} at the end of round $r'$
+  $\LLambda[j].\emulationSnapshot(i, r)$ executed \emph{in vitro} at the end of round $r'$
   is equal to
-  $\LLambda[j].\emulateMachine(i, r)$ executed \emph{in vitro} at the end of round $r' + 1$.
+  $\LLambda[j].\emulationSnapshot(i, r)$ executed \emph{in vitro} at the end of round $r' + 1$.
 \end{definition}
 
 Note that in the above definition, we allow $r = 0$, even though rounds
@@ -431,14 +431,14 @@ in the execution begin at $1$.
   is the $|H| \times R$ matrix
   \[
   \begin{bmatrix}
-    \emulateMachine(H_1, 1) & \ldots & \emulateMachine(H_1, R - \Delta_v - 1)\\
+    \emulationSnapshot(H_1, 1) & \ldots & \emulationSnapshot(H_1, R - \Delta_v - 1)\\
                      \vdots & \ddots & \vdots \\
-    \emulateMachine(H_{|H|}, 1) & \ldots & \emulateMachine(H_{|H|}, R - \Delta_v - 1)
+    \emulationSnapshot(H_{|H|}, 1) & \ldots & \emulationSnapshot(H_{|H|}, R - \Delta_v - 1)
   \end{bmatrix}\,,
   \]
-  where $\emulateMachine(H_i, r)$ denotes the return value of invoking,
+  where $\emulationSnapshot(H_i, r)$ denotes the return value of invoking,
   \emph{in vitro} at the end of round $r + \Delta_v + 1$,
-  the $\emulateMachine$ functionality of the $j^\text{th}$ compositor party $\LLambda[j]$
+  the $\emulationSnapshot$ functionality of the $j^\text{th}$ compositor party $\LLambda[j]$
   with parameters the index $H_i$ of the $i^\text{th}$ overlay machine (among those
   included in $H$) and round $r$.
 

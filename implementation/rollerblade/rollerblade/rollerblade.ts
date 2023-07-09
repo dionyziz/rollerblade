@@ -90,12 +90,12 @@ export class Rollerblade<
   }
 
   // Create all the simulation inputs (network inputs [inbox] and user inputs [writes])
-  // needed to simulate party i from round 0 to round simulationRound (inclusive),
+  // needed to simulate party i from round 0 to round emulationRound (inclusive),
   // ledger L_i was read at realityRound (or later)
   createSimulationInputs(
     i: number,
     L_i: TemporalLedger<UnderlyingLedgerProtocol>,
-    simulationRound: number,
+    emulationRound: number,
     realityRound: number
   ): {
     inbox: PartyNetworkInbox, // network inputs: round => [(from, msg), ...]
@@ -104,8 +104,8 @@ export class Rollerblade<
     // Timeliness: Now that we have read L^i at realityRound, we know
     // that, at future reads of L^i, no new transactions with timestamps
     // smaller than realityRound - v will appear.
-    if (simulationRound >= realityRound - this.v) {
-      throw new Error(`Not enough data to simulate up to round ${simulationRound} (reality round: ${realityRound})`)
+    if (emulationRound >= realityRound - this.v) {
+      throw new Error(`Not enough data to simulate up to round ${emulationRound} (reality round: ${realityRound})`)
     }
 
     const txs = Rollerblade.decodeUnderlyingLedger(this.sid, this.Y[i], L_i)
@@ -119,10 +119,10 @@ export class Rollerblade<
       recordedMessageCount.push(0)
     }
 
-    // Fill in inbox and writes up to simulationRound (exclusive),
-    // as inbox and writes of round simulationRound - 1 are used
-    // as inputs to simulate round simulationRound
-    for (let r = 0; r < simulationRound; ++r) {
+    // Fill in inbox and writes up to emulationRound (exclusive),
+    // as inbox and writes of round emulationRound - 1 are used
+    // as inputs to simulate round emulationRound
+    for (let r = 0; r < emulationRound; ++r) {
       inbox.push([])
       writes.push([])
     }
@@ -130,7 +130,7 @@ export class Rollerblade<
     for (let tx of txs) {
       const [r, instruction] = tx!
 
-      if (r >= simulationRound) {
+      if (r >= emulationRound) {
         break
       }
 
@@ -195,11 +195,11 @@ export class Rollerblade<
     }
   }
 
-  simulateZ(i: number, L_i: TemporalLedger<UnderlyingLedgerProtocol>, simulationRound: number, realityRound: number): SimulationResult {
-    const { inbox, writes } = this.createSimulationInputs(i, L_i, simulationRound, realityRound)
+  simulateZ(i: number, L_i: TemporalLedger<UnderlyingLedgerProtocol>, emulationRound: number, realityRound: number): SimulationResult {
+    const { inbox, writes } = this.createSimulationInputs(i, L_i, emulationRound, realityRound)
 
     assert(inbox.length === writes.length) // number of rounds available
-    assert(inbox.length < simulationRound) // we have enough data to simulate up to round r
+    assert(inbox.length < emulationRound) // we have enough data to simulate up to round r
 
     // Z_i's netout: round => [(recp, msg)...]
     const outbox: PartyNetworkOutbox = []
@@ -219,7 +219,7 @@ export class Rollerblade<
     const Z_i: DistributedProtocol = new this.Π(i, this.n, network)
 
     Z_i.execute() // execute round 0 without any inputs
-    for (let r = 0; r < simulationRound; ++r) {
+    for (let r = 0; r < emulationRound; ++r) {
       for (const write of writes[r]) {
         Z_i.write(write)
       }
@@ -229,20 +229,20 @@ export class Rollerblade<
       Z_i.execute()
       outbox.push(outboxThisRound)
     }
-    // "execute" has been executed a total of simulationRound + 1 times
-    // from round 0 to round simulationRound (inclusive)
+    // "execute" has been executed a total of emulationRound + 1 times
+    // from round 0 to round emulationRound (inclusive)
 
     return {
       machine: Z_i,
-      simulationRound,
+      emulationRound,
       outbox
     }
   }
 
-  readFromMachine(i: number, simulationRound: number) {
+  readFromMachine(i: number, emulationRound: number) {
     // TODO: u might be different for each underlying
     const L_i: TemporalLedger<UnderlyingLedgerProtocol> = this.Y[i].read()
-    const sim: SimulationResult = this.simulateZ(i, L_i, simulationRound, this.round)
+    const sim: SimulationResult = this.simulateZ(i, L_i, emulationRound, this.round)
 
     return sim.machine.read()
   }

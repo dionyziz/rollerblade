@@ -59,23 +59,23 @@ contiguous honest participation is also known in the literature as
   \else
   \includegraphics[width=0.6 \columnwidth,keepaspectratio]{figures/rollerblade-cross-party.pdf}
   \fi
-  \caption{The Cross-Party Lemma (Lemma~\ref{lem:cross-party}) states that
+  \caption{The Replication Theorem (Theorem~\ref{thm:replication}) states that
   the execution of the emulated machines $\Z[j][i]$ and $\Z[j'][i]$
   across two different compositor parties $\LLambda[j]$ and $\LLambda[j']$
   is consistent, as long as the underlying ledger $\Y[][i]$ is \emph{good}.}
   \label{fig.cross-party}
 \end{figure}
 
-\myparagraph[Lemma~\ref{lem:cross-party}]
+\myparagraph[Theorem~\ref{thm:replication}]
 \begin{proof}
-  The function \emulateMachine of party $j$ (resp. party $j'$)
-  calls the deterministic function \simulate with overlay party index $i$,
-  ledger $\Ledger[j][i][r + v_i]$ (resp. ledger $\Ledger[j'][i][r + v_i]$), simulation round
-  $r$, and current round $r + v_i$. The function \simulate runs its main
-  \emph{for} loop (Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for})
+  The function \emulationSnapshot of party $j$ (resp. party $j'$)
+  calls the deterministic function \emulate with overlay party index $i$,
+  ledger $\Ledger[j][i][r + v_i]$ (resp. ledger $\Ledger[j'][i][r + v_i]$), emulation round
+  $r$, and current round $r + v_i$. The function \emulate runs its main
+  \emph{for} loop (Algorithm~\ref{alg.emulate} Line~\ref{alg.emulate:for})
   up to $r$ (inclusive), which consumes data from $\writeboxes[r - 1]$
   and $\inboxes[r - 1]$ and earlier. These are produced by the function
-  \prepareSimulationInputs by looking at transactions recorded in $\Ledger[j][i][r + v_i]$
+  \prepareEmulationInputs by looking at transactions recorded in $\Ledger[j][i][r + v_i]$
   (resp. $\Ledger[j'][i][r + v_i]$) with recorded round $< r$.
   Because $\Ledger[][i]$ is \emph{good} in $\mathcal{E}$, it is safe, live($u_i$), and timely($v_i$).
   It suffices to show that all transactions with recorded round
@@ -89,23 +89,23 @@ contiguous honest participation is also known in the literature as
 \myparagraph[Lemma~\ref{lem:consistency}]
 \begin{proof}
   Let $i \in H$, $r \geq 0$, $r + \Delta_v < r' < R$ be arbitrary.
-  When $\emulateMachine$ is invoked at the end of round $r'$ (resp. $r' + 1$),
+  When $\emulationSnapshot$ is invoked at the end of round $r'$ (resp. $r' + 1$),
   the value $\this.\now$
-  is $r'$ (resp. $r' + 1$), so the check $\simulationRound > \this.\now - v_i$ of Algorithm~\ref{alg.prepare-simulation-inputs}
-  Line~\ref{alg.prepare-simulation-inputs:reality-lag} is \emph{false}, and the emulation
+  is $r'$ (resp. $r' + 1$), so the check $\emulationRound > \this.\now - v_i$ of Algorithm~\ref{alg.prepare-emulation-inputs}
+  Line~\ref{alg.prepare-emulation-inputs:reality-lag} is \emph{false}, and the emulation
   succeeds. This is the only stateful check in this function.
-  The result of the function $\prepareSimulationInputs$ only depends on the transactions of
-  its $\Ledger[j][i]$ argument with recorded rounds up to $\simulationRound$.
+  The result of the function $\prepareEmulationInputs$ only depends on the transactions of
+  its $\Ledger[j][i]$ argument with recorded rounds up to $\emulationRound$.
   Therefore it suffices to show that the transactions in
-  $\Ledger[j][i][r']$ with recorded rounds up to $\simulationRound$ are the same
-  as the transactions in $\Ledger[j][i][r' + 1]$ with recorded rounds up to $\simulationRound$.
-  All $\Ledger[j][i][r']$ transactions with recorded rounds up to $\simulationRound$
+  $\Ledger[j][i][r']$ with recorded rounds up to $\emulationRound$ are the same
+  as the transactions in $\Ledger[j][i][r' + 1]$ with recorded rounds up to $\emulationRound$.
+  All $\Ledger[j][i][r']$ transactions with recorded rounds up to $\emulationRound$
   are included in $\Ledger[j][i][r' + 1]$ by \emph{stickiness}.
-  Conversely, all $\Ledger[j][i][r' + 1]$ transactions with recorded rounds up to $\simulationRound$
+  Conversely, all $\Ledger[j][i][r' + 1]$ transactions with recorded rounds up to $\emulationRound$
   are included in $\Ledger[j][i][r']$ by \emph{timeliness}.\Qed
 \end{proof}
 
-\myparagraph[Conjecture~\ref{conj:simulation}]
+\myparagraph[Conjecture~\ref{conj:emulation}]
 \begin{proof}[Sketch]
   Let $\Pi$, $\mathcal{Y}$, $\mathcal{B}$ and $\mathcal{H}$
   be as in the statement, and $\Delta = \Delta_u + \Delta_v$.
@@ -144,7 +144,7 @@ contiguous honest participation is also known in the literature as
     \includegraphics[width=0.7 \columnwidth,keepaspectratio]{figures/rollerblade-emulation.pdf}
     \fi
     \caption{A visualization of the argument that \rollerblade is faithful.
-    In the proof of Conjecture~\ref{conj:simulation},
+    In the proof of Conjecture~\ref{conj:emulation},
     the simulator $\mathcal{S}$ and simulated environment $\mathcal{Z}'$
     give rise to execution $\mathcal{E}'$ in the
     party setting (top right) by sampling an execution $\mathcal{E}^*$ in the emulated
@@ -159,8 +159,8 @@ contiguous honest participation is also known in the literature as
   The simulator initially obtains, for every $i \in [n]$,
   a copy of the configuration $M_i$ of the ITI $\RB[j]$ from $\mathcal{E}^*$ at the end of
   $\mathcal{E}^*$.
-  The simulator calls $\prepareSimulationInputs(i, \simulationRound, \realityRound)$ on $M_i$
-  \emph{in vitro} at the end of round $R$, where $\simulationRound = R - \Delta_v - 1$
+  The simulator calls $\prepareEmulationInputs(i, \emulationRound, \realityRound)$ on $M_i$
+  \emph{in vitro} at the end of round $R$, where $\emulationRound = R - \Delta_v - 1$
   and $\realityRound = R$, to obtain the pair
   $(\writeboxes^i, \inboxes^i)$, where
   $|\writeboxes^i| = R - \Delta_v - 1$
@@ -230,17 +230,17 @@ contiguous honest participation is also known in the literature as
 
   Let $c^*(r_1, r_2, r_3)$ denote the configuration
   of the machine $\Z[j][i]$ after the invocation of
-  Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:execute}
+  Algorithm~\ref{alg.emulate} Line~\ref{alg.emulate:execute}
   during the $r_3$-rd iteration of the \emph{for loop} in
-  Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
+  Algorithm~\ref{alg.emulate} Line~\ref{alg.emulate:for}
   (or, if $r_3 = 0$, we set $c^*(r_1, r_2, r_3)$ to be the state of
   $\Z[j][i]$ before the \emph{for loop})
-  when $\emulateMachine$ is
+  when $\emulationSnapshot$ is
   invoked \emph{in vitro} after round $r_1$ of execution $\mathcal{E}^*$,
   where $r_2 + \Delta_v + 1 \leq r_1 \leq R + \Delta_v + 1$ with parameter
-  $\simulationRound = r_2$, and $r_3 \leq r_2$.
-  This causes an invocation of \simulate with parameters
-  $\simulationRound = r_2$ and $\realityRound = r_1$.
+  $\emulationRound = r_2$, and $r_3 \leq r_2$.
+  This causes an invocation of \emulate with parameters
+  $\emulationRound = r_2$ and $\realityRound = r_1$.
   Let $c'(r_3)$ denote the configuration of the machine $\PPi[i]$
   in $\mathcal{E}'$ at the end of round $r_3$.
   We set $c'(0)$ to be the initial configuration of $\PPi[i]$,
@@ -250,7 +250,7 @@ contiguous honest participation is also known in the literature as
   Let $r$ be an arbitrary round such that $1 \leq r \leq R - \Delta_v - 1$.
 
   If $r = 1$, then
-  \begin{equation}\label{conj:simulation:ind-hyp}
+  \begin{equation}\label{conj:emulation:ind-hyp}
     c^*(r + \Delta_v, r - 1, r - 1) = c'(r - 1)\,
   \end{equation}
   because the state of machine $\Z[j][i]$ and $\PPi[i]$ are identical
@@ -258,9 +258,9 @@ contiguous honest participation is also known in the literature as
   is deterministic.
 
   If $r > 1$, then by inductive hypothesis we have $V^*_{i,r - 1} = V'_{i,r - 1}$
-  by which Eq~\ref{conj:simulation:ind-hyp} also follows.
+  by which Eq~\ref{conj:emulation:ind-hyp} also follows.
 
-  In either case, Eq~\ref{conj:simulation:ind-hyp} holds, and we
+  In either case, Eq~\ref{conj:emulation:ind-hyp} holds, and we
   wish to show that $c^*(r + \Delta_v + 1, r, r) = c'(r)$,
   from which it will follow that $V^*_{i,r} = V'_{i,r}$.
 
@@ -271,30 +271,30 @@ contiguous honest participation is also known in the literature as
     \else
     \includegraphics[width=\textwidth,keepaspectratio]{figures/emulation-claim-1-induction.pdf}
     \fi
-    \caption{The inductive step in the proof of the Simulation Conjecture.}
+    \caption{The inductive step in the proof of the Emulation Conjecture.}
     \label{fig.emulation-claim-1-induction}
   \end{figure*}
 
   Because $\mathcal{E}^*$ is consistent, we have that
-  \begin{equation}\label{conj:simulation:consistency}
+  \begin{equation}\label{conj:emulation:consistency}
     c^*(r + \Delta_v, r - 1, r - 1) = c^*(r + \Delta_v + 1, r - 1, r - 1)\,.
   \end{equation}
-  Each iteration of the \emph{for} loop of Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
-  proceeds until the round reaches $\simulationRound$, therefore
+  Each iteration of the \emph{for} loop of Algorithm~\ref{alg.emulate} Line~\ref{alg.emulate:for}
+  proceeds until the round reaches $\emulationRound$, therefore
   $c^*(r + \Delta_v + 1, r, r - 1) = c^*(r + \Delta_v + 1, r - 1, r - 1)$.
-  From this and Eq~\ref{conj:simulation:consistency} we conclude that
+  From this and Eq~\ref{conj:emulation:consistency} we conclude that
   $c^*(r + \Delta_v + 1, r, r - 1) = c^*(r + \Delta_v, r - 1, r - 1)$.
-  From this and Eq~\ref{conj:simulation:ind-hyp} we conclude that
-  \begin{equation}\label{conj:simulation:pre-state}
+  From this and Eq~\ref{conj:emulation:ind-hyp} we conclude that
+  \begin{equation}\label{conj:emulation:pre-state}
     c^*(r + \Delta_v + 1, r, r - 1) = c'(r - 1)\,.
   \end{equation}
 
   Let $(\writeboxes^*, \inboxes^*)$
   be the pair
-  returned by the invocation of $\prepareSimulationInputs(i, \Ledger[j][i][r + \Delta_v + 1], r)$
+  returned by the invocation of $\prepareEmulationInputs(i, \Ledger[j][i][r + \Delta_v + 1], r)$
   \emph{in vitro} after round $r + \Delta_v + 1$ for party $\LLambda[j]$ of $\mathcal{E}^*$, and, likewise define
   $(\writeboxes', \inboxes')$ to be the pair
-  returned by the invocation of $\prepareSimulationInputs(i, \Ledger[j][i][R], R - \Delta_v - 1)$
+  returned by the invocation of $\prepareEmulationInputs(i, \Ledger[j][i][R], R - \Delta_v - 1)$
   \emph{in vitro} after round $R$ of $\mathcal{E}^*$ on party $\LLambda[j]$.
   Because $\Y[j][i]$ in $\mathcal{E}^*$ is \emph{sticky} and \emph{timely}$(v_i)$
   the transactions in
@@ -308,11 +308,11 @@ contiguous honest participation is also known in the literature as
    ledger).
   Hence,
   \begin{align}
-    \writeboxes^*[r - 1] &= \writeboxes'[r - 1]\label{conj:simulation:eq-inputs-writes}\\
-    \inboxes^*[r - 1] &= \inboxes'[r - 1]\label{conj:simulation:eq-inputs-inboxes}\,,
+    \writeboxes^*[r - 1] &= \writeboxes'[r - 1]\label{conj:emulation:eq-inputs-writes}\\
+    \inboxes^*[r - 1] &= \inboxes'[r - 1]\label{conj:emulation:eq-inputs-inboxes}\,,
   \end{align}
-  since the loop of Algorithm~\ref{alg.prepare-simulation-inputs} Line~\ref{alg.prepare-simulation-inputs:for}
-  will run identically in the two invocations of $\prepareSimulationInputs$ up to
+  since the loop of Algorithm~\ref{alg.prepare-emulation-inputs} Line~\ref{alg.prepare-emulation-inputs:for}
+  will run identically in the two invocations of $\prepareEmulationInputs$ up to
   and including round $r - 1$ (and for
   $r = 1$, $\writeboxes^*[0] = \inboxes^*[0] = \writeboxes'[0] = \inboxes'[0]$ by construction).
 
@@ -320,12 +320,12 @@ contiguous honest participation is also known in the literature as
   $c^*(r + \Delta_v + 1, r, r)$ is the result of
   taking the machine configuration
   $c^*(r + \Delta_v + 1, r, r - 1)$
-  and running the \emph{for} loop of Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:for}
+  and running the \emph{for} loop of Algorithm~\ref{alg.emulate} Line~\ref{alg.emulate:for}
   for one more iteration, providing inputs $\writeboxes^*[r - 1], \inboxes^*[r - 1]$
   during the execution of $\Z[j][i]$.
   To see why $\writeboxes^*, \inboxes^*$ in particular are used in this iteration,
-  note that these correspond to the invocation of $\prepareSimulationInputs$ in
-  Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:recursion}.
+  note that these correspond to the invocation of $\prepareEmulationInputs$ in
+  Algorithm~\ref{alg.emulate} Line~\ref{alg.emulate:recursion}.
 
   Similarly, by the simulator construction, % TODO: when does the simulator obtain \writeboxes, \inboxes? In vitro R...
   the simulator evolves the machine $\PPi[i]$ in $\mathcal{E}'$ from round $r - 1$,
@@ -334,9 +334,9 @@ contiguous honest participation is also known in the literature as
   in which it has configuration $c'(r)$,
   by feeding it the inputs $\writeboxes'[r - 1], \inboxes'[r - 1]$.
 
-  As $c^*(r + \Delta_v + 1, r, r - 1) = c'(r - 1)$ (by Eq~\ref{conj:simulation:pre-state})
+  As $c^*(r + \Delta_v + 1, r, r - 1) = c'(r - 1)$ (by Eq~\ref{conj:emulation:pre-state})
   and the two configurations evolve using the same inputs (by
-  Eqs~\ref{conj:simulation:eq-inputs-writes} and \ref{conj:simulation:eq-inputs-inboxes}),
+  Eqs~\ref{conj:emulation:eq-inputs-writes} and \ref{conj:emulation:eq-inputs-inboxes}),
   and, since $\Pi$ is deterministic,
   therefore $c^*(r + \Delta_v + 1, r, r) = c'(r)$ (see Figure~\ref{fig.emulation-claim-1-induction}).
   We conclude that $V^*_{i,r} = V'_{i,r}$, completing the induction
@@ -347,7 +347,7 @@ contiguous honest participation is also known in the literature as
 
   \begin{enumerate}[label=(\alph*)]
     \item
-    \label{conj:simulation:claim-delta}
+    \label{conj:emulation:claim-delta}
     If $\PPi[i]$ sends a message to $\PPi[i']$ at round $r$, then this message is delivered to $\PPi[i']$ (with source $i$) by round $r + \Delta$, and
 
     \item
@@ -357,10 +357,10 @@ contiguous honest participation is also known in the literature as
   Let $r$ be the round during which $\PPi[i]$ sends message $\msg$ to $\PPi[i']$.
   That means that $\PPi[i]$ invoked network function $\send(i', \msg)$ at round $r$.
   In Claim 1, we showed that the transcript of machine $\PPi[i]$ in $\mathcal{E}'$
-  is identical to the transcript of machine $\Z[j][i] = \LLambda[j].\emulateMachine(i,r)$ in $\mathcal{E}^*$
+  is identical to the transcript of machine $\Z[j][i] = \LLambda[j].\emulationSnapshot(i,r)$ in $\mathcal{E}^*$
   called in vitro at the end of round $r + \Delta_v + 1$.
   Hence, $\Z[j][i]$ also invoked network function $\send(i', \msg)$ at round $r$.
-  This means that $\msg \in \LLambda[j].\simulate(i, \Ledger[j][i][r + \Delta_v + 1], r).\outboxes[r]$
+  This means that $\msg \in \LLambda[j].\emulate(i, \Ledger[j][i][r + \Delta_v + 1], r).\outboxes[r]$
 
   At the beginning of round $r$, environment $\mathcal{Z}'$
   calls $\lwrite(\data)$ on party $i$.
@@ -370,10 +370,10 @@ contiguous honest participation is also known in the literature as
   At round $r$, $\PPi[i]$ is activated by $\mathcal{Z}'$ and
   has $\inboxes^i[r - 1]$
 
-  Definitionally, this means that $\msg \in \simulate(i, \Ledger[j][i][r], r).\outboxes[r]$
+  Definitionally, this means that $\msg \in \emulate(i, \Ledger[j][i][r], r).\outboxes[r]$
   called in vitro at the end of round $R$. This is because
 
-  function $\send()$ (Algorithm~\ref{alg.simulate} Line~\ref{alg.simulate:send}) is invoked
+  function $\send()$ (Algorithm~\ref{alg.emulate} Line~\ref{alg.emulate:send}) is invoked
   with parameters $i'$ and $\msg$ the $r$-th time that $\Z[j][i].\execute()$ is called.
 
   At round $r$, relayer $\LLambda[j]$ invokes $\relay()$.
@@ -388,20 +388,20 @@ contiguous honest participation is also known in the literature as
   Hence, $(\tx, r^*) \in \Ledger[j][i'][r']$, where $r^*$ is the recorded round of $\tx$ and $r' - u_{i'}\leq r^* \leq r'$.
 
   Simulator calls in vitro (at the end of round $R$ where
-  $R \geq r' + \Delta_v$) $\prepareSimulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$.
+  $R \geq r' + \Delta_v$) $\prepareEmulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$.
 
   If we call in vitro
-  (after round $r + \Delta_v$) $\simulate(i, \Ledger[j][i][r], r)$
+  (after round $r + \Delta_v$) $\emulate(i, \Ledger[j][i][r], r)$
   on $\LLambda[j]$ we will find $\msg$ in $\outboxes[r]$.
 
   That means that when the simulator calls in vitro
-  (at the end of round $R$ where $R \geq r' + \Delta_v$) $\prepareSimulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$
+  (at the end of round $R$ where $R \geq r' + \Delta_v$) $\prepareEmulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$
   we will find $m$ in $\inboxes[r^*]$ (with source $i$).
   Therefore, $\mathcal{Z}'$ will provide $m$ to $\PPi[i']$
   if $\PPi[i']$ calls method $\recv()$ at round $r*$.
   %TODO: formalize the above
 
-  This completes the proof of \ref{conj:simulation:claim-delta}.
+  This completes the proof of \ref{conj:emulation:claim-delta}.
 
   %TODO: prove 0b.
 
@@ -422,14 +422,14 @@ contiguous honest participation is also known in the literature as
   so the ledger $\Ledger[j][i][r + u_i]$ can be obtained by the simulator.
   Because $i$ is \emph{timely} in $\mathcal{E}^*$ with timeliness $v_i$, therefore
   $r + 1 - \Delta_v \leq r + 1 - v_i \leq r^* \leq r + u_i \leq r + \Delta_u \leq R - \Delta_v - 1$.
-  When the function $\prepareSimulationInputs$ is invoked at $\realityRound = R$
-  and with $\simulationRound = R - \Delta_v - 1$, the transaction will contribute
+  When the function $\prepareEmulationInputs$ is invoked at $\realityRound = R$
+  and with $\emulationRound = R - \Delta_v - 1$, the transaction will contribute
   to the \emph{writebox} of party $i$, since $r^* \leq R - \Delta_v - 1$.
   Hence, $m$ will be inputted to the \emph{write} function call of $\Pi^i$
   in $\mathcal{E}'$ at round $r^*$ (and note that $1 \leq r^* \leq R - \Delta_v - 1$ falls
   within the duration of $\mathcal{E}'$), completing the proof of Claim 3.
   \Qed
   % TODO: Check that there are sufficient rounds before the end of the simulation
-  % for $\Pi^i$ to write this message (i.e., for the message to appear in the prepareSimulationInputs
+  % for $\Pi^i$ to write this message (i.e., for the message to appear in the prepareEmulationInputs
   % output).
 \end{proof}

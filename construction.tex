@@ -18,7 +18,7 @@ Note the technical difference between $\Y[][i]$, denoting the $i^\text{th}$ unde
 and $\Y[j][i]$, denoting an instance of the $i^\text{th}$ underlying protocol running on the
 $j^\text{th}$ client (an ITI).
 
-Each $\RB[j]$ \emph{simulates} within its implementation $n$ different instances
+Each $\RB[j]$ \emph{emulates} within its implementation $n$ different instances
 of the overlay protocol $\Pi$, the instances
 $\Z[j][1], \Z[j][2],\allowbreak \ldots,\allowbreak \Z[j][i],\allowbreak \ldots,\allowbreak \Z[j][n]$,
 one for every underlying ledger protocol,
@@ -75,7 +75,7 @@ working over authenticated channels.
 
 The \rollerblade client $\RB[j]$ allows the external user to issue a \emph{write} instruction
 with some \data
-to any $i^\text{th}$ simulated machine $\Z[j][i]$. This is done as follows. When the user
+to any $i^\text{th}$ emulated machine $\Z[j][i]$. This is done as follows. When the user
 of $\RB[j]$ issues a \emph{write} instruction to $\Z[j][i]$, this instruction is not given to
 $\Z[j][i]$ directly. Instead, it is serialized into a string and \emph{encoded} into a transaction
 to be recorded on the respective underlying ledger $\Y[j][i]$. This is captured by
@@ -83,26 +83,26 @@ the \writeToMachine function illustrated in Algorithm~\ref{alg.write-to}.
 The encoding functionality is made available because
 the underlying ledgers are assumed to be bulletin boards.
 When the `write' instruction becomes recorded in the ledger $\Ledger[j][i]$ reported
-by $\Y[j][i]$, then it will be passed to the simulated
-machine $\Z[j][i]$ as soon as the respective round simulation takes place.
+by $\Y[j][i]$, then it will be passed to the emulated
+machine $\Z[j][i]$ as soon as the respective round emulation takes place.
 Through this recording of machine inputs on-ledger, we intent for other
-rollerblade clients $\RB[j']$ to replicate the exact simulation of $\Z[j'][i]$ for that
-same $i$ (in the Analysis section, this is made precise in Lemma~\ref{lem:cross-party}).
+rollerblade clients $\RB[j']$ to replicate the exact emulation of $\Z[j'][i]$ for that
+same $i$ (in the Analysis section, this is made precise in Theorem~\ref{thm:replication}).
 Additionally, the external user can, at any time, issue a \emph{read} instruction to
-the simulated machine $\Z[j][i]$, without affecting its current state (recall that we
+the emulated machine $\Z[j][i]$, without affecting its current state (recall that we
 require $\Pi$'s \emph{read} method to not alter the machine's internal state upon completion).
 
 \import{./}{algorithms/alg-write-to}
 
-Each of $\Z[j][i]$ is simulated in a per-round basis by having its \emph{execute}
-function invoked once per round $r$. When it is simulated, it expects its \emph{write} function to have
+Each of $\Z[j][i]$ is emulated in a per-round basis by having its \emph{execute}
+function invoked once per round $r$. When it is emulated, it expects its \emph{write} function to have
 been called some ($0$ or more) number of times prior to \emph{execute} being invoked,
 indicating user input for round $r$. When \emph{execute} is invoked, it has access to read
 and write into the network through the authenticated channels interface $\net$.
 When it \emph{reads} from the network, it consumes network messages that other machines
 have dispersed into the network during previous rounds (potentially with some delay $\Delta$).
 
-In order to simulate this communication between machines, the system works as follows.
+In order to emulate this communication between machines, the system works as follows.
 Every rollerblade client is tasked with \emph{checkpointing} every ledger to every other ledger
 during every round. Checkpointing is performed as follows.
 The rollerblade client runs a full node in each of the underlying protocols $\Y[][i]$ and
@@ -126,7 +126,7 @@ own relayer if it wishes, so this does not introduce any additional trust assump
 to the ledger from the honest rollerblade clients}. In particular, no network outputs
 produced by any of the $\Z[j][i]$ are ever written on the ledger. Instead, we observe
 that reading the checkpoints is sufficient for each rollerblade client to reproduce
-the network outputs of all simulated machines.
+the network outputs of all emulated machines.
 
 \begin{figure}
   \centering
@@ -139,14 +139,14 @@ the network outputs of all simulated machines.
            On the right, the flow of a \emph{checkpoint} instruction, initiated by the relaying
            process of a rollerblade client, is illustrated. The source ledger ($i'$) is
            transcribed onto the destination ledger ($i$). This transcription is later
-           untranscribed and used as the input to a recursive simulation call to produce
+           untranscribed and used as the input to a recursive emulation call to produce
            the network outputs of a machine $i'$, which are, upon appropriate translation,
            given to the machine $\Z[j][i]$ as network input.}
   \label{fig.rollerblade-instructions}
 \end{figure}
 
 % TODO(dionyziz): remove sid from everywhere
-Let us now explore, in more detail, how this simulation works. Each rollerblade execution
+Let us now explore, in more detail, how this emulation works. Each rollerblade execution
 of a particular overlay protocol $\Pi$ on top of a certain number of underlying ledger
 protocols $\Y$ is marked with a \emph{session id} \sid in order to achieve context
 separation with other rollerblades running, potentially different, protocols $\Pi'$
@@ -158,7 +158,7 @@ same across \emph{all} rollerblade sessions.
 
 When a series of `write' and `checkpoint' instructions have been recorded as bulletin
 transactions onto an underlying ledger, a time will come for them to be re-read in order to fuel
-the simulation. The responsibility of re-reading the instructions from the ledger is
+the emulation. The responsibility of re-reading the instructions from the ledger is
 bestowed upon the function \decodeUnderlying illustrated in
 Algorithm~\ref{alg.decode-underlying}. The function is given an underlying ledger $L$,
 which may contain relevant and irrelevant transactions.
@@ -180,47 +180,47 @@ are not tied to any particular rollerblade, they are always considered relevant.
 
 \import{./}{algorithms/alg-decode-underlying}
 
-The simulation only runs
+The emulation only runs
 on-demand when the user of $\RB[j]$ issues a \emph{read} instruction to the machine
 $\Z[j][i]$. The user can indicate that the read instruction pertains to a particular
-round $\simulationRound$, and the \emph{read} instruction is conveyed to the snapshot
-of $\Z[j][i]$ immediately after round $\simulationRound$ has been executed.
+round $\emulationRound$, and the \emph{read} instruction is conveyed to the snapshot
+of $\Z[j][i]$ immediately after round $\emulationRound$ has been executed.
 
 In order for the \emph{read} functionality to be invoked, the user must first
-invoke the \emulateMachine functionality of $\RB[j]$ with parameter $i$.
+invoke the \emulationSnapshot functionality of $\RB[j]$ with parameter $i$.
 This function will return a snapshot of the machine $\Z[j][i]$ at the requested
 round, and, subsequently, the user can invoke the \lread functionality on
 the returned snapshot \emph{in vitro}.
-The \emulateMachine functionality is illustrated in Algorithm~\ref{alg.read-from}.
-The \emulateMachine function takes the identity $i$ of the machine to emulate
+The \emulationSnapshot functionality is illustrated in Algorithm~\ref{alg.read-from}.
+The \emulationSnapshot function takes the identity $i$ of the machine to emulate
 and the round for which the emulation is requested
-\simulationRound.
-The \emulateMachine machine function simulates the execution of the machine
+\emulationRound.
+The \emulationSnapshot function emulates the execution of the machine
 $\Z[j][i]$ using the data obtained by \emph{reading} the ledger $\Ledger[j][i]$
 reported by $\Y[j][i]$ at the current round. Upon reading the ledger,
-the \emulateMachine function invokes the \simulate function to obtain an instance
-of the $\Z[j][i]$ machine executed up to round \simulationRound (inclusive).
-The \emulateMachine function subsequently returns this instance.
+the \emulationSnapshot function invokes the \emulate function to obtain an instance
+of the $\Z[j][i]$ machine executed up to round \emulationRound (inclusive).
+The \emulationSnapshot function subsequently returns this instance.
 
 \import{./}{algorithms/alg-read-from}
 
-The core simulation is implemented in the function \simulate illustrated in
-Algorithm~\ref{alg.simulate}, which takes parameters with the same semantics as
-the \emulateMachine function parameters. The job of the \simulate function
-is to simulate the execution of machine $\Z[j][i]$ up to, and including, round
-$\simulationRound$. This is all done within the mind of machine $\RB[j]$,
-with no external communication at all. Upon completing the simulation,
-the \simulate function returns the instance of the machine $\Z[j][i]$,
+The core emulation is implemented in the function \emulate illustrated in
+Algorithm~\ref{alg.emulate}, which takes parameters with the same semantics as
+the \emulationSnapshot function parameters. The job of the \emulate function
+is to emulate the execution of machine $\Z[j][i]$ up to, and including, round
+$\emulationRound$. This is all done within the mind of machine $\RB[j]$,
+with no external communication at all. Upon completing the emulation,
+the \emulate function returns the instance of the machine $\Z[j][i]$,
 which can be used to apply \lread on it by the user.
 
 Additionally, the
-\simulate function returns all the network outputs that $\Z[j][i]$
-produced during the simulation, which we call its \emph{outboxes}
-(Line~\ref{alg.simulate:return}). The outboxes (initialized in
-Line~\ref{alg.simulate:outboxes-init}) are structured as an array
+\emulate function returns all the network outputs that $\Z[j][i]$
+produced during the emulation, which we call its \emph{outboxes}
+(Line~\ref{alg.emulate:return}). The outboxes (initialized in
+Line~\ref{alg.emulate:outboxes-init}) are structured as an array
 containing one \emph{outbox} per index, each index corresponding to
 a round of execution. In particular $\outboxes[r]$ contains the
-outbox produced by simulated party $\Z[j][i]$ during round $r$.
+outbox produced by emulated party $\Z[j][i]$ during round $r$.
 This outbox $\outboxes[r]$, produced during round $r$, is a list
 of authenticated messages \netouts. Each such authenticated
 message \netout in \netouts is a dictionary containing two entries:
@@ -229,18 +229,18 @@ indicating the recipient of the message; the \emph{msg}
 entry is the string of the message to be delivered.
 Since rounds begin at $1$, the entry $\outboxes[0]$ is the
 empty outbox (ensured in its initialization in
-Line~\ref{alg.simulate:outboxes-init}).
+Line~\ref{alg.emulate:outboxes-init}).
 
 % TODO: within a round $r$, the function $\Y[j][i].execute()$ is called *at the beginning* of $\RB[j].execute()$
 % so that the Cross-Party proof can go through
-\import{./}{algorithms/alg-simulate}
+\import{./}{algorithms/alg-emulate}
 
-To conduct the simulation, the \simulate function initially calls
-\prepareSimulationInputs (Line~\ref{alg.simulate:recursion}),
+To conduct the emulation, the \emulate function initially calls
+\prepareEmulationInputs (Line~\ref{alg.emulate:recursion}),
 which prepares two arrays \emph{writeboxes}
-and \emph{inboxes} to be used by the simulation of $\Z[j][i]$.
+and \emph{inboxes} to be used by the emulation of $\Z[j][i]$.
 These sequences are produced by reading the ledger $\Ledger[j][i]$.
-\emph{The whole simulation of $\Z[j][i]$ is based only on the data
+\emph{The whole emulation of $\Z[j][i]$ is based only on the data
 recorded on its respective ledger.}
 The array \emph{writeboxes} is structured as an array containing
 one \emph{writebox} per index, each index corresponding to a
@@ -260,21 +260,21 @@ The \emph{from} entry is a number between $1$ and $n$ indicating the
 sender of the message; the \emph{msg} entry is the string of
 the message to be delivered.
 
-The simulation begins by initializing a new machine $\Z[j][i]$
-from scratch (Line~\ref{alg.simulate:construct}). The simulation
+The emulation begins by initializing a new machine $\Z[j][i]$
+from scratch (Line~\ref{alg.emulate:construct}). The emulation
 proceeds in rounds managed by the main loop in
-Line~\ref{alg.simulate:for}. For each iteration of this \emph{for}
-loop, the \emph{execute} function of the simulated machine
+Line~\ref{alg.emulate:for}. For each iteration of this \emph{for}
+loop, the \emph{execute} function of the emulated machine
 is invoked, once per every round $r$. In preparation of the
 execution for round $r$, we have to invoke the \emph{write}
 function of $\Z[j][i]$ for every write in the writebox pertaining
 to round $r$. This is performed in the \emph{for} loop of
-Line~\ref{alg.simulate:write}, which invokes $\Z[j][i]$'s
+Line~\ref{alg.emulate:write}, which invokes $\Z[j][i]$'s
 \emph{write} method for each \emph{write} in the current
 round's writebox.
 
-During initialization (Line~\ref{alg.simulate:construct}),
-the simulated machine is
+During initialization (Line~\ref{alg.emulate:construct}),
+the emulated machine is
 initialized by giving it access to the network oracle $\net$.
 Whereas, normally, the protocol $\Pi$ would have expected this
 oracle to realize an authenticated channels functionality, we
@@ -282,71 +282,71 @@ oracle to realize an authenticated channels functionality, we
 \emph{receive} functions that the instance $\Z[j][i]$ of $\Pi$
 may call and we replace them with our own implementation based on
 the underlying ledgers. The trapped functions are implemented
-in Line~\ref{alg.simulate:send} and Line~\ref{alg.simulate:receive}
+in Line~\ref{alg.emulate:send} and Line~\ref{alg.emulate:receive}
 respectively. The machine $\Z[j][i]$ may invoke the network
 \emph{send} method, during its \emph{execute} invocation, zero
 or more times during the round. When the network \emph{send} method
 is invoked by $\Z[j][i]$, the message is \emph{not} conveyed
 to other machines. Instead, it is appended to the array
 $\outboxThisRound$. The variable contains the append-only
-outbox produced by the simulation during round $r$. It is
+outbox produced by the emulation during round $r$. It is
 initialized as the empty array
-(Line~\ref{alg.simulate:outboxThisRound-init}) at the beginning
+(Line~\ref{alg.emulate:outboxThisRound-init}) at the beginning
 of every round. Upon the completion of a round's execution,
 the particular outbox is appended to the list of all outboxes
-(Line~\ref{alg.simulate:outboxes-append}).
+(Line~\ref{alg.emulate:outboxes-append}).
 Lastly, in preparation for the execution of round $r$,
 the variable $\inboxThisRound$ is initialized to
-$\inboxes[r - 1]$ (Line~\ref{alg.simulate:netin})
+$\inboxes[r - 1]$ (Line~\ref{alg.emulate:netin})
 and is an inbox containing the network messages to be
 delivered at round $r$ (and may have been disbursed during
 rounds $r - \Delta, \ldots, r - 1$). This inbox is returned
-whenever the simulated machine calls the network \emph{receive}
+whenever the emulated machine calls the network \emph{receive}
 function of the oracle \net. The variable \inboxThisRound
 is reassigned at the beginning of every round.
 
-Once the last iteration of the \emph{for} loop of Line~\ref{alg.simulate:for} completes,
-the simulated machine $\Z[j][i]$ has concluded its execution of rounds $1, \ldots, \simulationRound$.
-At the end of the simulation, the \simulate function returns the \outboxes generated by
+Once the last iteration of the \emph{for} loop of Line~\ref{alg.emulate:for} completes,
+the emulated machine $\Z[j][i]$ has concluded its execution of rounds $1, \ldots, \emulationRound$.
+At the end of the emulation, the \emulate function returns the \outboxes generated by
 $\Z[j][i]$ throughout its execution as well as the machine instance $\Z[j][i]$ itself.
 The machine instance can be used for example to call \emph{read} on it.
 
-The last piece of the puzzle is the \prepareSimulationInputs function which is
-called by \simulate and illustrated in Algorithm~\ref{alg.prepare-simulation-inputs}. This function receives as input the ledger $\Ledger[j][i]$ and
-returns the \writeboxes and \inboxes to be used by \simulate to simulate the machine $\Z[j][i]$. It will be important for
-our security results that the output of \prepareSimulationInputs is deterministic
+The last piece of the puzzle is the \prepareEmulationInputs function which is
+called by \emulate and illustrated in Algorithm~\ref{alg.prepare-emulation-inputs}. This function receives as input the ledger $\Ledger[j][i]$ and
+returns the \writeboxes and \inboxes to be used by \emulate to emulate the machine $\Z[j][i]$. It will be important for
+our security results that the output of \prepareEmulationInputs is deterministic
 and depends only on the ledger $\Ledger[j][i]$ and not on any of the other ledgers $\Ledger[j][i'], i' \neq i$.
 
-\import{./}{algorithms/alg-prepare-simulation-inputs}
+\import{./}{algorithms/alg-prepare-emulation-inputs}
 
-In particular, the function \prepareSimulationInputs receives as parameters
+In particular, the function \prepareEmulationInputs receives as parameters
 the underlying index $i$, the ledger $\Ledger[j][i]$,
-and the simulation round \simulationRound.
-The method begins by initializing \inboxes and \writeboxes. For every round $r = 0 \ldots \simulationRound$ we set
-$\inboxes[r]$ and $\writeboxes[r]$ to be empty lists initially (Line~\ref{alg.prepare-simulation-inputs:init}).
+and the emulation round \emulationRound.
+The method begins by initializing \inboxes and \writeboxes. For every round $r = 0 \ldots \emulationRound$ we set
+$\inboxes[r]$ and $\writeboxes[r]$ to be empty lists initially (Line~\ref{alg.prepare-emulation-inputs:init}).
 The entries $\inboxes[0]$ and $\writeboxes[0]$ will remain empty
-since the simulation begins at round $1$ with an empty \inbox and \writebox.
+since the emulation begins at round $1$ with an empty \inbox and \writebox.
 
 The rest of the indices in $\inboxes$
 and $\writeboxes$ we fill in by reading the relevant rollerblade transactions within $\Ledger[j][i]$.
 Initially, the relevant transactions are extracted from the ledger $\Ledger[j][i]$ into a sequence
-of instructions $L$ by invoking $\decodeUnderlying$ (Line~\ref{alg.prepare-simulation-inputs:decode-underlying}).
+of instructions $L$ by invoking $\decodeUnderlying$ (Line~\ref{alg.prepare-emulation-inputs:decode-underlying}).
 The sequence $L$ contains pairs $(r, \instruction)$ of instructions, each accompanied by the round with which
 the relevant instruction was recorded on the ledger $\Ledger[j][i]$. This is where we will use the temporal
 nature of the underlying ledger $\Ledger[j][i]$: The round $r$ recorded on-ledger for the instruction
-$\instruction$ is the round of the simulation of $\Z[j][i]$ during which we will utilize this instruction.
+$\instruction$ is the round of the emulation of $\Z[j][i]$ during which we will utilize this instruction.
 
-The instructions in $L$ are processed sequentially by the \emph{for} loop in Line~\ref{alg.prepare-simulation-inputs:for}.
-As we are only interested in the data necessary to simulate up to round $\simulationRound$, we can conclude this loop
-early if we see a transaction recorded with round $r \geq \simulationRound$ (Line~\ref{alg.prepare-simulation-inputs:early-exit}).
+The instructions in $L$ are processed sequentially by the \emph{for} loop in Line~\ref{alg.prepare-emulation-inputs:for}.
+As we are only interested in the data necessary to emulate up to round $\emulationRound$, we can conclude this loop
+early if we see a transaction recorded with round $r \geq \emulationRound$ (Line~\ref{alg.prepare-emulation-inputs:early-exit}).
 The easy case is when the instruction type is a `write'. In that case, we extend the writebox $\writeboxes[r]$
-for round $r$ by appending the data $\instruction.\data$ to be written to it (Line~\ref{alg.prepare-simulation-inputs:write}).
+for round $r$ by appending the data $\instruction.\data$ to be written to it (Line~\ref{alg.prepare-emulation-inputs:write}).
 
 The more complicated case pertains to instruction type `chkpt'. This is a checkpoint from underlying
 ledger $i'$ to underlying ledger $i$, i.e., concerns a certificate of ledger $i'$ that was recorded onto
 ledger $i$. This certificate's data $\instruction.\data.\certificate$ is fully recorded within $\Ledger[j][i]$
 and does not require reading from $\Y[j][i']$. The function $\untranscribe$ of $\Y[j][i']$ is used to untranscribe
-this certificate into a ledger $\ImaginaryLedger[j][i']$ (Line~\ref{alg.prepare-simulation-inputs:untranscribe}),
+this certificate into a ledger $\ImaginaryLedger[j][i']$ (Line~\ref{alg.prepare-emulation-inputs:untranscribe}),
 but the return value of this untranscribe function does not at all depend on the local state of $\Y[j][i']$,
 but only on the parameter $\instruction.\data.\certificate$ passed to it. This ``imaginary ledger'',
 $\ImaginaryLedger[j][i']$ extracted from untranscribing, is the ledger with index $i'$ extracted
@@ -354,25 +354,25 @@ based on the data included within $\Ledger[j][i]$. It is possible that
 $\ImaginaryLedger[j][i'] \neq \Y[j][i'].\lread()$ (especially if ledger $i'$ is unsafe).
 
 This ledger $\ImaginaryLedger[j][i']$, obtained by untranscribing, is then passed into a
-\emph{new} \simulate invocation for machine $\Z[j][i']$ (Line~\ref{alg.prepare-simulation-inputs:recursion}).
-Here, note that \simulate and \prepareSimulationInputs are mutually recursive functions.
-This recursive simulation is performed based on ledger $\ImaginaryLedger[j][i']$ and not
-on $\Y[j][i'].\lread()$. The \simulate function is executed up to simulation round
+\emph{new} \emulate invocation for machine $\Z[j][i']$ (Line~\ref{alg.prepare-emulation-inputs:recursion}).
+Here, note that \emulate and \prepareEmulationInputs are mutually recursive functions.
+This recursive emulation is performed based on ledger $\ImaginaryLedger[j][i']$ and not
+on $\Y[j][i'].\lread()$. The \emulate function is executed up to emulation round
 $r - u_i - v_{i'} - 1$. The reason for this arithmetic will become apparent in the security proof,
-but, for now, suffice to say that, during round $r$, the simulation $\Z[j][i]$ will see received messages
+but, for now, suffice to say that, during round $r$, the emulation $\Z[j][i]$ will see received messages
 originating from $i'$ emitted during rounds up to $r - u_i - v_{i'} - 1$,
 and messages emitted during later rounds will be received later.
 % TODO: state that we have per ledger liveness
 % TODO(dionyziz): Typeset "outboxes" and other variables consistently
-The \emph{outboxes} returned from this simulation of ledger $i'$, within the confines of $\simulate$
+The \emph{outboxes} returned from this emulation of ledger $i'$, within the confines of $\emulate$
 executed upon ledger $i$, are then collected into the \outboxes variable, which contains one outbox
-per round. These outboxes correspond to messages sent by $i'$ to $i$ on the simulated network.
+per round. These outboxes correspond to messages sent by $i'$ to $i$ on the emulated network.
 Every message received by $i$
 and originating from $i'$ is collected into the array \netins in
-Line~\ref{alg.prepare-simulation-inputs:outboxes-to-inbox} by invoking the function \outboxesToInbox.
+Line~\ref{alg.prepare-emulation-inputs:outboxes-to-inbox} by invoking the function \outboxesToInbox.
 This \netins contains \emph{all} the messages sent from $i'$ to $i$ throughout the execution
 of $i'$ up to round $r - u_i - v_{i'} - 1$. Note that, if $i'$ is a safe ledger, then in every
-two iterations of the loop of Line~\ref{alg.prepare-simulation-inputs:for},
+two iterations of the loop of Line~\ref{alg.prepare-emulation-inputs:for},
 the values of the variable \netins will be prefixes of one another.
 As \netins grows, some of the messages within it have already been received
 by $\Z[j][i]$ during previous rounds, whereas some messages are new and have not
@@ -381,15 +381,15 @@ Towards this purpose, we maintain a count $\consumedLengths[i']$ of incoming mes
 that have already been processed by $\Z[j][i]$ during previous rounds.
 The newly arriving messages that still need to be processed are $\netins[\consumedLengths[i']{:}]$.
 All of these newly arriving messages are placed in $\inboxes[r]$ and, as such,
-are scheduled to be received by the simulation of $\Z[j][i]$ for round $r + 1$.
-The variable $\consumedLengths[i']$ is then updated (Line~\ref{alg.prepare-simulation-inputs:consumed-lengths})
+are scheduled to be received by the emulation of $\Z[j][i]$ for round $r + 1$.
+The variable $\consumedLengths[i']$ is then updated (Line~\ref{alg.prepare-emulation-inputs:consumed-lengths})
 to record the count of messages that have already been processed by $i'$ in
 previous rounds, so that the messages are not processed again in the future.
 
 \import{./}{algorithms/alg-outboxes-to-inbox}
 
 Lastly, let us describe the \outboxesToInbox function, which translates the outboxes
-of party $i'$ to an inbox for party $i$. The function is called by \prepareSimulationInputs
+of party $i'$ to an inbox for party $i$. The function is called by \prepareEmulationInputs
 and is illustrated in Algorithm~\ref{alg.outboxes-to-inbox}. The function takes an
 \outboxes argument containing one outbox per round, as well as the sending party index
 $i'$ and the receiving party index $i$. The function returns an inbox for party $i$.

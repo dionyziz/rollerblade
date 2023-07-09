@@ -1,12 +1,12 @@
 \begin{algorithm}[H]
   \caption{\label{alg.read-from}
-    The \emulateMachine function
+    The \emulationSnapshot function
     made available to the external user by a \rollerblade party.
   }
   \begin{algorithmic}[1]
-    \Function{\emulateMachine}{$i, \simulationRound$}
+    \Function{\emulationSnapshot}{$i, \emulationRound$}
       \Let{\Ledger[j][i]}{\this.\Y[j][i].\lread()}
-      \Let{Z}{\this.\simulate(i, \Ledger[j][i], \simulationRound).Z}
+      \Let{Z}{\this.\emulate(i, \Ledger[j][i], \emulationRound).Z}
       \State\Return{$Z$}
     \EndFunction
     \vskip2pt
