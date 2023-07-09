@@ -431,12 +431,12 @@ in the execution begin at $1$.
   is the $|H| \times R$ matrix
   \[
   \begin{bmatrix}
-    \emulationSnapshot(H_1, 1) & \ldots & \emulationSnapshot(H_1, R - \Delta_v - 1)\\
-                     \vdots & \ddots & \vdots \\
-    \emulationSnapshot(H_{|H|}, 1) & \ldots & \emulationSnapshot(H_{|H|}, R - \Delta_v - 1)
+    E(H_1, 1) & \ldots & E(H_1, R - \Delta_v - 1)\\
+       \vdots & \ddots & \vdots \\
+    E(H_{|H|}, 1) & \ldots & E(H_{|H|}, R - \Delta_v - 1)
   \end{bmatrix}\,,
   \]
-  where $\emulationSnapshot(H_i, r)$ denotes the return value of invoking,
+  where $E(H_{|H|}, 1)$ denotes the return value of invoking,
   \emph{in vitro} at the end of round $r + \Delta_v + 1$,
   the $\emulationSnapshot$ functionality of the $j^\text{th}$ compositor party $\LLambda[j]$
   with parameters the index $H_i$ of the $i^\text{th}$ overlay machine (among those
