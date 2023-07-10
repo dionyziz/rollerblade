@@ -348,7 +348,8 @@ contiguous honest participation is also known in the literature as
   \begin{enumerate}[label=(\alph*)]
     \item
     \label{conj:emulation:claim-delta}
-    If $\PPi[i]$ sends a message to $\PPi[i']$ at round $r$, then this message is delivered to $\PPi[i']$ (with source $i$) by round $r + \Delta$, and
+    If $\PPi[i]$ sends a message to $\PPi[i']$ at round $r$, then this message is delivered to $\PPi[i']$
+    (with source $i$) by round $r + \Delta$, and
 
     \item
     If $\PPi[i']$ received a message from $\PPi[i]$ at round $r$, then this message was sent by $\PPi[i]$.
@@ -360,46 +361,68 @@ contiguous honest participation is also known in the literature as
   is identical to the transcript of machine $\Z[j][i] = \LLambda[j].\emulationSnapshot(i,r)$ in $\mathcal{E}^*$
   called in vitro at the end of round $r + \Delta_v + 1$.
   Hence, $\Z[j][i]$ also invoked network function $\send(i', \msg)$ at round $r$.
-  This means that $\msg \in \LLambda[j].\emulate(i, \Ledger[j][i][r + \Delta_v + 1], r).\outboxes[r]$
+  This means that $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, \Ledger[j][i][r + \Delta_v + 1], r).\outboxes[r]$.
 
-  At the beginning of round $r$, environment $\mathcal{Z}'$
-  calls $\lwrite(\data)$ on party $i$.
-  Then, $\PPi[i]$ is activated
-  is provided
+  % At the beginning of round $r$, environment $\mathcal{Z}'$
+  % calls $\lwrite(\data)$ on party $i$.
 
-  At round $r$, $\PPi[i]$ is activated by $\mathcal{Z}'$ and
-  has $\inboxes^i[r - 1]$
+  % Then, $\PPi[i]$ is activated
+  % is provided
 
-  Definitionally, this means that $\msg \in \emulate(i, \Ledger[j][i][r], r).\outboxes[r]$
-  called in vitro at the end of round $R$. This is because
+  % At round $r$, $\PPi[i]$ is activated by $\mathcal{Z}'$ and
+  % has $\inboxes^i[r - 1]$
 
-  function $\send()$ (Algorithm~\ref{alg.emulate} Line~\ref{alg.emulate:send}) is invoked
-  with parameters $i'$ and $\msg$ the $r$-th time that $\Z[j][i].\execute()$ is called.
-
-  At round $r$, relayer $\LLambda[j]$ invokes $\relay()$.
+  %TODO: Add encode/decode?
+  At round $r + v_i + 1$, relayer $\LLambda[j]$ invokes $\relay()$.
   This creates a transcription $\tau = \Y[j][i].\transcribe()$, where
-  $\Y[j][i].\untranscribe(\tau) = \Ledger[j][i][r]$.
+  $\Y[j][i].\untranscribe(\tau) = \Ledger[j][i][r + v_i + 1]$.
   Then, it transmits a new bulletin `chkpt'
-  transaction $\tx$ containing transcription $\tau$ to $\Y[][i']$.
+  transaction $\tx$, encoding instruction $\instruction$ containing transcription $\tau$ to $\Y[][i']$.
 
   Because of the liveness of $\Y[][i']$,
-  transaction $\tx$ appears in $\Ledger[j][i'][r']$
-  at round $r' \leq r + u_{i'} \leq r + \Delta_u$.
-  Hence, $(\tx, r^*) \in \Ledger[j][i'][r']$, where $r^*$ is the recorded round of $\tx$ and $r' - u_{i'}\leq r^* \leq r'$.
+  transaction $\tx$ appears in $\Ledger[j][i']$, for the first time,
+  at round $r' \leq r + v_i + u_{i'} + 1$.
+  Hence, $(\hat{r}, \tx) \in \Ledger[j][i'][r']$, where $\hat{r}$ is the recorded round of $\tx$
+  and $\hat{r} \leq r'$. Because of the stickiness of $\Y[][i']$, transaction $(\hat{r}, \tx)$ will
+  appear in $\Ledger[j][i'][R]$ in the same position as in $\Ledger[j][i'][r']$.
 
-  Simulator calls in vitro (at the end of round $R$ where
-  $R \geq r' + \Delta_v$) $\prepareEmulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$.
+  Party $\LLambda[j]$ will relay $\Y[][i]$ at round $r + v_i + v_{i'} + 1$, and
+  because of the liveness of $\Y[][i']$, it will appear on $\Ledger[j][i']$ for the
+  first time no later than round $r + v_i + u_{i'} + v_{i'} + 1$ with recorded round
+  between $r + v_i + u_{i'} + 1$ and $r + v_i + u_{i'} + v_{i'} + 1$.
 
-  If we call in vitro
-  (after round $r + \Delta_v$) $\emulate(i, \Ledger[j][i][r], r)$
-  on $\LLambda[j]$ we will find $\msg$ in $\outboxes[r]$.
+  Let $(r^*, \tx^*)$ be the first bulletin `chkpt' transaction from $\Y[][i]$ in $\Ledger[j][i'][R]$, where
+  $r^* \geq r + v_{i} + u_{i'} + 1$. It holds that $r^* \leq r + v_{i} + u_{i'} + v_{i'} + 1$.
 
-  That means that when the simulator calls in vitro
-  (at the end of round $R$ where $R \geq r' + \Delta_v$) $\prepareEmulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$
-  we will find $m$ in $\inboxes[r^*]$ (with source $i$).
-  Therefore, $\mathcal{Z}'$ will provide $m$ to $\PPi[i']$
-  if $\PPi[i']$ calls method $\recv()$ at round $r*$.
-  %TODO: formalize the above
+
+  %TODO: Show that it exists and $r^* \leq r + v_{i} + 2 u_{i'} + 1$.
+
+  The simulator calls in vitro (at the end of round $R$)
+  $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$.
+
+  The for loop in Algorithm~\ref{alg.prepare-emulation-inputs}
+  Line~\ref{alg.prepare-emulation-inputs:for} is eventually entered with
+  parameters $(\hat{r}, \instruction)$.
+  In Line~\ref{alg.prepare-emulation-inputs:untranscribe}, transcription $\tau$
+  is untranscribed and we get $\ImaginaryLedger[j][i'] = \Ledger[j][i][r + v_i + 1]$.
+  This means that after Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
+  it holds that $\Ledger[j][i][r + v_i + 1] \preceq F^{i'}$.
+
+  Because, $\hat{r} < r^*$, the for loop in Algorithm~\ref{alg.prepare-emulation-inputs}
+  is later entered with parameters $(r^*, \tx^*)$.
+  After Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
+  it still holds that $\Ledger[j][i][r + v_i + 1] \preceq F^{i'}$.
+  Hence, in Line~\ref{alg.prepare-emulation-inputs:recursion}, where
+  $\LLambda[j].\emulate(i, F^{i'}, r^* - v_i - u_{i'} - 1)$ is invoked, it holds that
+  $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, F^{i'}, r^* - v_i - u_{i'} - 1).\outboxes[r]$
+  because $r^* - v_i - u_{i'} - 1 \geq r$.
+  By the minimality of $(r^*, \tx^*)$, the $\msg$ will be included in $\inboxes[r^*]$.
+  The environment $\mathcal{Z}'$ will provide $\msg$ to $\PPi[i']$
+  if network method $\recv()$ is invoked at round $r^*$.
+
+  We conclude that since $\msg$ sent at $r$ was delivered at $r^*$,
+  and $r^* \leq r + v_{i} + 2 u_{i'} + 1 \leq r + \Delta_v + 2 \Delta_u + 1 \leq r + \Delta$, the
+  delay is respected.
 
   This completes the proof of \ref{conj:emulation:claim-delta}.
 

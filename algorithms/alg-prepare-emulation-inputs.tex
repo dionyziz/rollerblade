@@ -53,7 +53,7 @@
           \Let{i'}{\instruction\textsf{.from}}
           \Let{\tau}{\instruction.\data.\certificate}
           \Let{\ImaginaryLedger[j][i']}{\this.\Y[j][i'].\untranscribe(\tau)}\label{alg.prepare-emulation-inputs:untranscribe}
-          \Let{F^{i'}}{F^{i'} \concat ({\ImaginaryLedger[j][i']}[{|F^{i'}|}{:}])}
+          \Let{F^{i'}}{F^{i'} \concat ({\ImaginaryLedger[j][i']}[{|F^{i'}|}{:}])}\label{alg.prepare-emulation-inputs:set-f}
           \Let{\textsf{res}}{\this.\textsf{emulate}(i', F^{i'}, r - u_i - v_{i'} - 1)}\label{alg.prepare-emulation-inputs:recursion}
           \Let{\outboxes}{\textsf{res}.\outboxes}
           \Let{\textsf{netins}}{\this.\outboxesToInbox(\outboxes, i', i)}\label{alg.prepare-emulation-inputs:outboxes-to-inbox}
