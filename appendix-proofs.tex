@@ -394,9 +394,6 @@ contiguous honest participation is also known in the literature as
   Let $(r^*, \tx^*)$ be the first bulletin `chkpt' transaction from $\Y[][i]$ in $\Ledger[j][i'][R]$, where
   $r^* \geq r + v_{i} + u_{i'} + 1$. It holds that $r^* \leq r + v_{i} + u_{i'} + v_{i'} + 1$.
 
-
-  %TODO: Show that it exists and $r^* \leq r + v_{i} + 2 u_{i'} + 1$.
-
   The simulator calls in vitro (at the end of round $R$)
   $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$.
 
@@ -421,7 +418,7 @@ contiguous honest participation is also known in the literature as
   if network method $\recv()$ is invoked at round $r^*$.
 
   We conclude that since $\msg$ sent at $r$ was delivered at $r^*$,
-  and $r^* \leq r + v_{i} + 2 u_{i'} + 1 \leq r + \Delta_v + 2 \Delta_u + 1 \leq r + \Delta$, the
+  and $r^* \leq r + v_{i} + u_{i'} + v_{i'} + 1 \leq r + 2 \Delta_v + \Delta_u + 1 \leq r + \Delta$, the
   delay is respected.
 
   This completes the proof of \ref{conj:emulation:claim-delta}.
