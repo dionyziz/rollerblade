@@ -27,7 +27,8 @@ blockchain systems have:
   \begin{enumerate}
     \item The rounds recorded in $\Ledger[P][][r_1]$ are non-decreasing.\label{def:timely-increasing}
     \item The round recorded at $\Ledger[P][][r_1][-1]$ is at most $r_1$.\label{def:timely-past}
-    \item For all $r_2 \geq r_1$, the rounds recorded in $\Ledger[P][][r_2][|\Ledger[P][][r_1]|{:}]$ are at least $r_1 - v$.\label{def:timely-chunk}
+    \item For all $r_2 \geq r_1$, the rounds recorded in $\Ledger[P][][r_2][|\Ledger[P][][r_1]|{:}]$ are
+          newer than $r_1 - v$.\label{def:timely-chunk}
   \end{enumerate}
 \end{definition}
 
@@ -437,7 +438,7 @@ in the execution begin at $1$.
   \end{bmatrix}\,,
   \]
   where $E(H_{|H|}, 1)$ denotes the return value of invoking,
-  \emph{in vitro} at the end of round $r + \Delta_v + 1$,
+  \emph{in vitro} at the end of round $r + \Delta_v$,
   the $\emulationSnapshot$ functionality of the $j^\text{th}$ compositor party $\LLambda[j]$
   with parameters the index $H_i$ of the $i^\text{th}$ overlay machine (among those
   included in $H$) and round $r$.
