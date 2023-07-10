@@ -403,7 +403,7 @@ contiguous honest participation is also known in the literature as
   In Line~\ref{alg.prepare-emulation-inputs:untranscribe}, transcription $\tau$
   is untranscribed and we get $\ImaginaryLedger[j][i'] = \Ledger[j][i][r + v_i + 1]$.
   This means that after Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
-  it holds that $\Ledger[j][i][r + v_i + 1] \preceq F^{i'}$.
+  it holds that $\Ledger[j][i][r + v_i + 1] \preceq F^{i'}$ by the safety of $\Y[][i]$.
 
   Because, $\hat{r} < r^*$, the \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs}
   is later entered with parameters $(r^*, \tx^*)$.
