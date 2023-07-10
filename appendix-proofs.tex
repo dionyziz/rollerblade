@@ -394,10 +394,10 @@ contiguous honest participation is also known in the literature as
   Let $(r^*, \tx^*)$ be the first bulletin `chkpt' transaction from $\Y[][i]$ in $\Ledger[j][i'][R]$, where
   $r^* \geq r + v_{i} + u_{i'} + 1$. It holds that $r^* \leq r + v_{i} + u_{i'} + v_{i'} + 1$.
 
-  The simulator calls in vitro (at the end of round $R$)
+  The simulator calls \emph{in vitro} (at the end of round $R$)
   $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$.
 
-  The for loop in Algorithm~\ref{alg.prepare-emulation-inputs}
+  The \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs}
   Line~\ref{alg.prepare-emulation-inputs:for} is eventually entered with
   parameters $(\hat{r}, \instruction)$.
   In Line~\ref{alg.prepare-emulation-inputs:untranscribe}, transcription $\tau$
@@ -405,7 +405,7 @@ contiguous honest participation is also known in the literature as
   This means that after Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
   it holds that $\Ledger[j][i][r + v_i + 1] \preceq F^{i'}$.
 
-  Because, $\hat{r} < r^*$, the for loop in Algorithm~\ref{alg.prepare-emulation-inputs}
+  Because, $\hat{r} < r^*$, the \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs}
   is later entered with parameters $(r^*, \tx^*)$.
   After Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
   it still holds that $\Ledger[j][i][r + v_i + 1] \preceq F^{i'}$.
