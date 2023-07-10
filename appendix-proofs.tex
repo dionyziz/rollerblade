@@ -349,7 +349,7 @@ contiguous honest participation is also known in the literature as
     \item
     \label{conj:emulation:claim-delta}
     If $\PPi[i]$ sends a message to $\PPi[i']$ at round $r$, then this message is delivered to $\PPi[i']$
-    (with source $i$) by round $r + \Delta$, and
+    (with source $i$) between round $r + 1$ and $r + \Delta$, and
 
     \item
     If $\PPi[i']$ received a message from $\PPi[i]$ at round $r$, then this message was sent by $\PPi[i]$.
@@ -419,7 +419,8 @@ contiguous honest participation is also known in the literature as
 
   We conclude that since $\msg$ sent at $r$ was delivered at $r^*$,
   and $r^* \leq r + v_{i} + u_{i'} + v_{i'} + 1 \leq r + 2 \Delta_v + \Delta_u + 1 \leq r + \Delta$, the
-  delay is respected.
+  delay is respected. We observe that the delay for every message is always
+  at least $u_i + v_{i'} + 1$.
 
   This completes the proof of \ref{conj:emulation:claim-delta}.
 
