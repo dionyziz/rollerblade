@@ -497,17 +497,27 @@ in the execution begin at $1$.
   with $r < R_1 - \Delta_u - \Delta_v$,
   there exists a round $r - \Delta_v \leq r' \leq r + \Delta_u$ such that
   the message $m$ appears within the writebox at position $(i, r')$ of $E_2$.
+\end{definition}
 
-  Furthermore, we say that the random variable $E_1$
-  is \emph{distributionally similar} to $E_2$
+% TODO: Simplify the below; first define the "distance" between two externalities
+% E_1, E_2 to create a metric space of externalities.
+% The distance will be defined as the maximum delay of messages
+% between two externalities.
+% Afterwards, we can define the distance between the two externalities
+% random variables using the Wasserstein metric on the distance between
+% the externalities.
+
+\begin{definition}[Externality Similarity in Distribution]
+  Consider the externalities random variables $E_1, E_2$.
+  We say that $E_1$ is \emph{similar in distribution} to $E_2$
   with \emph{lateness} parameter $\Delta_u \in \mathbb{N}$
   and \emph{earliness} parameter $\Delta_v \in \mathbb{N}$,
   written $E_1 \laterlydistr{\Delta_u,\Delta_v} E_2$, if
-  there is a mapping $f: \supp(E_1) \rightarrow \supp(E_2)$
-  such that for all $x \in \supp(E_1)$, $x \laterly{\Delta_u,\Delta_v} f(x)$ and
-  for all $y \in \supp(E_2)$, $\Pr[E_2 = y] = \sum_{x \in f^{-1}(y)} \Pr[E_1 = x]$.
+  there exists a sample space $\Omega$ and two coupled
+  random variables $\widetilde{E}_1(\Omega), \widetilde{E}_2(\Omega)$
+  such that $E_1' \distreq E_1$ and $E_2' \distreq E_2$
+  and $E_1 \laterly{\Delta_u,\Delta_v} E_2$.
 \end{definition}
-
 
 \begin{definition}[Belief]
   A \emph{belief} $B$ is any predicate over an execution $\mathcal{E}$.
