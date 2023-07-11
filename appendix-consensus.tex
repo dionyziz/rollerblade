@@ -4,27 +4,49 @@ One way to run \rollerblade is with an overlay consensus protocol.
 In this construction, each overlay party acts as a validator.
 Since each overlay party depends on the security of its
 corresponding underlying ledger, the security resilience
-of the overlay protocol now dictates the number of well
-behaved underlying ledgers required.
+of the overlay protocol now dictates the number of well-behaved
+underlying ledgers required.
 If $\Pi$ has $\frac{1}{2}$ resilience and the majority of underlying
 ledgers are secure, then the emulated execution of $\Pi$ is also secure.
 This gives life to a new kind of roll-up, which stands on top of multiple
 layer-1s, making it more secure than any of them individually.
 
+The construction is illustrated in Algorithm~\ref{alg.consensus}. The
+overlay consensus client uses the \rollerblade compositor internally.
+In order to \emph{write} a transaction to the overlay protocol, the
+transaction is \emph{written} to every overlay party using \writeToMachine
+(which, in turn, invokes the \emph{write} functionality of the underlying ledger).
+There is only one non-trivial step in this construction, which pertains
+to reading the current ledger. The \emph{read} functionality
+of $\LLambda[j]$ must return a ledger. To do so, it requests an emulation snapshot from
+each of the machines $\PPi[1], \ldots, \PPi[n]$. It then invokes \emph{read}
+in each of them, obtaining ledgers $\overline{L} = (\Ledger[j][1], \ldots, \Ledger[j][n])$.
+Under the assumption that the majority of the underlying ledgers are secure,
+and as long as the adversarial resilience of $\Pi$ is respected, the
+majority among $\overline{L}$ correspond to the ledgers reported by the
+honest parties of $\Pi$'s emulated execution, and, by the security guarantees
+of $\Pi$, will be safe and live. All that remains is to take a majority vote
+among those ledgers. This is illustrated in Algorithm~\ref{alg.majorityvote}.
 
 \import{./}{algorithms/alg-consensus}
 \import{./}{algorithms/alg-majorityvote}
 
-\begin{conjecture}[Security]
+% TODO: formal proof of this
+\begin{theorem}[Security]
   Let $\Pi$ be a distributed ledger protocol, and $\frac{t}{n}$ be its resilience such
   that if $f < t$, where $f$ is the number of adversarial parties, and $n$ is the total number of parties,
   then for all PPT adversaries, an execution of $\Pi$ is secure with overwhelming probability.
 
-  The execution of $\recursiveConsensus_{\Pi}$ is secure if $f < t$, where $n - f$ of the
-  underlying ledgers are guaranteed to be secure with overwhelming probability.
-
+  Consider an execution of $\recursiveConsensus_{\Pi}$ in which $f$ of the underlying
+  ledgers are secure. If $f < \min(t, \frac{n}{2})$, then the execution of $\recursiveConsensus_{\Pi}$
+  is secure with overwhelming probability.
   %TODO: continue
-\end{conjecture}
+\end{theorem}
+\begin{proof}[Sketch]
+  The proof follows directly by translating the security theorem of $\Pi$ through
+  the Conjecture~\ref{conj:emulation}.
+  \Qed
+\end{proof}
 
 % \begin{corollary}[Safety]
 %       Let $\mathcal{L}$ be a weighted set of transcribable Distributed Ledger Protocols,
