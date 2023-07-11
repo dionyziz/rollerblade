@@ -33,20 +33,18 @@ parties outside of $\Lambda$s remains in the minority. In case the environment
 detects an upcoming security violation (due to a negligible event such as a
 Random Oracle collision), it can conclude the execution.
 
+% TODO: DRY from Emulation Faithfulness Theorem
 \begin{restatable}[Replication]{theorem}{restateLemCrossParty}\label{thm:replication}
-  Consider a \rollerblade execution $\mathcal{E}$ with duration $R$ rounds
-  with $n \in \mathbb{N}$ underlying
-  and $m \in \mathbb{N}$ compositor parties.
-  For
-  all underlying indexes $i \in [n]$ such that $\text{good}_i(\mathcal{E})$,
-  all rounds $1 \leq r < R - \max(v_i, u_i)$,
-  and
-  all compositor party indexes $j, j' \in [m]$
-  $\Sim[j][r] = \Sim[j'][r]\,,$
-  where $\Sim[j][r]$ (resp. $\Sim[j'][r]$) indicates the result of calling
-  \emulationSnapshot of $\RB[j]$ (resp. $\RB[j']$) with inputs
-  $(i, r)$
-  \emph{in vitro} at the end of round $r + v_i$ of $\mathcal{E}$.
+  For all \rollerblade-suitable-overlay protocols $\Pi$
+  and any sequence of \rollerblade-suitable-underlying
+  protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$
+  for the \rollerblade-belief-system $\mathcal{B}$ of $\mathcal{Y}$
+  and \rollerblade-honesty-correspondence $\mathcal{H}$,
+  the compositor \rollerblade of Section~\ref{sec:construction} is
+  $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta_u, \Delta_v)$-\emph{replication-faithful},
+  where $n = \ell$, $\Delta_u = \max\{u_i\}_{i \in [n]}$,
+  $\Delta_v = \max\{v_i\}_{v \in [n]}$
+  and $u_i, v_i$ are the promised liveness and timeliness of $\Y[][i]$.
 \end{restatable}
 
 \begin{restatable}[Consistency]{lemma}{restateLemConsistency}\label{lem:consistency}
@@ -75,7 +73,7 @@ Random Oracle collision), it can conclude the execution.
   and any sequence of \rollerblade-suitable-underlying
   protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$
   for the \rollerblade-belief-system $\mathcal{B}$ of $\mathcal{Y}$
-  and honesty correspondence $\mathcal{H}$,
+  and \rollerblade-honesty-correspondence $\mathcal{H}$,
   the compositor \rollerblade of Section~\ref{sec:construction} is
   $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta_u, \Delta_v)$-\emph{faithful},
   where $n = \ell$, $\Delta_u = \max\{u_i\}_{i \in [n]}$,

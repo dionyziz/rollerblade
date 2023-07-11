@@ -545,9 +545,9 @@ $B$ asserting that the majority of underlying ledger protocols are secure.
 
 % TODO: Mention that the validator and other protocol settings for \Y[][i]
 % are hard-coded into \Y[][i]
-\begin{definition}[Compositor Faithfulness]\label{def:faithfulness}
+\begin{definition}[Emulation Faithfulness]\label{def:emulation-faithfulness}
   A compositor $\Lambda$
-  is $(\Pi,\allowbreak n,\allowbreak \mathcal{Y},\allowbreak \mathcal{B},\allowbreak \mathcal{H},\allowbreak \Delta_u,\allowbreak \Delta_v)$-\emph{faithful}
+  is $(\Pi,\allowbreak n,\allowbreak \mathcal{Y},\allowbreak \mathcal{B},\allowbreak \mathcal{H},\allowbreak \Delta_u,\allowbreak \Delta_v)$-\emph{emulation-faithful}
   for an overlay protocol $\Pi$,
   a number of overlay parties $n \in \mathbb{N}$,
   a sequence of underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$,
@@ -583,3 +583,35 @@ $B$ asserting that the majority of underlying ledger protocols are secure.
 \end{definition}
 
 % Remark: Differences from a UC-style proof
+
+% TODO: DRY from Emulation Faithfulness
+\begin{definition}[Replication Faithfulness]\label{def:replication-faithfulness}
+  A compositor $\Lambda$ is
+  $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta_u, \Delta_v)$-\emph{replication-faithful}
+  for overlay protocol $\Pi$,
+  number of overlay parties $n \in \mathbb{N}$,
+  a sequence of underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$,
+  belief system $\mathcal{B}$,
+  honesty correspondence $\mathcal{H}: \mathcal{B} \longrightarrow 2^{[n]}$,
+  lateness $\Delta_u \in \mathbb{N}$,
+  and reality lag $\Delta_v \in \mathbb{N}$
+  if:
+
+  For all beliefs $B \in \mathcal{B}$,
+  all all PPT adversaries $\mathcal{A}$,
+  for all $B$-respecting PPT environments $\mathcal{Z}$,
+  for all number of compositor parties $m \in \mathbb{N}$,
+  for all compositor party indices $j, j' \in [m]$
+  and for all overlay party indices $i \in \mathcal{H}(B)$,
+  for all rounds $1 \leq r < R - \max(\Delta_v, \Delta_u)$,
+  and all compositor party indexes $j, j' \in [m]$ the following holds:
+  \[
+    \Sim[j][r] = \Sim[j'][r]\,,
+  \]
+  where $\Sim[j][r]$ (resp. $\Sim[j'][r]$) indicates the result of calling
+  \emulationSnapshot of $\Lambda[j]$ (resp. $\Lambda[j']$) with inputs
+  $(i, r)$
+  \emph{in vitro} at the end of round $r + \Delta_v$ of $\mathcal{E}$,
+  where $\mathcal{E}$ is an execution sampled from
+  $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$.
+\end{definition}
