@@ -105,6 +105,45 @@ contiguous honest participation is also known in the literature as
   are included in $\Ledger[j][i][r']$ by \emph{timeliness}.\Qed
 \end{proof}
 
+\begin{lemma}
+  Consider an execution $\mathcal{E}$ with duration $R + \Delta_v$ in the emulated setting
+  with arbitrary good ledgers $\Y[][i], \Y[][i']$, rollerblade party $\LLambda[j]$
+  and round $1 \leq r' \leq R$.
+  Consider the call of $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R + \Delta_v], R)$
+  \emph{in vitro} at round $R + \Delta_v$.
+  Within that in vitro execution,
+  consider the \emph{first} iteration of the
+  \emph{for} loop in Line~\ref{alg.prepare-emulation-inputs:for}
+  of Algorithm~\ref{alg.prepare-emulation-inputs}
+  such that the variable $r$ of the \emph{for} loop is larger than $r'$.
+  Let $f^*(i, r')$ denote the value attained by the variable $F^i$
+  before that iteration commences.
+  The set of transactions in $f^*(i, r')$ with recorded round
+  up to $r' - v_i - u_{i'} - 1$ is equal with the set of transactions
+  in $\Ledger[j][i][R + \Delta_v]$ with recorded round up to $r' - v_i - u_{i'} - 1$.
+\end{lemma}
+\begin{proof}
+  \noindent
+  \textbf{$(\Longrightarrow)$} Consider an arbitrary transaction $(r^*, tx^*) = f^*{i, r'}[k]$
+  for some $k \in \mathbb{N}$, with $r^* \leq r' - v_i - u_{i'} - 1$.
+  Because transactions are emitted into $\Ledger[][i]$
+  at every round, a fresh transaction $\hat{\tx}$ will be emitted at $r^* + v_i$,
+  with $\hat{\tx} \not\in \Ledger[j][i][r^* + v_i - 1]$.
+  By the liveness of $\Ledger[][i]$, we have that $\hat{\tx}$ will appear in
+  $\Ledger[j][i][r^* + v_i + u_i]$, so let $r > r^* + v_i - 1$ be the first round such that
+  $(\hat{r}, \hat{\tx}) = \Ledger[j][i][r][\hat{k}]$
+  for some $\hat{k} \in \mathbb{N}$, $\hat{r} \in \mathbb{N}$.
+  By the timeliness of $\Y[][i]$ it holds that $\hat{r} > r - v_i > r^* - 1$,
+  therefore $\hat{r} > r^*$.
+  If $\hat{k} < k$, then the recorded round in
+  $\Ledger[j][i][r][\hat[k]]$ is $\hat{r} > r^*$,
+  but the round recorded in $f^*(i, r')[\hat[k]]$ is at most $r^*$,
+  which cannot be, since $\Y[][i]$ is safe??
+
+  \noindent
+  \textbf{$(\Longleftarrow)$}
+\end{proof}
+
 \myparagraph[Conjecture~\ref{conj:emulation}]
 \begin{proof}[Sketch]
   Let $\Pi$, $\mathcal{Y}$, $\mathcal{B}$ and $\mathcal{H}$
@@ -355,8 +394,6 @@ contiguous honest participation is also known in the literature as
     \label{conj:emulation:claim-delta-b}
     If $\PPi[i']$ received a message from $\PPi[i]$ at round $r^*$, then this message was sent by $\PPi[i]$.
   \end{enumerate}
-
-  We will first prove that for all $i, i' \in H$, for all rounds $r$
 
   Let round $r^* > r + v_i + u_{i'}$.
 
