@@ -16,7 +16,7 @@
   \begin{algorithmic}[1]
     \Function{\prepareEmulationInputs}{$i, \Ledger[j][i], \emulationRound$}
       \If{$\emulationRound > \this.\now - v_i$}\label{alg.prepare-emulation-inputs:reality-lag}
-        \State\Return{$\bot$} \Comment{Sim round is too far in future}
+        \State\Return{$\bot$} \Comment{Emu round is too far in future}
       \EndIf
 
       \Let{\inboxes}{[[\,]]}
