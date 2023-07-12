@@ -347,13 +347,23 @@ contiguous honest participation is also known in the literature as
 
   \begin{enumerate}[label=(\alph*)]
     \item
-    \label{conj:emulation:claim-delta}
+    \label{conj:emulation:claim-delta-a}
     If $\PPi[i]$ sends a message to $\PPi[i']$ at round $r$, then this message is delivered to $\PPi[i']$
     (with source $i$) between round $r + 1$ and $r + \Delta$, and
 
     \item
-    If $\PPi[i']$ received a message from $\PPi[i]$ at round $r$, then this message was sent by $\PPi[i]$.
+    \label{conj:emulation:claim-delta-b}
+    If $\PPi[i']$ received a message from $\PPi[i]$ at round $r^*$, then this message was sent by $\PPi[i]$.
   \end{enumerate}
+
+  We will first prove that for all $i, i' \in H$, for all rounds $r$
+
+  Let round $r^* > r + v_i + u_{i'}$.
+
+  When $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R], R)$ is called in vitro
+  at the end of round $R + \Delta_v$, after Line~\ref{alg.prepare-emulation-inputs:set-f} of Algorithm~\ref{alg.prepare-emulation-inputs},
+  it holds that all transactions with recorded round up to $r - v_i - u_{i'} - 1$ that are included in $F^{i}$ are also included in $\Ledger[j][i][r + v_i]$.
+
 
   Let $r$ be the round during which $\PPi[i]$ sends message $\msg$ to $\PPi[i']$.
   That means that $\PPi[i]$ invoked network function $\send(i', \msg)$ at round $r$.
@@ -403,15 +413,15 @@ contiguous honest participation is also known in the literature as
   In Line~\ref{alg.prepare-emulation-inputs:untranscribe}, transcription $\tau$
   is untranscribed and we get $\ImaginaryLedger[j][i'] = \Ledger[j][i][r + v_i]$.
   This means that after Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
-  it holds that $\Ledger[j][i][r + v_i] \preceq F^{i'}$ by the safety of $\Y[][i]$.
+  it holds that $\Ledger[j][i][r + v_i] \preceq F^i$ by the safety of $\Y[][i]$.
 
   Because, $\hat{r} < r^*$, the \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs}
   is later entered with parameters $(r^*, \tx^*)$.
   After Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
-  it still holds that $\Ledger[j][i][r + v_i] \preceq F^{i'}$.
+  it still holds that $\Ledger[j][i][r + v_i] \preceq F^i$.
   Hence, in Line~\ref{alg.prepare-emulation-inputs:recursion}, where
-  $\LLambda[j].\emulate(i, F^{i'}, r^* - v_i - u_{i'} - 1)$ is invoked, it holds that
-  $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, F^{i'}, r^* - v_i - u_{i'} - 1).\outboxes[r]$
+  $\LLambda[j].\emulate(i, F^i, r^* - v_i - u_{i'} - 1)$ is invoked, it holds that
+  $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, F^i, r^* - v_i - u_{i'} - 1).\outboxes[r]$
   because $r^* - v_i - u_{i'} - 1 \geq r$.
   By the minimality of $(r^*, \tx^*)$, the $\msg$ will be included in $\inboxes[r^*]$.
   The environment $\mathcal{Z}'$ will provide $\msg$ to $\PPi[i']$
@@ -422,10 +432,51 @@ contiguous honest participation is also known in the literature as
   delay is respected. We observe that the delay for every message is always
   greater than $u_i + v_{i'}$.
 
-  This completes the proof of \ref{conj:emulation:claim-delta}.
+  This completes the proof of \ref{conj:emulation:claim-delta-a}.
 
-  %TODO: prove 0b.
+  Let $\msg$ be the message that $\PPi[i']$ received from $\PPi[i]$ at round $r^*$.
+  To prove \ref{conj:emulation:claim-delta-b}, it suffices to show that
+  $\PPi[i]$ invoked network function $\send(i', \msg)$ at some round $r$.
 
+  In order for $\PPi[i']$ to receive $\msg$ at round $r^*$,
+  the environment $\mathcal{Z}'$ must provide it if network method $\recv()$ is invoked.
+  Hence, the $\msg$ must be included in $\inboxes[r^*]$ after $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$
+  is called \emph{in vitro} at the end of round $R$ by the simulator.
+  Therefore, there is a bulletin `chkpt' transaction $(r^*, \tx^*)$, such that
+  when the \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs} Line~\ref{alg.prepare-emulation-inputs:for}
+  is entered with it as parameter, it holds that
+  $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, F^{i'}, r^* - v_i - u_{i'} - 1).\outboxes[r]$,
+  where $r \leq r^* - v_i - u_{i'} - 1$.
+
+  At round $r^* - u_{i'} - 1$, relayer $\LLambda[j]$ invokes $\relay()$.
+  This creates a transcription $\tau = \Y[j][i].\transcribe()$, where
+  $\Y[j][i].\untranscribe(\tau) = \Ledger[j][i][r^* - u_{i'} - 1]$.
+  Then, it transmits a new bulletin `chkpt' transaction $\tx$,
+  encoding instruction $\instruction$ containing transcription $\tau$ to $\Y[][i']$.
+
+  Because of the liveness of $\Y[][i']$, transaction $\tx$ appears on $\Ledger[j][i']$ for the
+  first time no later than round $r^* - 1$ and with recorded round $\hat{r} < r^*$, due to timeliness.
+  Hence, the \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs}
+  Line~\ref{alg.prepare-emulation-inputs:for} is eventually entered with
+  parameters $(\hat{r}, \instruction)$.
+  In Line~\ref{alg.prepare-emulation-inputs:untranscribe}, transcription $\tau$
+  is untranscribed and we get $\ImaginaryLedger[j][i'] = \Ledger[j][i][r^* - u_{i'} - 1]$.
+  This means that after Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
+  it holds that $\Ledger[j][i][r^* - u_{i'} - 1] \preceq F^{i'}$ by the safety of $\Y[][i]$.
+  Because $r + v_i \leq r^* - u_{i'} - 1$, it holds that $\Ledger[j][i][r + v_i] \preceq F^{i'}$
+
+  Since round $\hat{r}$ precedes round $r^*$, when the \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs}
+  is later entered with parameters $(r^*, \tx^*)$, and after Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
+  it still holds that $\Ledger[j][i][r + v_i] \preceq F^{i'}$.
+  % All transactions with recorded round up to $r$ are included in $\Ledger[j][i][r + v_i]$ due to timeliness.
+  %
+  Hence, it holds that
+  $\LLambda[j].\emulate(i, F^{i'}, r^* - v_i - u_{i'} - 1).\outboxes[r] = \LLambda[j].\emulate(i, \Ledger[j][i][r + v_i], r).\outboxes[r]$.
+  That means that $\Z[j][i]$ invoked network function $\send(i', \msg)$ at round $r$.
+  In Claim 1, we showed that the transcript of machine $\PPi[i]$ in $\mathcal{E}'$
+  is identical to the transcript of machine $\Z[j][i] = \LLambda[j].\emulationSnapshot(i,r)$ in $\mathcal{E}^*$
+  called in vitro at the end of round $r + \Delta_v$.
+  Hence, $\PPi[i]$ also invoked network function $\send(i', \msg)$ at round $r$.
 
   % TODO: double check the exact numbers in this proof
   \myparagraph[Claim 3: $\LCExtern_{j,H}(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$]
