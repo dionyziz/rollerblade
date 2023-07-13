@@ -105,26 +105,24 @@ contiguous honest participation is also known in the literature as
   are included in $\Ledger[j][i][r']$ by \emph{timeliness}.\Qed
 \end{proof}
 
-\begin{lemma}
-  Consider an execution $\mathcal{E}$ with duration $R + \Delta_v$ in the emulated setting
+\begin{lemma}\label{lem:transcription-past-perfect}
+  Consider a rollerblade execution $\mathcal{E}$ with duration $R + \Delta_v$ in the emulated setting
   with arbitrary good ledgers $\Y[][i], \Y[][i']$, rollerblade party $\LLambda[j]$
-  and round $1 \leq r' \leq R$.
-  Consider the call of $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R + \Delta_v], R)$
-  \emph{in vitro} at round $R + \Delta_v$.
+  and round $1 \leq r^* \leq R$.
+  Consider the call of $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$
+  \emph{in vitro} at the end of round $R$.
   Within that in vitro execution,
-  consider the \emph{first} iteration of the
+  consider any iteration $(r^*, \tx^*)$ of the
   \emph{for} loop in Line~\ref{alg.prepare-emulation-inputs:for}
-  of Algorithm~\ref{alg.prepare-emulation-inputs}
-  such that the variable $r$ of the \emph{for} loop is larger than $r'$.
-  Let $f^*(i, r')$ denote the value attained by the variable $F^i$
-  before that iteration commences.
-  The set of transactions in $f^*(i, r')$ with recorded round
-  up to $r' - v_i - u_{i'} - 1$ is equal with the set of transactions
-  in $\Ledger[j][i][R + \Delta_v]$ with recorded round up to $r' - v_i - u_{i'} - 1$.
+  of Algorithm~\ref{alg.prepare-emulation-inputs}.
+  Let $f^*$ denote the value attained by the variable $F^i$
+  at the end of that iteration.
+  The transactions with recorded round
+  up to $r^* - v_i - u_{i'} - 1$ in $f^*$ and $\Ledger[j][i][R]$ are the same.
 \end{lemma}
 \begin{proof}
   \noindent
-  \textbf{$(\Longrightarrow)$} Consider an arbitrary transaction $(r^*, tx^*) = f^*{i, r'}[k]$
+  \textbf{$(\Longrightarrow)$} Consider an arbitrary transaction $(r^*, tx^*) = f^*(i, r')[k]$
   for some $k \in \mathbb{N}$, with $r^* \leq r' - v_i - u_{i'} - 1$.
   Because transactions are emitted into $\Ledger[][i]$
   at every round, a fresh transaction $\hat{\tx}$ will be emitted at $r^* + v_i$,
@@ -142,6 +140,24 @@ contiguous honest participation is also known in the literature as
 
   \noindent
   \textbf{$(\Longleftarrow)$}
+  At round $r^* - u_{i'} - 1$, relayer $\LLambda[j]$ invokes $\relay()$.
+  This creates a transcription $\tau = \Y[j][i].\transcribe()$, where
+  $\Y[j][i].\untranscribe(\tau) = \Ledger[j][i][r^* - u_{i'} - 1]$.
+  Then, it transmits a new bulletin `chkpt' transaction $\tx$,
+  encoding instruction $\instruction$ containing transcription $\tau$ to $\Y[][i']$.
+
+  Because of the liveness of $\Y[][i']$, transaction $\tx$ appears on $\Ledger[j][i']$ for the
+  first time no later than round $r^* - 1$ and with recorded round $\hat{r} < r^*$, due to timeliness.
+  Hence, the \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs}
+  Line~\ref{alg.prepare-emulation-inputs:for} is eventually entered with
+  parameters $(\hat{r}, \instruction)$. By the end of the iteration, it holds that
+  $\Ledger[j][i][r^* - u_{i'} - 1] \preceq F^i$ because of the safety of $\Y[][i]$.
+
+  Since round $\hat{r} < r^*$, it holds that $\Ledger[j][i][r^* - u_{i'} - 1] \preceq f^*$.
+  Due to Lemma~\ref{lem:past-perfect}, the transactions
+  with recorded round up to $r^* - v_i - u_{i'} - 1$ in $\Ledger[j][i][r^* - u_{i'} - 1]$
+  and $\Ledger[j][i][R]$ are the same.
+  Hence, the same holds for $f^*$.\Qed
 \end{proof}
 
 \myparagraph[Conjecture~\ref{conj:emulation}]
