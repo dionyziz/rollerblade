@@ -411,71 +411,69 @@ contiguous honest participation is also known in the literature as
     If $\PPi[i']$ received a message from $\PPi[i]$ at round $r^*$, then this message was sent by $\PPi[i]$.
   \end{enumerate}
 
-  Let round $r^* > r + v_i + u_{i'}$.
+  % Let round $r'$, where $r \leq r' - v_i - u_{i'} - 1$.
+  % The set of transactions in $f^*_{i, r'}$ with recorded round up to
+  % $r' - v_i - u_{i'} - 1$ is identical to the set of transactions in $\Ledger[j][i][R + \Delta_v]$ due to
+  % Lemma \ref{lem:transcription-timeliness}.
 
-  When $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R], R)$ is called in vitro
-  at the end of round $R + \Delta_v$, after Line~\ref{alg.prepare-emulation-inputs:set-f} of Algorithm~\ref{alg.prepare-emulation-inputs},
-  it holds that all transactions with recorded round up to $r - v_i - u_{i'} - 1$ that are included in $F^{i}$ are also included in $\Ledger[j][i][r + v_i]$.
+  % At round $r + v_i$, relayer $\LLambda[j]$ invokes $\relay()$.
+  % This creates a transcription $\tau = \Y[j][i].\transcribe()$, where
+  % $\Y[j][i].\untranscribe(\tau) = \Ledger[j][i][r + v_i]$.
+  % Then, it transmits a new bulletin `chkpt'
+  % transaction $\tx$, encoding instruction $\instruction$ containing transcription $\tau$ to $\Y[][i']$.
 
+  % Because of the liveness of $\Y[][i']$,
+  % transaction $\tx$ appears in $\Ledger[j][i']$, for the first time,
+  % at round $r' \leq r + v_i + u_{i'}$.
+  % Hence, $(\hat{r}, \tx) \in \Ledger[j][i'][r']$, where $\hat{r}$ is the recorded round of $\tx$
+  % and $\hat{r} \leq r'$. Because of the stickiness of $\Y[][i']$, transaction $(\hat{r}, \tx)$ will
+  % appear in $\Ledger[j][i'][R]$ in the same position as in $\Ledger[j][i'][r']$.
+
+  % The \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs}
+  % Line~\ref{alg.prepare-emulation-inputs:for} is eventually entered with
+  % parameters $(\hat{r}, \instruction)$.
+  % In Line~\ref{alg.prepare-emulation-inputs:untranscribe}, transcription $\tau$
+  % is untranscribed and we get $\ImaginaryLedger[j][i'] = \Ledger[j][i][r + v_i]$.
+  % This means that after Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
+  % it holds that $\Ledger[j][i][r + v_i] \preceq F^i$ by the safety of $\Y[][i]$.
+
+  % Because, $\hat{r} < r^*$, the \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs}
+  % is later entered with parameters $(r^*, \tx^*)$.
+
+  % The set of transactions with recorded round up to $r^* - v_i - u_{i'} - 1$ in $\Ledger[j][i][R + \Delta_v]$
+  % is equal to the set of transactions with recorded round up to $r^* - v_i - u_{i'} - 1$ in $f^*(i,r^* - 1)$
+  % because $r^* - v_{i'} - u_{i'} \leq r + v_i $
 
   Let $r$ be the round during which $\PPi[i]$ sends message $\msg$ to $\PPi[i']$.
   That means that $\PPi[i]$ invoked network function $\send(i', \msg)$ at round $r$.
   In Claim 1, we showed that the transcript of machine $\PPi[i]$ in $\mathcal{E}'$
   is identical to the transcript of machine $\Z[j][i] = \LLambda[j].\emulationSnapshot(i,r)$ in $\mathcal{E}^*$
-  called in vitro at the end of round $r + \Delta_v$.
+  called in vitro at the end of round $r + \Delta_v$, which, by consistency, is the same as
+  $\LLambda[j].\emulate(i, \Ledger[j][i][R - \Delta_v - 1], r).Z$ called in vitro at the end of round $R$.
   Hence, $\Z[j][i]$ also invoked network function $\send(i', \msg)$ at round $r$.
-  This means that $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, \Ledger[j][i][r + \Delta_v], r).\outboxes[r]$.
+  This means that $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, \Ledger[j][i][R - \Delta_v - 1], r).\outboxes[r]$.
 
-  % At the beginning of round $r$, environment $\mathcal{Z}'$
-  % calls $\lwrite(\data)$ on party $i$.
-
-  % Then, $\PPi[i]$ is activated
-  % is provided
-
-  % At round $r$, $\PPi[i]$ is activated by $\mathcal{Z}'$ and
-  % has $\inboxes^i[r - 1]$
-
-  %TODO: Add encode/decode?
-  At round $r + v_i$, relayer $\LLambda[j]$ invokes $\relay()$.
-  This creates a transcription $\tau = \Y[j][i].\transcribe()$, where
-  $\Y[j][i].\untranscribe(\tau) = \Ledger[j][i][r + v_i]$.
-  Then, it transmits a new bulletin `chkpt'
-  transaction $\tx$, encoding instruction $\instruction$ containing transcription $\tau$ to $\Y[][i']$.
-
-  Because of the liveness of $\Y[][i']$,
-  transaction $\tx$ appears in $\Ledger[j][i']$, for the first time,
-  at round $r' \leq r + v_i + u_{i'}$.
-  Hence, $(\hat{r}, \tx) \in \Ledger[j][i'][r']$, where $\hat{r}$ is the recorded round of $\tx$
-  and $\hat{r} \leq r'$. Because of the stickiness of $\Y[][i']$, transaction $(\hat{r}, \tx)$ will
-  appear in $\Ledger[j][i'][R]$ in the same position as in $\Ledger[j][i'][r']$.
-
-  Party $\LLambda[j]$ will relay $\Y[][i]$ at round $r + v_i + v_{i'}$, and
+  Let $(r^*, \tx^*)$ be the first bulletin `chkpt' transaction from $\Y[][i]$ in $\Ledger[j][i'][R]$, such that
+  $r^* > r + v_{i} + u_{i'}$.
+  Such a transaction $(r^*, \tx^*)$ will exist because party $\LLambda[j]$ will relay $\Y[][i]$
+  at round $r + v_i + v_{i'}$, and
   because of the liveness of $\Y[][i']$, it will appear on $\Ledger[j][i']$ for the
   first time no later than round $r + v_i + u_{i'} + v_{i'}$ with recorded round
   after $r + v_i + u_{i'}$ but no later than $r + v_i + u_{i'} + v_{i'}$.
+  Therefore $r^* \leq r + v_{i} + u_{i'} + v_{i'}$.
 
-  Let $(r^*, \tx^*)$ be the first bulletin `chkpt' transaction from $\Y[][i]$ in $\Ledger[j][i'][R]$, such that
-  $r^* > r + v_{i} + u_{i'} \geq r' \geq \hat{r}$. It holds that $r^* \leq r + v_{i} + u_{i'} + v_{i'}$.
+  Let $f^*$ be the value of $F^i$ in Line~\ref{alg.prepare-emulation-inputs:recursion}
+  during iteration with parameter $(r^*, \tx^*)$.
+  By Lemma~\ref{lem:transcription-past-perfect}, the transactions with
+  recorded round up to $r \leq r^* - v_i - u_{i'} - 1$ in $\Ledger[j][i][R + \Delta_v]$
+  and $f^*$ are the same.
 
-  The simulator calls \emph{in vitro} (at the end of round $R$)
-  $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$.
-
-  The \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs}
-  Line~\ref{alg.prepare-emulation-inputs:for} is eventually entered with
-  parameters $(\hat{r}, \instruction)$.
-  In Line~\ref{alg.prepare-emulation-inputs:untranscribe}, transcription $\tau$
-  is untranscribed and we get $\ImaginaryLedger[j][i'] = \Ledger[j][i][r + v_i]$.
-  This means that after Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
-  it holds that $\Ledger[j][i][r + v_i] \preceq F^i$ by the safety of $\Y[][i]$.
-
-  Because, $\hat{r} < r^*$, the \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs}
-  is later entered with parameters $(r^*, \tx^*)$.
-  After Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
-  it still holds that $\Ledger[j][i][r + v_i] \preceq F^i$.
-  Hence, in Line~\ref{alg.prepare-emulation-inputs:recursion}, where
-  $\LLambda[j].\emulate(i, F^i, r^* - v_i - u_{i'} - 1)$ is invoked, it holds that
-  $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, F^i, r^* - v_i - u_{i'} - 1).\outboxes[r]$
-  because $r^* - v_i - u_{i'} - 1 \geq r$.
+  In order to collect the incoming messages for $\PPi[i']$,
+  the simulator calls \emph{in vitro} (at the end of round $R$)
+  $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R - \Delta_v - 1], R - \Delta_v - 1)$.
+  In Line~\ref{alg.prepare-emulation-inputs:recursion}, during iteration with parameter
+  $(r^*, \tx^*)$, function $\LLambda[j].\emulate(i, F^i, r^* - v_i - u_{i'} - 1)$ is invoked. It holds that
+  $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, F^i, r^* - v_i - u_{i'} - 1).\outboxes[r]$.
   By the minimality of $(r^*, \tx^*)$, the $\msg$ will be included in $\inboxes[r^*]$.
   The environment $\mathcal{Z}'$ will provide $\msg$ to $\PPi[i']$
   if network method $\recv()$ is invoked at round $r^*$.
