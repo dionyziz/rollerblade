@@ -33,18 +33,21 @@ among those ledgers. This is illustrated in Algorithm~\ref{alg.majorityvote}.
 
 % TODO: formal proof of this
 \begin{theorem}[Security]
-  Let $\Pi$ be a distributed ledger protocol, and $\frac{t}{n}$ be its resilience such
-  that if $f < t$, where $f$ is the number of adversarial parties, and $n$ is the total number of parties,
+  Let $\Pi$ be a distributed ledger protocol, and $\frac{t}{n}$ be its resilience, such
+  that, if $f < t$, where $f$ is the number of adversarial parties, and $n$ is the total number of parties,
   then for all PPT adversaries, an execution of $\Pi$ is secure with overwhelming probability.
 
-  Consider an execution of $\recursiveConsensus_{\Pi}$ in which $f$ of the underlying
-  ledgers are secure. If $f < \min(t, \frac{n}{2})$, then the execution of $\recursiveConsensus_{\Pi}$
+  Consider an execution of $\recursiveConsensus_{\Pi}(\mathcal{Y})$ in which $f$ of the $n$ underlying
+  ledgers $\mathcal{Y}$ are secure. If $f < \min(t, \frac{n}{2})$, then the execution of $\recursiveConsensus_{\Pi}$
   is secure with overwhelming probability.
   %TODO: continue
 \end{theorem}
 \begin{proof}[Sketch]
+  Let $\mathcal{E}$ be the execution of $\recursiveConsensus_{\Pi}$. By assumption, $f$ of
+  the underlying ledgers are secure, and let $H \subseteq [n]$ be the set of indices of those underlying ledgers.
+
   The proof follows directly by translating the security theorem of $\Pi$ through
-  the Conjecture~\ref{conj:emulation}.
+  the Theorem~\ref{conj:emulation}.
   \Qed
 \end{proof}
 
