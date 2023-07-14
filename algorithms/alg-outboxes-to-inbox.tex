@@ -12,10 +12,9 @@
         \For{$\netout \in \outbox$}
           \If{$\netout\textsf{.to} = i$}\label{alg.outboxes-to-inbox:recipient}
             % TODO(dionyziz): typeset a ' ' after ':'
-            \State{$\inbox.\append(\{$}
-            \State{\hspace{\algorithmicindent}$\textsf{from}{:}\, i',$}
-            \State{\hspace{\algorithmicindent}$\textsf{msg}{:}\, \netout\textsf{.msg}$}
-            \State{$\})$}\label{alg.outboxes-to-inbox:append}
+            \State{$\inbox.\append(\{\textsf{from}{:}\, i',$}
+            \State{\hphantom{$\inbox.\append(\{$}%
+                   $\textsf{msg}{:}\, \netout\textsf{.msg}\})$}\label{alg.outboxes-to-inbox:append}
           \EndIf
         \EndFor
       \EndFor

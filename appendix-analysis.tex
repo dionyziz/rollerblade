@@ -1,4 +1,4 @@
-\appsection[Proofs]
+\appsection[Analysis]\label{sec:analysis}
 
 The following lemma will allow us to argue that all parties share a common
 view of sufficiently old transactions.
@@ -48,9 +48,38 @@ view of sufficiently old transactions.
   Since $r^* < r_2 - v$, this contradicts the timeliness with parameter $v$.\Qed
 \end{proof}
 
-The above property, which follows from safety, liveness, timeliness and
-contiguous honest participation is also known in the literature as
-\emph{persistence}~\cite{backbone}.
+\begin{definition}[Rollerblade Belief System and Honesty Correspondence]
+  Given a sequence of \rollerblade-underlying-respecting
+  protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$,
+  define for each $i \in [\ell]$ the predicate, on
+  a collective execution $\mathcal{E}$ of $\mathcal{Y}$,
+  $
+  \text{good}_i(\mathcal{E}) = \text{``} \Y[][i] \text{ is safe, live$(u_i)$, and timely$(v_i)$ in $\mathcal{E}$''}\,.
+  $
+
+  Next, for any $H \subseteq [\ell]$, we define
+  $
+    \text{good}_H(\mathcal{E}) = \text{``}\forall i \in H: \text{good}_i(\mathcal{E})\text{''}\,.
+  $
+
+  Define $\mathcal{H}^{-1}$ on the domain $2^{[n]}$ as
+  $\mathcal{H}^{-1}(H) = \text{good}_H$.
+  Then the \emph{\rollerblade honesty correspondence $\mathcal{H}$}
+  is the inverse of $\mathcal{H}^{-1}$ and the \emph{\rollerblade belief system
+  $\mathcal{B}$} is the domain of $\mathcal{H}$.
+\end{definition}
+
+For example, if $\mathcal{Y} = (\Y[][1], \Y[][2], \Y[][3])$,
+then for $B = \text{good}_1 \land \text{good}_3$, it holds that
+$B \in \mathcal{B}$ and $\mathcal{H}(B) = \{1, 3\}$.
+
+As an example of a $\Y[][1]$, consider the Bitcoin Backbone protocol.
+Then a $\text{good}_1$-respecting environment $\mathcal{Z}$ is an environment
+that ensures the Bitcoin Backbone protocol execution is safe, live, and timely.
+This can be done, for example, by demanding that the corruption of $\Y[][1]$
+parties outside of $\Lambda$s remains in the minority. In case the environment
+detects an upcoming security violation (due to a negligible event such as a
+Random Oracle collision), it can conclude the execution.
 
 \begin{figure}
   \centering
@@ -66,7 +95,19 @@ contiguous honest participation is also known in the literature as
   \label{fig.cross-party}
 \end{figure}
 
-\myparagraph[Theorem~\ref{thm:replication}]
+% TODO: DRY from Emulation Faithfulness Theorem
+\begin{restatable}[Replication]{theorem}{restateLemCrossParty}\label{thm:replication}
+  For all \rollerblade-suitable-overlay protocols $\Pi$
+  and any sequence of \rollerblade-suitable-underlying
+  protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$
+  for the \rollerblade-belief-system $\mathcal{B}$ of $\mathcal{Y}$
+  and \rollerblade-honesty-correspondence $\mathcal{H}$,
+  the compositor \rollerblade of Section~\ref{sec:construction} is
+  $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta_u, \Delta_v)$-\emph{replication-faithful},
+  where $n = \ell$, $\Delta_u = \max\{u_i\}_{i \in [n]}$,
+  $\Delta_v = \max\{v_i\}_{v \in [n]}$
+  and $u_i, v_i$ are the promised liveness and timeliness of $\Y[][i]$.
+\end{restatable}
 \begin{proof}
   The function \emulationSnapshot of party $j$ (resp. party $j'$)
   calls the deterministic function \emulate with overlay party index $i$,
@@ -86,7 +127,17 @@ contiguous honest participation is also known in the literature as
   relayer.\Qed
 \end{proof}
 
-\myparagraph[Lemma~\ref{lem:consistency}]
+\begin{restatable}[Consistency]{lemma}{restateLemConsistency}\label{lem:consistency}
+  Consider a \rollerblade $\Lambda$ execution $\mathcal{E}$ with duration $R$ rounds
+  sampled from $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
+  with overlay protocols $\mathcal{Y}$, adversary $\mathcal{A}$ and environment $\mathcal{Z}$,
+  and let $\Delta_v = \max\{v_i\}_{i \in [n]}$,
+  where $v_i$ denotes the timeliness
+  promised by ledger protocol $\Y[i]$.
+  Let $H \subseteq [n]$ be the subset of good underlying ledger protocol indices among $\mathcal{Y}$
+  in $\mathcal{E}$.
+  Then the execution is $(j, H, \Delta_v)$-consistent for all $j \in [m]$.
+\end{restatable}
 \begin{proof}
   Let $i \in H$, $r \geq 0$, $r + \Delta_v < r' < R$ be arbitrary.
   When $\emulationSnapshot$ is invoked at the end of round $r'$ (resp. $r' + 1$),
@@ -135,6 +186,12 @@ contiguous honest participation is also known in the literature as
   the transactions with recorded round
   up to $r = r^* - v_i - u_{i'} - 1$ in $f^*$ and $\Ledger[j][i][R]$ are the same.
 \end{lemma}
+\ifshort
+\begin{proof}[Sketch]
+  The proof is analogous to the Lemma~\ref{lem:past-perfect} proof.
+\end{proof}
+\fi
+\iflong
 \begin{proof}
   \noindent
   \textbf{$(\Longrightarrow)$} Consider an arbitrary transaction $(r, \tx) = f^*[k]$
@@ -175,9 +232,30 @@ contiguous honest participation is also known in the literature as
   and $\Ledger[j][i][R]$ are the same.
   Hence, the same holds for $f^*$.\Qed
 \end{proof}
+\fi
 
-\myparagraph[Theorem~\ref{conj:emulation}]
-\begin{proof}[Sketch]
+% TODO: Consider removing all "in vitro" invocations by requiring the
+% compositor to output a configuration during every round by itself within
+% the execution. This would simplify the language.
+
+% TODO: Define the relationship between Z and Z';
+%       we are hoping that Z' will have exactly the same writes as Z
+%       (perhaps more due to adversarial writes) for each party
+%       and that those will appear in "close enough" times (maybe up to $u$ away
+%       from the original)
+\begin{restatable}[Emulation]{theorem}{restateConjEmulation}\label{conj:emulation}
+  For all \rollerblade-suitable-overlay protocols $\Pi$
+  and any sequence of \rollerblade-suitable-underlying
+  protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$
+  for the \rollerblade-belief-system $\mathcal{B}$ of $\mathcal{Y}$
+  and \rollerblade-honesty-correspondence $\mathcal{H}$,
+  the compositor \rollerblade of Section~\ref{sec:construction} is
+  $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta_u, \Delta_v)$-\emph{emulation-faithful},
+  where $n = \ell$, $\Delta_u = \max\{u_i\}_{i \in [n]}$,
+  $\Delta_v = \max\{v_i\}_{v \in [n]}$
+  and $u_i, v_i$ are the promised liveness and timeliness of $\Y[][i]$.
+\end{restatable}
+\begin{proof}
   Let $\Pi$, $\mathcal{Y}$, $\mathcal{B}$ and $\mathcal{H}$
   be as in the statement, and $\Delta =  2 \Delta_v + \Delta_u$.
   Let the adversary $\mathcal{A}$, the belief $B \in \mathcal{B}$,
@@ -185,7 +263,7 @@ contiguous honest participation is also known in the literature as
   and the index of the compositor $j$ of interest be arbitrary
   as in the statement, and set $H = \mathcal{H}(B)$.
   Let $\mathcal{E}$ and $\mathcal{E}'$ be the emulated and party setting
-  executions, respectively, sampled as in Definition~\ref{def:faithfulness}.
+  executions, respectively, sampled as in Definition~\ref{def:emulation-faithfulness}.
   As $\Pi$ is a \rollerblade-suitable-overlay protocol it is deterministic.
 
   We will prove faithfulness by
@@ -545,6 +623,8 @@ contiguous honest participation is also known in the literature as
   called in vitro at the end of round $r + \Delta_v$.
   Hence, $\PPi[i]$ also invoked network function $\send(i', \msg)$ at round $r$.
 
+  This completes the proof of claim~\ref{conj:emulation:claim-delta-b}.
+
   % TODO: double check the exact numbers in this proof
   \myparagraph[Claim 3: $\LCExtern_{j,H}(\mathcal{E}^*) \laterly{\Delta_u,\Delta_v} \PEExtern(\PEView_{\mathcal{H}(B)}(\mathcal{E}'))$]
 
@@ -572,3 +652,20 @@ contiguous honest participation is also known in the literature as
   % for $\Pi^i$ to write this message (i.e., for the message to appear in the prepareEmulationInputs
   % output).
 \end{proof}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\columnwidth,keepaspectratio]{figures/rollerblade-instructions.pdf}
+  \caption{The two types of instructions recorded on-ledger to enable the emulation.
+           On the left, the flow of a \emph{write} instruction, indicating user (environment)
+           input is illustrated. Whereas the environment invokes \emph{writeToMachine}, the
+           instruction, after becoming recorded on the ledger and appropriately translated,
+           eventually makes it as a \emph{write} call to the emulated machine $\Z[j][i]$.
+           On the right, the flow of a \emph{checkpoint} instruction, initiated by the relaying
+           process of a rollerblade client, is illustrated. The source ledger ($i'$) is
+           transcribed onto the destination ledger ($i$). This transcription is later
+           untranscribed and used as the input to a recursive emulation call to produce
+           the network outputs of a machine $i'$, which are, upon appropriate translation,
+           given to the machine $\Z[j][i]$ as network input.}
+  \label{fig.rollerblade-instructions}
+\end{figure}

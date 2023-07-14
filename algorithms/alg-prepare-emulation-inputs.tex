@@ -19,8 +19,9 @@
         \State\Return{$\bot$} \Comment{Emu round is too far in future}
       \EndIf
 
-      \Let{\inboxes}{[[\,]]}
-      \Let{\writeboxes}{[[\,]]}
+      \State{$\inboxes \gets [[\,]]; \writeboxes \gets [[\,]]$}
+      % \Let{\inboxes}{[[\,]]}
+      % \Let{\writeboxes}{[[\,]]}
 
       \For{$r \gets 1 \text{ to } \emulationRound$}\label{alg.prepare-emulation-inputs:init}
         % \CommentLine{For each round $r$: $\inboxes[r]$ and $\writeboxes[r]$ is a \emph{list} of inputs}
@@ -29,7 +30,9 @@
       \EndFor
 
       % TODO(dionyziz): Typeset \CommentLine and \Comment to both use the same \emph{} style
+      \iflong
       \CommentLine{Count messages each overlay party $i'$ ``sent'' us}
+      \fi
       \Let{\sf \consumedLengths}{[\,]}
 
       \For{$i' \gets 1 \text{ to } n$}
@@ -41,13 +44,17 @@
       \For{$(r, \instruction) \in L$}\label{alg.prepare-emulation-inputs:for}
         % TODO: Mention that timeliness (time marches forward)
         \If{$r \geq \emulationRound$}\label{alg.prepare-emulation-inputs:early-exit}
+          \iflong
           \CommentLine{Further data irrelevant for this emulation}
+          \fi
           \Break
         \EndIf
         % TODO(dionyziz): Turn this into "switch"?
         \If{$\instruction\textsf{.type} = \text{`write'}$}
           \State{$\writeboxes[r].\append(\instruction\textsf{.data})$}\label{alg.prepare-emulation-inputs:write}
+          \iflong
           \Continue
+          \fi
         \EndIf
         \If{$\instruction\textsf{.type} = \text{`chkpt'}$}
           \Let{i'}{\instruction\textsf{.from}}
@@ -57,16 +64,21 @@
           \Let{\textsf{res}}{\this.\textsf{emulate}(i', F^{i'}, r - u_i - v_{i'} - 1)}\label{alg.prepare-emulation-inputs:recursion}
           \Let{\outboxes}{\textsf{res}.\outboxes}
           \Let{\textsf{netins}}{\this.\outboxesToInbox(\outboxes, i', i)}\label{alg.prepare-emulation-inputs:outboxes-to-inbox}
+          \iflong
           \Let{\unprocessedNetins}{\textsf{netins}[\consumedLengths[i']{:}]}
 
           \For{$\netin \in \unprocessedNetins$}\label{alg.prepare-emulation-inputs:for-netin}
             \State{$\inboxes[r].\append(\netin)$}
           \EndFor
+          \else
+          \For{$\netin \in \textsf{netins}[\consumedLengths[i']{:}]$}\label{alg.prepare-emulation-inputs:for-netin}
+            \State{$\inboxes[r].\append(\netin)$}
+          \EndFor
+          \fi
           \Let{\consumedLengths[i']}{\consumedLengths[i'] + |\unprocessedNetins|}\label{alg.prepare-emulation-inputs:consumed-lengths}
         \EndIf
       \EndFor
       \State\Return{$(\writeboxes, \inboxes)$}
     \EndFunction
-    \vskip2pt
   \end{algorithmic}
 \end{algorithm}

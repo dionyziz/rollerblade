@@ -37,25 +37,22 @@ certain requirements which we now specify.
 \end{definition}
 
 In summary, the underlying ledgers provide the following functionalities:
-
-\begin{enumerate}
-  \item \textbf{construct}: Initializes the protocol.
-  \item \textbf{execute}: Executes one round of the protocol.
-  \item \textbf{write}: Writes a transaction to the ledger. The transaction
-        appears within $u$ rounds if the ledger protocol is \emph{live}.
-  \item \textbf{read}: Reads the temporal ledger. The ledger read is
-        consistent with whatever other honest parties are reading if the
-        ledger protocol is \emph{safe}, and the transactions appear with
-        correct recorded rounds if the protocol is \emph{timely}.
-  \item \textbf{encode}: Given an arbitrary string, produces a valid bulletin transaction.
-  \item \textbf{decode}: Given a bulletin transaction, produces the original
-        string used to encode it.
-  \item \textbf{transcribe}: Produces a transcription $\tau$ of the
-        current temporal ledger.
-  \item \textbf{untranscribe}: Given a transcription $\tau$, produces a ledger
-        promised to be \emph{safe} and \emph{live} as compared to the
-        rest of the honest parties.
-\end{enumerate}
+(1) \textbf{construct}: Initializes the protocol;
+(2) \textbf{execute}: Executes one round of the protocol;
+(3) \textbf{write}: Writes a transaction to the ledger. The transaction
+appears within $u$ rounds if the ledger protocol is \emph{live};
+(4) \textbf{read}: Reads the temporal ledger. The ledger read is
+consistent with whatever other honest parties are reading if the
+ledger protocol is \emph{safe}, and the transactions appear with
+correct recorded rounds if the protocol is \emph{timely};
+(5) \textbf{encode}: Given an arbitrary string, produces a valid bulletin transaction;
+(6) \textbf{decode}: Given a bulletin transaction, produces the original
+string used to encode it;
+(7) \textbf{transcribe}: Produces a transcription $\tau$ of the
+current temporal ledger;
+(8) \textbf{untranscribe}: Given a transcription $\tau$, produces a ledger
+promised to be \emph{safe} and \emph{live} as compared to the
+rest of the honest parties.
 
 % TODO: restore this definition
 % \begin{definition}[Transcribability]
@@ -128,6 +125,7 @@ produced by any of the $\Z[j][i]$ are ever written on the ledger. Instead, we ob
 that reading the checkpoints is sufficient for each rollerblade client to reproduce
 the network outputs of all emulated machines.
 
+\iflong
 \begin{figure}
   \centering
   \includegraphics[width=\columnwidth,keepaspectratio]{figures/rollerblade-instructions.pdf}
@@ -144,6 +142,7 @@ the network outputs of all emulated machines.
            given to the machine $\Z[j][i]$ as network input.}
   \label{fig.rollerblade-instructions}
 \end{figure}
+\fi
 
 % TODO(dionyziz): remove sid from everywhere
 Let us now explore, in more detail, how this emulation works. Each rollerblade execution

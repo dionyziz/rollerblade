@@ -101,7 +101,7 @@ We now describe the requirements of our underlying and overlay protocols.
 Firstly, in order to record data on our underlying ledgers, we require that any arbitrary string
 can be written to them. This is called a \emph{bulletin}.
 
-\paragraph{Bulletins}
+\myparagraph[Bulletins]
 % We do not want to modify the underlying DLPs to support our protocol. However, the underlying DLPs
 % do not understand the transaction semantics of our overlay ledger. We will therefore use the underlying
 % DLPs as a simple lazy transaction ordering service. We will assume that we can take any
@@ -136,8 +136,6 @@ Bitcoin allows the recording of arbitrary data using \textsf{OP\_RETURN}
 transactions, whereas Ethereum allows such recording by including the
 data in the \textsf{CALLDATA} of a smart contract call, or in the parameters
 of an event.
-
-\paragraph{Certifiability}
 
 % TODO: generalize from certificates to transcriptions
 % (and talk about adversarial advantage in the round in which the adversary produced the transcription)
@@ -253,7 +251,6 @@ and $\ell = |\mathcal{Y}|$)
 underlying protocol instances
 \begin{align*}
 \Y[1][1], &\ldots, \Y[1][\ell],\\
-\Y[2][1], &\ldots, \Y[2][\ell],\\
   \vdots, &\ddots, \vdots      \\
 \Y[m][1], &\ldots, \Y[m][\ell]\,,
 \end{align*}
@@ -604,10 +601,8 @@ $B$ asserting that the majority of underlying ledger protocols are secure.
   for all compositor party indices $j, j' \in [m]$
   and for all overlay party indices $i \in \mathcal{H}(B)$,
   for all rounds $1 \leq r < R - \max(\Delta_v, \Delta_u)$,
-  and all compositor party indexes $j, j' \in [m]$ the following holds:
-  \[
-    \Sim[j][r] = \Sim[j'][r]\,,
-  \]
+  and all compositor party indexes $j, j' \in [m]$ it holds that
+  $\Sim[j][r] = \Sim[j'][r]$,
   where $\Sim[j][r]$ (resp. $\Sim[j'][r]$) indicates the result of calling
   \emulationSnapshot of $\Lambda[j]$ (resp. $\Lambda[j']$) with inputs
   $(i, r)$

@@ -77,9 +77,11 @@ The contributions of this paper are the following:
         ledger setting and the party setting. The analogies elicited through
         our transform give insights about the functionality of ledger protocols
         more broadly and may be of independent interest.
+\iflong
   \item We use our transform to instantiate a ledger protocol on top of
         other ledger protocols. The resulting protocol is a layer-2 rollup that
         guarantees better security than the composited layer-1s.
+\fi
 \end{enumerate}
 
 \noindent
@@ -208,6 +210,7 @@ as well as some additional axiomatization which we introduce in this work (most 
 the notion of \emph{timeliness} and \emph{temporal ledgers}).
 These lemmas are stated in Section~\ref{sec:analysis} and proven in the Appendix.
 
+\iflong
 % The concrete consensus example
 Lastly, as an example use-case, we instantiate our \rollerblade construction
 to run a consensus overlay protocol which allows the creation of a ``reliable
@@ -215,6 +218,7 @@ rollup'' that runs on top of multiple underlying ledgers and offers better secur
 than any of its constituents alone. The construction can be based on top of any
 overlay consensus protocol (e.g., Streamlet or HotStuff) and uses a simple
 majority voting rule. This result is presented in the Appendix.
+\fi
 
 % TODO: Table of analogies?
 
