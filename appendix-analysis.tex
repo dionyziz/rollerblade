@@ -583,44 +583,27 @@ Random Oracle collision), it can conclude the execution.
   To prove \ref{conj:emulation:claim-delta-b}, it suffices to show that
   $\PPi[i]$ invoked network function $\send(i', \msg)$ at some round $r$.
 
-  In order for $\PPi[i']$ to receive $\msg$ at round $r^*$,
-  the environment $\mathcal{Z}'$ must provide it if network method $\recv()$ is invoked.
+  The message $\msg$ is received at round $r^*$ if $\mathcal{Z}'$ provides
+  it to $\PPi[i']$ after network method $\recv()$ is invoked during round $r^*$.
   Hence, the $\msg$ must be included in $\inboxes[r^*]$ after $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$
   is called \emph{in vitro} at the end of round $R$ by the simulator.
   Therefore, there is a bulletin `chkpt' transaction $(r^*, \tx^*)$, such that
   when the \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs} Line~\ref{alg.prepare-emulation-inputs:for}
   is entered with it as parameter, it holds that
-  $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, F^{i'}, r^* - v_i - u_{i'} - 1).\outboxes[r]$,
+  $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, F^i, r^* - v_i - u_{i'} - 1).\outboxes[r]$,
   where $r \leq r^* - v_i - u_{i'} - 1$.
 
-  At round $r^* - u_{i'} - 1$, relayer $\LLambda[j]$ invokes $\relay()$.
-  This creates a transcription $\tau = \Y[j][i].\transcribe()$, where
-  $\Y[j][i].\untranscribe(\tau) = \Ledger[j][i][r^* - u_{i'} - 1]$.
-  Then, it transmits a new bulletin `chkpt' transaction $\tx$,
-  encoding instruction $\instruction$ containing transcription $\tau$ to $\Y[][i']$.
-
-  Because of the liveness of $\Y[][i']$, transaction $\tx$ appears on $\Ledger[j][i']$ for the
-  first time no later than round $r^* - 1$ and with recorded round $\hat{r} < r^*$, due to timeliness.
-  Hence, the \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs}
-  Line~\ref{alg.prepare-emulation-inputs:for} is eventually entered with
-  parameters $(\hat{r}, \instruction)$.
-  In Line~\ref{alg.prepare-emulation-inputs:untranscribe}, transcription $\tau$
-  is untranscribed and we get $\ImaginaryLedger[j][i'] = \Ledger[j][i][r^* - u_{i'} - 1]$.
-  This means that after Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
-  it holds that $\Ledger[j][i][r^* - u_{i'} - 1] \preceq F^{i'}$ by the safety of $\Y[][i]$.
-  Because $r + v_i \leq r^* - u_{i'} - 1$, it holds that $\Ledger[j][i][r + v_i] \preceq F^{i'}$
-
-  Since round $\hat{r}$ precedes round $r^*$, when the \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs}
-  is later entered with parameters $(r^*, \tx^*)$, and after Line~\ref{alg.prepare-emulation-inputs:set-f} is executed,
-  it still holds that $\Ledger[j][i][r + v_i] \preceq F^{i'}$.
-  % All transactions with recorded round up to $r$ are included in $\Ledger[j][i][r + v_i]$ due to timeliness.
-  %
-  Hence, it holds that
-  $\LLambda[j].\emulate(i, F^{i'}, r^* - v_i - u_{i'} - 1).\outboxes[r] = \LLambda[j].\emulate(i, \Ledger[j][i][r + v_i], r).\outboxes[r]$.
+  Let $f^*$ be the value of $F^i$ in Line~\ref{alg.prepare-emulation-inputs:recursion}
+  during iteration with parameter $(r^*, \tx^*)$.
+  By Lemma~\ref{lem:transcription-past-perfect}, the transactions with
+  recorded round up to $r \leq r^* - v_i - u_{i'} - 1$ in $\Ledger[j][i][R + \Delta_v]$
+  and $f^*$ are the same. Therefore, it holds that
+  $\LLambda[j].\emulate(i, f^*, r^* - v_i - u_{i'} - 1).\outboxes[r] = \LLambda[j].\emulate(i, \Ledger[j][i][R], r).\outboxes[r]$.
   That means that $\Z[j][i]$ invoked network function $\send(i', \msg)$ at round $r$.
   In Claim 1, we showed that the transcript of machine $\PPi[i]$ in $\mathcal{E}'$
   is identical to the transcript of machine $\Z[j][i] = \LLambda[j].\emulationSnapshot(i,r)$ in $\mathcal{E}^*$
-  called in vitro at the end of round $r + \Delta_v$.
+  called in vitro at the end of round $r + \Delta_v$, which, by consistency, is the same as
+  $\LLambda[j].\emulate(i, \Ledger[j][i][R], r).Z$ called in vitro at the end of round $R$.
   Hence, $\PPi[i]$ also invoked network function $\send(i', \msg)$ at round $r$.
 
   This completes the proof of claim~\ref{conj:emulation:claim-delta-b}.
