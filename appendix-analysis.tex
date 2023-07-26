@@ -308,9 +308,8 @@ Random Oracle collision), it can conclude the execution.
   The simulator initially obtains, for every $i \in [n]$,
   a copy of the configuration $M_i$ of the ITI $\RB[j]$ from $\mathcal{E}^*$ at the end of
   $\mathcal{E}^*$.
-  The simulator calls $\prepareEmulationInputs(i, \emulationRound, \realityRound)$ on $M_i$
-  \emph{in vitro} at the end of round $R$, where $\emulationRound = R - \Delta_v - 1$
-  and $\realityRound = R$, to obtain the pair
+  The simulator calls $\prepareEmulationInputs(i, \Ledger[j][i][R], R - \Delta_v - 1)$ on $M_i$
+  \emph{in vitro} at the end of round $R$, to obtain the pair
   $(\writeboxes^i, \inboxes^i)$, where
   $|\writeboxes^i| = R - \Delta_v - 1$
   and
