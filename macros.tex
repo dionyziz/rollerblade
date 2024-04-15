@@ -152,12 +152,13 @@
 \ifoakland
 \subsubsection*{#1}
 \else
+\noindent
 \textbf{#1}.
 \fi
 }
 
 \newcommandx{\appsection}[1][1=]{
-\iftwocolumn
+\ifoakland
 \subsection{#1}
 \else
 \section{#1}

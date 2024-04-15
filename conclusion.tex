@@ -17,26 +17,26 @@ security guarantees than any of the underlying ledger protocols alone.
 \myparagraph[Related work]
 Building reliable systems out of unreliable components
 is a classical problem~\cite{von1956probabilistic,moore1956reliable}.
-In consensus, Lamport's Byzantine Fault Tolerance problem~\cite{shostak1982byzantine}
+In consensus, Lamport's Byzantine Fault Tolerance~\cite{shostak1982byzantine}
 aims to solve a reliability problem, where different processors disagree about their
 outcomes. The composition of multiple \emph{blockchain} protocols was explored by
-\emph{Fitzi et al.}~\cite{combiners}, but for the purpose of performance in terms of
-\emph{latency}, not reliability. In their paper, they also introduce the notion of
+\emph{Fitzi et al.}~\cite{combiners} for performance,
+not reliability, purposes. They also introduce the notion of
 \emph{relative persistence}, in which they talk of \emph{dynamic ledgers} (\emph{cf.}, our
 \emph{temporal ledgers}) and transaction \emph{ranks} (\emph{cf.}, our \emph{recorded rounds})
 which is related, but not equivalent, to our notion of \emph{timeliness}.
-They also define the notion of a \emph{blockchain combiner} (\emph{cf.}, our \emph{compositors}).
+They also define \emph{blockchain combiners} (\emph{cf.}, our \emph{compositors}).
 Their protocol is \emph{passive} (\emph{cf.} TrustBoost~\cite{trustboost}),
 meaning the ``combiner'' does not achieve full consensus (\cite[Section 5]{combiners}).
 Their ``combiner'' is an instance of our \emph{compositors}, which
 further allow for generic distributed protocols to run in an emulated and
 replicated fashion, and achieve full consensus.
 
-The idea of borrowing security has been explored in \emph{merged mining}~\cite{namecoin},
+The idea of borrowing security was explored in \emph{merged mining}~\cite{namecoin},
 \emph{merged staking}~\cite{pos-sidechains}, and
 \emph{checkpointing}~\cite{karakostas2021securing},
-The idea of composing ledgers to achieve a more reliable overlay ledger
-was first proposed in a short Cosmos GitHub issue called
+Composing ledgers to achieve a more reliable overlay ledger
+was first proposed in the Cosmos GitHub issue
 \emph{recursive Tendermint}~\cite{recursive-tendermint}.
 This concept was expanded upon by TrustBoost~\cite{trustboost}
 where they build a composition using Cosmos as the underlying

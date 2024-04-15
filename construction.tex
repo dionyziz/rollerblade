@@ -233,6 +233,7 @@ Line~\ref{alg.emulate:outboxes-init}).
 % TODO: within a round $r$, the function $\Y[j][i].execute()$ is called *at the beginning* of $\RB[j].execute()$
 % so that the Cross-Party proof can go through
 \import{./}{algorithms/alg-emulate}
+\import{./}{algorithms/alg-prepare-emulation-inputs}
 
 To conduct the emulation, the \emulate function initially calls
 \prepareEmulationInputs (Line~\ref{alg.emulate:recursion}),
@@ -303,6 +304,7 @@ rounds $r - \Delta, \ldots, r - 1$). This inbox is returned
 whenever the emulated machine calls the network \emph{receive}
 function of the oracle \net. The variable \inboxThisRound
 is reassigned at the beginning of every round.
+\import{./}{algorithms/alg-outboxes-to-inbox}
 
 Once the last iteration of the \emph{for} loop of Line~\ref{alg.emulate:for} completes,
 the emulated machine $\Z[j][i]$ has concluded its execution of rounds $1, \ldots, \emulationRound$.
@@ -315,8 +317,6 @@ called by \emulate and illustrated in Algorithm~\ref{alg.prepare-emulation-input
 returns the \writeboxes and \inboxes to be used by \emulate to emulate the machine $\Z[j][i]$. It will be important for
 our security results that the output of \prepareEmulationInputs is deterministic
 and depends only on the ledger $\Ledger[j][i]$ and not on any of the other ledgers $\Ledger[j][i'], i' \neq i$.
-
-\import{./}{algorithms/alg-prepare-emulation-inputs}
 
 In particular, the function \prepareEmulationInputs receives as parameters
 the underlying index $i$, the ledger $\Ledger[j][i]$,
@@ -334,6 +334,8 @@ The sequence $L$ contains pairs $(r, \instruction)$ of instructions, each accomp
 the relevant instruction was recorded on the ledger $\Ledger[j][i]$. This is where we will use the temporal
 nature of the underlying ledger $\Ledger[j][i]$: The round $r$ recorded on-ledger for the instruction
 $\instruction$ is the round of the emulation of $\Z[j][i]$ during which we will utilize this instruction.
+
+\import{./}{algorithms/alg-rollerblade}
 
 The instructions in $L$ are processed sequentially by the \emph{for} loop in Line~\ref{alg.prepare-emulation-inputs:for}.
 As we are only interested in the data necessary to emulate up to round $\emulationRound$, we can conclude this loop
@@ -385,7 +387,6 @@ The variable $\consumedLengths[i']$ is then updated (Line~\ref{alg.prepare-emula
 to record the count of messages that have already been processed by $i'$ in
 previous rounds, so that the messages are not processed again in the future.
 
-\import{./}{algorithms/alg-outboxes-to-inbox}
 
 Lastly, let us describe the \outboxesToInbox function, which translates the outboxes
 of party $i'$ to an inbox for party $i$. The function is called by \prepareEmulationInputs
@@ -400,8 +401,6 @@ by setting its \emph{from} field to be the sender $i'$ and is
 appended to the inbox (Line~\ref{alg.outboxes-to-inbox:append}).
 This completes the construction. The full construction is illustrated in
 Algorithm~\ref{alg.rollerblade}.
-
-\import{./}{algorithms/alg-rollerblade}
 
 % \subsection{A Majority Vote}\label{sec:construction-naive}
 %
