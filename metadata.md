@@ -1,0 +1,5 @@
+Title:
+Rollerblade: Replicated Distributed Protocol Emulation on Top of Ledgers
+
+Abstract:
+We observe that most fixed-party distributed protocols can be rewritten by replacing a \emph{party} with a \emph{ledger} (such as a blockchain system) and the authenticated channel communication between parties with cross-chain relayers. This transform is useful because blockchain systems are always online and have battle-tested security assumptions.  We provide a definitional framework that captures this analogy.  We model the transform formally, and posit and prove a generic \emph{metatheorem} that allows translating all theorems from the \emph{party} setting into theorems in the \emph{emulated} setting, while preserving analogies between party \emph{honesty} and ledger \emph{security}.  In the heart of our proof lies a reduction-based simulation argument.  As an example, our metatheorem can be used to construct a consensus protocol on top of other blockchains, creating a reliable rollup that assumes only the majority of the underlying layer-1s are secure.
