@@ -165,18 +165,24 @@
 % %page style set to plain
 % %pagestyle{plain}
 
-\iftwocolumn
-  \newtheorem{theorem}{Theorem}[section]
-  \newtheorem{corollary}{Corollary}[theorem]
-  \newtheorem{lemma}{Lemma}[theorem]
-  \newtheorem{conjecture}{Conjecture}[theorem]
+% \iftwocolumn
+%   \newtheorem{theorem}{Theorem}[section]
+%   \newtheorem{corollary}{Corollary}[theorem]
+%   \newtheorem{lemma}{Lemma}[theorem]
+%   \newtheorem{conjecture}{Conjecture}[theorem]
 
-  \theoremstyle{remark}
-  \newtheorem*{remark}{Remark}
+%   \theoremstyle{remark}
+%   \newtheorem*{remark}{Remark}
 
-  \newtheorem*{theorem*}{Theorem}
-  \theoremstyle{definition}
-  \newtheorem{definition}{Definition}[section]
+%   \newtheorem*{theorem*}{Theorem}
+%   \theoremstyle{definition}
+%   \newtheorem{definition}{Definition}[section]
+% \fi
+\ifccs
+     \theoremstyle{remark}
+     \newtheorem*{remark}{Remark}
+
+    %  \newtheorem*{theorem*}{Theorem}
 \fi
 
 \import{./}{macros.tex}

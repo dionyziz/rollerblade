@@ -192,7 +192,7 @@ of their execution (a history of machine configurations).
 
 A \emph{compositor} is a protocol that
 runs an \emph{overlay} distributed protocol $\Pi$ on top of a set of
-$n$ \emph{underlying} distributed protocols $\Y[][1], \ldots, \Y[][i], \ldots, \Y[][n]$.
+$n$ \emph{underlying} distributed protocols $\Y[][1], \ldots,\allowbreak \Y[][i], \ldots, \Y[][n]$.
 The protocol $\Pi$ is generally designed
 to work in the \emph{party setting} with a network (such as an authenticated channels network)
 connecting its instances directly.
@@ -468,7 +468,7 @@ in the execution begin at $1$.
   Among those, consider the calls to \emph{writeToMachine} that were
   invoked with first argument some fixed machine index $1 \leq i \leq m$.
   These \emph{writeToMachine} calls were invoked, in order, as
-  $\writeToMachine(i, \data_1), \ldots, \writeToMachine(i, \data_k)$
+  $\writeToMachine(i, \data_1), \ldots,\allowbreak \writeToMachine(i, \data_k)$
   all during round $r$.
   Let $\W[i][r] = (\data_1,\allowbreak\ldots,\allowbreak\data_k)$ denote the sequence containing
   all the \emph{data} parameter values of those calls.
@@ -584,7 +584,7 @@ $B$ asserting that the majority of underlying ledger protocols are secure.
 % TODO: DRY from Emulation Faithfulness
 \begin{definition}[Replication Faithfulness]\label{def:replication-faithfulness}
   A compositor $\Lambda$ is
-  $(\Pi, n, \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta_u, \Delta_v)$-\emph{replication-faithful}
+  $(\Pi, n,\allowbreak \mathcal{Y}, \mathcal{B}, \mathcal{H}, \Delta_u, \Delta_v)$-\emph{replication-faithful}
   for overlay protocol $\Pi$,
   number of overlay parties $n \in \mathbb{N}$,
   a sequence of underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell])$,
