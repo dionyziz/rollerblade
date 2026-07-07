@@ -273,7 +273,7 @@ so throughout the execution.
 Outside of those $\Y[j][i]$ instances controlled by the $\Lambda$s, each of
 the protocols $\Y[][i]$ may have more instances running within the execution,
 spawned by the environment and potentially corrupted by the adversary.
-For example, if $\Y[][1]$ is the Bitcoin protocol, then the $\Y[j][i]$
+For example, if $\Y[][1]$ is the Bitcoin protocol, then the $\Y[j][1]$
 instance running within $\LLambda[j]$ is a Bitcoin client, whereas the
 execution comprises also others Bitcoin clients and full nodes, potentially
 corrupted by the adversary.
@@ -286,7 +286,7 @@ $j, i \in \mathbb{N}$, as well as the \emph{execute} function of $\Y$s
 living outside of the clients $\Lambda$. Next, the environment must call
 the \emph{execute} function of each $\LLambda[j]$ sequentially.
 Finally, the environment is constrained to call the
-adversary $\mathcal{Z}$ (a rushing adversary).
+adversary $\mathcal{A}$ (a rushing adversary).
 The adversary is allowed to corrupt the $\Y$ instances living outside of $\Lambda$s
 % TODO: Can there even be a safety-respecting environment, e.g., in Streamlet or Bitcoin?
 % I think the environment can only be things like honest-majority-respecting.
@@ -322,7 +322,7 @@ delay.
 We would like to define a notion of \emph{faithfulness} of a
 compositor, which captures the
 correspondence between the party setting execution and the emulated setting
-execution of $\Pi$. Roughly, a compositor is called \emph{faithful} is these
+execution of $\Pi$. Roughly, a compositor is called \emph{faithful} if these
 two settings are identical in the eyes of the honest parties.
 This faithfulness may be conditioned to work only on certain classes
 of overlay protocols $\Pi$ and underlying protocols $\Y$, and may
@@ -335,7 +335,7 @@ over a number of underlying protocols $\mathcal{Y} = (\Y[][1], \ldots, \Y[][\ell
 if:
 For all number of compositor parties $m \in \mathbb{N}$,
 for every compositor index $j \in [m]$,
-for every overlay index $i \in [n]$ that ``corresponds' to ``well-behaving'' underlying $\mathcal{Y}$s
+for every overlay index $i \in [n]$ that ``corresponds'' to ``well-behaving'' underlying $\mathcal{Y}$s
 it holds that:
 The party $\Z[j][i]$'s emulated execution ``is identical'' to \emph{some} party setting execution
 (it cannot tell if it is emulated or not).
@@ -434,7 +434,7 @@ in the execution begin at $1$.
     E(H_{|H|}, 1) & \ldots & E(H_{|H|}, R - \Delta_v - 1)
   \end{bmatrix}\,,
   \]
-  where $E(H_{|H|}, 1)$ denotes the return value of invoking,
+  where $E(H_i, r)$ denotes the return value of invoking,
   \emph{in vitro} at the end of round $r + \Delta_v$,
   the $\emulationSnapshot$ functionality of the $j^\text{th}$ compositor party $\LLambda[j]$
   with parameters the index $H_i$ of the $i^\text{th}$ overlay machine (among those
@@ -512,8 +512,8 @@ in the execution begin at $1$.
   written $E_1 \laterlydistr{\Delta_u,\Delta_v} E_2$, if
   there exists a sample space $\Omega$ and two coupled
   random variables $\widetilde{E}_1(\omega), \widetilde{E}_2(\omega)$
-  such that $E_1' \distreq E_1$ and $E_2' \distreq E_2$
-  and $E_1 \laterly{\Delta_u,\Delta_v} E_2$.
+  such that $\widetilde{E_1} \distreq E_1$ and $\widetilde{E_2} \distreq E_2$
+  and $\widetilde{E_1}(\omega) \laterly{\Delta_u,\Delta_v} \widetilde{E_2}(\omega)$.
 \end{definition}
 
 \begin{definition}[Belief]
@@ -602,9 +602,14 @@ $B$ asserting that the majority of underlying ledger protocols are secure.
   and for all overlay party indices $i \in \mathcal{H}(B)$,
   for all rounds $1 \leq r < R - \max(\Delta_v, \Delta_u)$,
   and all compositor party indexes $j, j' \in [m]$ it holds that
+  % TODO: notate this as \Sim[j] = \Sim[j'] meaning
+  % within the execution \Epsilon of duration R, that for all 1 <= r < R - max
+  % it holds that emuSnapshot etc.
+  % avoiding the problem of quantifying R(\kappa) (therefore \kappa)
+  % before the execution is sampled
   $\Sim[j][r] = \Sim[j'][r]$,
   where $\Sim[j][r]$ (resp. $\Sim[j'][r]$) indicates the result of calling
-  \emulationSnapshot of $\Lambda[j]$ (resp. $\Lambda[j']$) with inputs
+  \emulationSnapshot of $\LLambda[j]$ (resp. $\LLambda[j']$) with inputs
   $(i, r)$
   \emph{in vitro} at the end of round $r + \Delta_v$ of $\mathcal{E}$,
   where $\mathcal{E}$ is an execution sampled from
