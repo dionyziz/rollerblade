@@ -14,7 +14,7 @@
         \Let{v}{\max_{\Y[j][i] \in \Y[j]}{\{\Y[j][i].v\}}}
         \Let{\emulationRound}{\this.\now - v - 1}
         \For{$i \gets 1 \text{ to } |\Y[j]|$}
-          \Let{L}{\this.\LLambda[j].\emulationSnapshot(i, \emulationRound)}
+          \Let{L}{\this.\LLambda[j].\emulationSnapshot(i, \emulationRound).\lread()}
           \State{$\overline{L}$.\append($L$)}
         \EndFor
         \State{\Return{$\majorityVote(\overline{L})$}}
