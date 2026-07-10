@@ -394,7 +394,7 @@ and is illustrated in Algorithm~\ref{alg.outboxes-to-inbox}. The function takes 
 \outboxes argument containing one outbox per round, as well as the sending party index
 $i'$ and the receiving party index $i$. The function returns an inbox for party $i$.
 To do this, the function loops through each \outbox in \outboxes, and iterates over each
-\netin within the \outbox. For each such \netout, the function checks that $i$ is the
+\netout within the \outbox. For each such \netout, the function checks that $i$ is the
 recipient of the message (Line~\ref{alg.outboxes-to-inbox:recipient}) and ignores the
 message if not. Otherwise, the message is translated from a \netout to a \netin
 by setting its \emph{from} field to be the sender $i'$ and is
