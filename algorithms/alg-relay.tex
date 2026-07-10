@@ -14,12 +14,12 @@
           % TODO(dionyziz): typeset this
           \State$\instruction \gets \{$
           \State\hspace{\algorithmicindent}$\type{:} \text{`chkpt'},$
-          \State\hspace{\algorithmicindent}$\data{:} \{\textsf{from}{:} i', \certificate{:} \tau \}$
+          \State\hspace{\algorithmicindent}$\data{:} \{\textsf{from}{:} i, \certificate{:} \tau \}$
           \State$\}$
           % \Let{\instruction}{\{
           % \}}
-          \Let{\textsf{enc}}{\this.\Y[j][i].\encode(\serialize(\instruction))}
-          \State{$\this.\Y[j][i].\lwrite(\textsf{enc})$}
+          \Let{\textsf{enc}}{\this.\Y[j][i'].\encode(\serialize(\instruction))}
+          \State{$\this.\Y[j][i'].\lwrite(\textsf{enc})$}
         \EndFor
       \EndFor
     \EndFunction

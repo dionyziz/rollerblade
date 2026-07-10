@@ -203,7 +203,7 @@ overlay protocol instances.
 Multiple instances $\LLambda[1], \ldots, \LLambda[j], \ldots, \LLambda[m]$
 of the compositor are executed.
 Each $j^\text{th}$ compositor instance promises to emulate the execution of multiple
-instances of $\Pi$ ($\Z[j][1], \ldots, \Z[j][i], \ldots \Z[j][n]$).
+instances of $\Pi$ ($\Z[j][1], \ldots, \Z[j][i], \allowbreak \ldots \Z[j][n]$).
 These emulated $\Z$ instances should behave similarly to instances of $\Pi$
 running in a stand-alone setting.
 
@@ -402,7 +402,7 @@ recorded in each row will be growing in an append-only fashion.
 \begin{definition}[Emulation Consistency]
   An execution $\mathcal{E}$ with duration $R$ rounds sampled from
   $\LCExec_m(\Lambda, \mathcal{Y}, \mathcal{A}, \mathcal{Z})$
-  is \emph{$(j,H,\Delta_v)$-\emph{consistent}},
+  is \emph{$(j,H,\Delta_v)$-co\-nsistent},
   for a compositor index $j \in [m]$,
   a set of overlay machine indices $H \subseteq [n]$,
   and reality lag $\Delta_v$,
@@ -468,7 +468,7 @@ in the execution begin at $1$.
   Among those, consider the calls to \emph{writeToMachine} that were
   invoked with first argument some fixed machine index $1 \leq i \leq m$.
   These \emph{writeToMachine} calls were invoked, in order, as
-  $\writeToMachine(i, \data_1), \ldots,\allowbreak \writeToMachine(i, \data_k)$
+  $\writeToMachine(i, \data_1),\allowbreak \ldots, \writeToMachine(i, \data_k)$
   all during round $r$.
   Let $\W[i][r] = (\data_1,\allowbreak\ldots,\allowbreak\data_k)$ denote the sequence containing
   all the \emph{data} parameter values of those calls.
@@ -600,7 +600,7 @@ $B$ asserting that the majority of underlying ledger protocols are secure.
   for all number of compositor parties $m \in \mathbb{N}$,
   for all compositor party indices $j, j' \in [m]$
   and for all overlay party indices $i \in \mathcal{H}(B)$,
-  for all rounds $1 \leq r < R - \max(\Delta_v, \Delta_u)$,
+  for all rounds $1 \leq r < R - \Delta_v - \Delta_u$,
   and all compositor party indexes $j, j' \in [m]$ it holds that
   % TODO: notate this as \Sim[j] = \Sim[j'] meaning
   % within the execution \Epsilon of duration R, that for all 1 <= r < R - max

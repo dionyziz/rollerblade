@@ -54,8 +54,9 @@ view of sufficiently old transactions.
   define for each $i \in [\ell]$ the predicate, on
   a collective execution $\mathcal{E}$ of $\mathcal{Y}$,
   $
-  \text{good}_i(\mathcal{E}) = \text{``} \Y[][i] \text{ is safe, live$(u_i)$, and}\allowbreak \text{timely$(v_i)$ in $\mathcal{E}$''}\,.
+  \text{good}_i(\mathcal{E}) = \text{``} \Y[][i]
   $
+  is safe, live$(u_i)$, and timely$(v_i)$ in $\mathcal{E}$''.
 
   Next, for any $H \subseteq [\ell]$, we define
   $
@@ -122,7 +123,7 @@ Random Oracle collision), it can conclude the execution.
   It suffices to show that all transactions with recorded round
   $< r$ are the same in $\Ledger[j][i][r + v_i]$ and $\Ledger[j'][i][r + v_i]$.
   This holds because of Lemma~\ref{lem:past-perfect} invoked with parties $\Y[j][i]$ and $\Y[j'][i]$,
-  rounds $r_1 = r_2 = r + v_i$, $r_3 = r + v_i$ and $r^* < r$.
+  rounds $r_1 = r_2 = r + v_i$, $r_3 = r + v_i + 1$ and $r^* < r$.
   During round $r_3$, the new honest transaction is due to any honest
   relayer.\Qed
 \end{proof}
@@ -174,7 +175,7 @@ Random Oracle collision), it can conclude the execution.
 %  at the \emph{end} of that iteration.
 %  The transactions with recorded round
 %  up to $r^* - v_i - u_{i'} - 1$ in $f^*$ and $\Ledger[j][i][R]$ are the same.
-  Consider the call $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][\hat{r}], \hat{r} - \Delta_v - 1)$.
+  Consider the call $\LLambda[j].\prepareEmulationInputs(\allowbreak i', \Ledger[j][i'][\hat{r}], \hat{r} - \Delta_v - 1)$.
   for some $\hat{r} < R - u_{i'}$.
   Within that \emph{in vitro} execution,
   consider any iteration $(r^*, \tx^*)$ of the
@@ -563,7 +564,7 @@ Random Oracle collision), it can conclude the execution.
 
   In order to collect the incoming messages for $\PPi[i']$,
   the simulator calls \emph{in vitro} (at the end of round $R$)
-  $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R - \Delta_v - 1], R - \Delta_v - 1)$.
+  $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R - \Delta_v - 1], \allowbreak R - \Delta_v - 1)$.
   In Line~\ref{alg.prepare-emulation-inputs:recursion}, during iteration with parameter
   $(r^*, \tx^*)$, function $\LLambda[j].\emulate(i, F^i, r^* - v_i - u_{i'} - 1)$ is invoked. It holds that
   $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, F^i, r^* - v_i - u_{i'} - 1).\outboxes[r]$.
@@ -584,12 +585,12 @@ Random Oracle collision), it can conclude the execution.
 
   The message $\msg$ is received at round $r^*$ if $\mathcal{Z}'$ provides
   it to $\PPi[i']$ after network method $\recv()$ is invoked during round $r^*$.
-  Hence, the $\msg$ must be included in $\inboxes[r^*]$ after $\LLambda[j].\prepareEmulationInputs(i', \Ledger[j][i'][R], R - \Delta_v - 1)$
+  Hence, the $\msg$ must be included in $\inboxes[r^*]$ after $\LLambda[j].\prepareEmulationInputs(\allowbreak i', \Ledger[j][i'][R], R - \Delta_v - 1)$
   is called \emph{in vitro} at the end of round $R$ by the simulator.
   Therefore, there is a bulletin `chkpt' transaction $(r^*, \tx^*)$, such that
   when the \emph{for} loop in Algorithm~\ref{alg.prepare-emulation-inputs} Line~\ref{alg.prepare-emulation-inputs:for}
   is entered with it as parameter, it holds that
-  $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, F^i, r^* - v_i - u_{i'} - 1).\outboxes[r]$,
+  $\{\textsf{to}: i', \msg: \msg\} \in \LLambda[j].\emulate(i, F^i, \allowbreak r^* - v_i - u_{i'} - 1).\outboxes[r]$,
   where $r \leq r^* - v_i - u_{i'} - 1$.
 
   Let $f^*$ be the value of $F^i$ in Line~\ref{alg.prepare-emulation-inputs:recursion}
